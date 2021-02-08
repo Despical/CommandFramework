@@ -125,7 +125,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                         exception.printStackTrace();
                     }
                 }
-
             }
         }
 

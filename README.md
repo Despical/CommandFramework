@@ -2,7 +2,11 @@
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type through the code.
 
-## Using CommandFramework
+## Documentation
+More information will be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki) soon. The [Javadoc](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
+related to the usage of Command Framework should be posted on my [Discord server](https://discord.com/invite/Vhyy4HA).
+
+## Using Command Framework
 The project isn't in the Central Repository yet, so specifying a repository is needed.
 To add this project as a dependency to your project, add the following to your pom.xml:
 
@@ -83,6 +87,18 @@ See the [LICENSE.txt](https://github.com/Despical/CommandFramework/blob/main/LIC
 
 ## Donations
 You like the CommandFramework? Then [donate]((https://www.patreon.com/despical)) back me to support the development.
+
+## Contributing
+
+I accept Pull Requests via GitHub. There are some guidelines which will make applying PRs easier for me:
++ No tabs! Please use spaces for indentation.
++ Respect the code style.
++ Create minimal diffs. If you feel the source code should be reformatted create a separate PR for this change.
+
+You can learn more about contributing via GitHub in [contribution guidelines](CONTRIBUTING.md).
+
+## Known issues
+* Sub-commands aren't compatible with tab completions.
 
 ## Building from source
 If you want to build this project from source code, run the following from Git Bash:
