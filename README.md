@@ -89,7 +89,7 @@ This code is under [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html)
 See the [LICENSE.txt](https://github.com/Despical/CommandFramework/blob/main/LICENSE) file for required notices and attributions.
 
 ## Donations
-You like the Command Framework? Then [donate]((https://www.patreon.com/despical)) back me to support the development.
+You like the Command Framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
 
 ## Contributing
 
