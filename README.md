@@ -1,4 +1,6 @@
-# CommandFramework
+# Command Framework
+[![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
+
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type through the code.
 
@@ -86,7 +88,7 @@ This code is under [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html)
 See the [LICENSE.txt](https://github.com/Despical/CommandFramework/blob/main/LICENSE) file for required notices and attributions.
 
 ## Donations
-You like the CommandFramework? Then [donate]((https://www.patreon.com/despical)) back me to support the development.
+You like the Command Framework? Then [donate]((https://www.patreon.com/despical)) back me to support the development.
 
 ## Contributing
 
