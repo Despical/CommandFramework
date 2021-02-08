@@ -1,5 +1,6 @@
 # Command Framework
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
+[![](https://img.shields.io/badge/javadocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type through the code.
@@ -9,7 +10,7 @@ More information will be found on the [wiki page](https://github.com/Despical/Co
 related to the usage of Command Framework should be posted on my [Discord server](https://discord.com/invite/Vhyy4HA).
 
 ## Using Command Framework
-The project isn't in the Central Repository yet, so specifying a repository is needed.
+The project isn't in the Central Repository yet, so specifying a repository is needed.<br>
 To add this project as a dependency to your project, add the following to your pom.xml:
 
 ### Maven dependency
