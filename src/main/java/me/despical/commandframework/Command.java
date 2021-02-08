@@ -63,7 +63,7 @@ public @interface Command {
      */
     SenderType senderType() default SenderType.BOTH;
 
-    public static enum SenderType {
+    enum SenderType {
         BOTH, CONSOLE, PLAYER
     }
 }

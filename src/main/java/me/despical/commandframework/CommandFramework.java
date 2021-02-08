@@ -56,6 +56,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * Register command methods in object class.
+     *
+     * @param instance object class
+     */
     public void registerCommands(Object instance) {
         for (Method method : instance.getClass().getMethods()) {
             Command command = method.getAnnotation(Command.class);
@@ -85,6 +90,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             pluginCommand.setTabCompleter(this);
             pluginCommand.setExecutor(this);
             pluginCommand.setUsage(command.usage());
+            pluginCommand.setPermission(command.permission());
             pluginCommand.setDescription(command.description());
             pluginCommand.setAliases(Arrays.asList(command.aliases()));
 
@@ -120,8 +126,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                     }
                 }
 
-                // FIXME: show the aliases
-                sender.sendMessage("Usage: /" + String.join(" ", arguments));
             }
         }
 
@@ -133,6 +137,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         for (Map.Entry<Completer, Map.Entry<Method, Object>> entry : completions.entrySet()) {
             Completer completer = entry.getKey();
 
+            // FIXME: not compatible with aliases
             if (command.getName().equalsIgnoreCase(completer.name())) {
                 try {
                     Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
