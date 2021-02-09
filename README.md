@@ -1,6 +1,7 @@
 # Command Framework
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
 [![](https://img.shields.io/badge/javadocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
+[![discord](https://img.shields.io/discord/719922452259668000.svg?color=lime&label=discord)](https://discord.gg/Vhyy4HA)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type through the code.
