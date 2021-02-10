@@ -154,6 +154,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         return null;
     }
 
+    /**
+     * Get list of registered commands.
+     *
+     * @return list of commands.
+     */
+    public List<Command> getCommands() {
+        return new ArrayList<>(commands.keySet());
+    }
+
     // TODO: replace the method with better one
     public final boolean isValidTrigger(Command command, String name) {
         String splitted = command.name().split("\\.")[0];
