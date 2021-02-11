@@ -91,7 +91,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             pluginCommand.setExecutor(this);
             pluginCommand.setUsage(command.usage());
             pluginCommand.setPermission(command.permission());
-            pluginCommand.setDescription(command.description());
+            pluginCommand.setDescription(command.desc());
             pluginCommand.setAliases(Arrays.asList(command.aliases()));
 
             commandMap.register(splittedCommand, pluginCommand);
@@ -101,30 +101,36 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
-            Command cmd = entry.getKey();
-            String[] arguments = cmd.name().split("\\.");
+            Command command = entry.getKey();
+            String[] splitted = command.name().split("\\.");
+            String allArgs = String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
 
-            if (isValidTrigger(cmd, command.getName())) {
-                if (cmd.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
+            if (isValidTrigger(command, command.name().contains(".") ? splitted[0] + "." + (args.length > 0 ? allArgs : "") : cmd.getName())) {
+                if (!sender.hasPermission(command.permission())) {
+                    sender.sendMessage("You don't have enough permission to execute this command!");
+                    return true;
+                }
+
+                if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
                     sender.sendMessage("This command is only executable by players!");
                     return false;
                 }
 
-                if (cmd.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-                    sender.sendMessage("This command is only executable by console!");
-                    return false;
+                String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+
+                if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
+                    try {
+                        entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    sender.sendMessage("Required argument length is less or greater than needed!");
                 }
 
-                if (Arrays.equals(Arrays.copyOfRange(arguments, 1, arguments.length), args) || isValidArguments(cmd, args)) {
-                    try {
-                        entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
-                        return true;
-                    } catch (IllegalAccessException | InvocationTargetException exception) {
-                        exception.printStackTrace();
-                    }
-                }
+                return true;
             }
         }
 
@@ -154,6 +160,20 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         return null;
     }
 
+    public final boolean isValidTrigger(Command cmd, String name) {
+        if (cmd.name().equalsIgnoreCase(name)) {
+            return true;
+        }
+
+       for (String alias : cmd.aliases()) {
+            if (alias.equalsIgnoreCase(name)) {
+                return true;
+            }
+       }
+
+       return false;
+    }
+
     /**
      * Get list of registered commands.
      *
@@ -161,37 +181,5 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      */
     public List<Command> getCommands() {
         return new ArrayList<>(commands.keySet());
-    }
-
-    // TODO: replace the method with better one
-    public final boolean isValidTrigger(Command command, String name) {
-        String splitted = command.name().split("\\.")[0];
-
-        if (splitted.equalsIgnoreCase(name)) {
-            return true;
-        }
-
-        for (String alias : command.aliases()) {
-            if (alias.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // TODO: replace the method with better one
-    public final boolean isValidArguments(Command command, String[] args) {
-        String[] splitted = command.name().split("\\.");
-
-        for (String alias : command.aliases()) {
-            splitted[0] = alias;
-
-            if (Arrays.equals(splitted, args)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

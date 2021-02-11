@@ -45,15 +45,29 @@ public @interface Command {
      *
      * @return description of the command
      */
-    String description() default "";
+    String desc() default "";
 
     /**
      * The usage of the command that will be showed when sender executes
      * command without required or missing arguments.
      *
-     * @return usage of the command
+     * @return usage of the command.
      */
     String usage() default "";
+
+    /**
+     * Minimum value of arguments.
+     *
+     * @return minimum value of arguments.
+     */
+    int min() default 0;
+
+    /**
+     * Maximum value of arguments. -1 for infinite.
+     *
+     * @return maximum value of arguments.
+     */
+    int max() default -1;
 
     /**
      * Enum value of command sender type to define who will
