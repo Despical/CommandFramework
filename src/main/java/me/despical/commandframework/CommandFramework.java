@@ -118,6 +118,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                     return false;
                 }
 
+                if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
+                    sender.sendMessage("This command is only executable by console!");
+                    return false;
+                }
+
                 String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
                 if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
