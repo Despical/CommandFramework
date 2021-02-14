@@ -116,12 +116,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
                 if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
                     sender.sendMessage(ChatColor.RED + "This command is only executable by players!");
-                    return false;
+                    return true;
                 }
 
                 if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
                     sender.sendMessage(ChatColor.RED + "This command is only executable by console!");
-                    return false;
+                    return true;
                 }
 
                 String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
