@@ -1,5 +1,6 @@
 package me.despical.commandframework;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -109,17 +110,17 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
             if (isValidTrigger(command, command.name().contains(".") ? splitted[0] + "." + (args.length > 0 ? allArgs : "") : cmd.getName())) {
                 if (!sender.hasPermission(command.permission())) {
-                    sender.sendMessage("You don't have enough permission to execute this command!");
+                    sender.sendMessage(ChatColor.RED + "You don't have enough permission to execute this command!");
                     return true;
                 }
 
                 if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-                    sender.sendMessage("This command is only executable by players!");
+                    sender.sendMessage(ChatColor.RED + "This command is only executable by players!");
                     return false;
                 }
 
                 if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-                    sender.sendMessage("This command is only executable by console!");
+                    sender.sendMessage(ChatColor.RED + "This command is only executable by console!");
                     return false;
                 }
 
@@ -132,7 +133,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                         e.printStackTrace();
                     }
                 } else {
-                    sender.sendMessage("Required argument length is less or greater than needed!");
+                    sender.sendMessage(ChatColor.RED + "Required argument length is less or greater than needed!");
                 }
 
                 return true;
