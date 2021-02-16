@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Main class of the framework to register commands.
@@ -107,8 +108,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             Command command = entry.getKey();
             String[] splitted = command.name().split("\\.");
             String allArgs = String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
+            String cmdName = command.name().contains(".") ? splitted[0] + "." + (args.length > 0 ? allArgs : "") : cmd.getName();
 
-            if (isValidTrigger(command, command.name().contains(".") ? splitted[0] + "." + (args.length > 0 ? allArgs : "") : cmd.getName())) {
+            if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
                     sender.sendMessage(ChatColor.RED + "You don't have enough permission to execute this command!");
                     return true;
@@ -148,8 +150,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         for (Map.Entry<Completer, Map.Entry<Method, Object>> entry : completions.entrySet()) {
             Completer completer = entry.getKey();
 
-            // FIXME: not compatible with aliases
-            if (command.getName().equalsIgnoreCase(completer.name())) {
+            if (command.getName().equalsIgnoreCase(completer.name()) || Stream.of(completer.aliases()).anyMatch(command.getName()::equalsIgnoreCase)) {
                 try {
                     Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
                     List<String> list = (List<String>) instance;
@@ -164,20 +165,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
 
         return null;
-    }
-
-    public final boolean isValidTrigger(Command cmd, String name) {
-        if (cmd.name().equalsIgnoreCase(name)) {
-            return true;
-        }
-
-       for (String alias : cmd.aliases()) {
-            if (alias.equalsIgnoreCase(name)) {
-                return true;
-            }
-       }
-
-       return false;
     }
 
     /**

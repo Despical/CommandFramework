@@ -104,7 +104,7 @@ I accept Pull Requests via GitHub. There are some guidelines which will make app
 You can learn more about contributing via GitHub in [contribution guidelines](CONTRIBUTING.md).
 
 ## Known issues
-* Sub-commands aren't compatible with tab completions.
+* ~~Sub-commands aren't compatible with tab completions.~~
 
 ## Building from source
 If you want to build this project from source code, run the following from Git Bash:
