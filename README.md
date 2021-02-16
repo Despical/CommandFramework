@@ -67,6 +67,8 @@ public class ExampleClass extends JavaPlugin {
             permission = "example.permission",
             description = "Sends an example message to sender",
             usage = "/example",
+            min = 1,
+            max = 5,
             senderType = Command.SenderType.CONSOLE)
     public void exampleCommandMethod(CommandArguments arguments) {
         // CommandArguments class contains basic things related Bukkit commands
