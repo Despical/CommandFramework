@@ -70,6 +70,14 @@ public @interface Command {
     int max() default -1;
 
     /**
+     * The time between using command again. Use egative
+     * integers for infinite.
+     *
+     * @return value of time between using command again.
+     */
+    int cooldown() default -1;
+
+    /**
      * Enum value of command sender type to define who will
      * use the command.
      *

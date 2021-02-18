@@ -27,14 +27,19 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     private final Plugin plugin;
 
     /**
-     * List of registered commands by framework.
+     * Map of registered commands by framework.
      */
     private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
 
     /**
-     * List of registered tab completions by framework.
+     * Map of registered tab completions by framework.
      */
     private final Map<Completer, Map.Entry<Method, Object>> completions = new HashMap<>();
+
+    /**
+     * Map of registered command cooldowns by framework.
+     */
+    private final Map<CommandSender, Long> cooldowns = new HashMap<>();
 
     /**
      * Default command map of Bukkit.
@@ -124,6 +129,17 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                 if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
                     sender.sendMessage(ChatColor.RED + "This command is only executable by console!");
                     return true;
+                }
+
+                if (cooldowns.containsKey(sender)) {
+                    if (command.cooldown() > 0 && ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60 <= command.cooldown()) {
+                        sender.sendMessage(ChatColor.RED + "You have to wait before using this command again!");
+                        return true;
+                    } else {
+                        cooldowns.remove(sender);
+                    }
+                } else {
+                    cooldowns.put(sender, System.currentTimeMillis());
                 }
 
                 String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
