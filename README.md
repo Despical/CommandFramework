@@ -4,7 +4,8 @@
 [![discord](https://img.shields.io/discord/719922452259668000.svg?color=lime&label=discord)](https://discord.gg/Vhyy4HA)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
-add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type through the code.
+add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, minimum and maximum
+argument length through the code.
 
 ## Documentation
 More information will be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki) soon. The [Javadoc](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
@@ -89,7 +90,7 @@ public class ExampleClass extends JavaPlugin {
 ## License
 This code is under [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html)
 
-See the [LICENSE.txt](https://github.com/Despical/CommandFramework/blob/main/LICENSE) file for required notices and attributions.
+See the [LICENSE](https://github.com/Despical/CommandFramework/blob/main/LICENSE) file for required notices and attributions.
 
 ## Donations
 You like the Command Framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
@@ -97,9 +98,10 @@ You like the Command Framework? Then [donate](https://www.patreon.com/despical) 
 ## Contributing
 
 I accept Pull Requests via GitHub. There are some guidelines which will make applying PRs easier for me:
-+ No tabs! Please use spaces for indentation.
++ Ensure you didn't use tabs! Please use spaces for indentation.
 + Respect the code style.
-+ Create minimal diffs. If you feel the source code should be reformatted create a separate PR for this change.
++ Do not increase the version numbers in any examples files and the README.md to the new version that this Pull Request would represent.
++ Create minimal diffs - disable on save actions like reformat source code or organize imports. If you feel the source code should be reformatted create a separate PR for this change.
 
 You can learn more about contributing via GitHub in [contribution guidelines](CONTRIBUTING.md).
 
