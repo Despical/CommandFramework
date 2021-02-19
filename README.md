@@ -4,11 +4,11 @@
 [![discord](https://img.shields.io/discord/719922452259668000.svg?color=lime&label=discord)](https://discord.gg/Vhyy4HA)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
-add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown minimum
+add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
 and maximum argument length through the code.
 
 ## Documentation
-More information will be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki) soon. The [Javadoc](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
+More information can be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki). The [Javadoc](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
 related to the usage of Command Framework should be posted on my [Discord server](https://discord.com/invite/Vhyy4HA).
 
 ## Using Command Framework
