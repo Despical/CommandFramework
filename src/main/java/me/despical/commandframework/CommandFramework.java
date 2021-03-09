@@ -84,7 +84,14 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
     }
 
-    public void registerCommand(Command command, Method method, Object instance) {
+    /**
+     * Register the command with given parameters.
+     *
+     * @param command  main object of command
+     * @param method   method that command will run
+     * @param instance class of the method above
+     */
+    private void registerCommand(Command command, Method method, Object instance) {
         commands.put(command, new AbstractMap.SimpleEntry<>(method, instance));
 
         try {
@@ -184,7 +191,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Get list of registered commands.
+     * Get the copied list of registered commands.
      *
      * @return list of commands.
      */
