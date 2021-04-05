@@ -19,6 +19,7 @@ package me.despical.commandframework;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Player;
 
 /**
  * An utility class to use command arguments without external
@@ -42,10 +43,14 @@ public class CommandArguments {
     }
 
     /**
-     * @return sender of command
+     * Do not try to cast objects except subclasses of {@link CommandSender}
+     * otherwise {@link ClassCastException} will occur. Also casting for {@link Player}
+     * {@link org.bukkit.command.ConsoleCommandSender} isn't needed.
+     *
+     * @return sender of command as Player or CommandSender
      */
-    public CommandSender getSender() {
-        return commandSender;
+    public <T extends CommandSender> T getSender() {
+        return (T) commandSender;
     }
 
     /**
