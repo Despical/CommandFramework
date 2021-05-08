@@ -79,6 +79,6 @@ public class CommandArguments {
      * @return indexed element or null if index out of bounds
      */
     public String getArgument(int i) {
-        return arguments.length > i && i > 0 ? arguments[i] : null;
+        return arguments.length > i && i >= 0 ? arguments[i] : null;
     }
 }
