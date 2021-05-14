@@ -110,8 +110,7 @@ You can learn more about contributing via GitHub in [contribution guidelines](CO
 * ~~Sub-commands aren't compatible with tab completions.~~
 
 ## To do list
-* Message handler to change system messages.
-* Exception handler to make exceptions more clear.
+* ~~Message handler to change system messages.~~
 
 ## Building from source
 If you want to build this project from source code, run the following from Git Bash:

@@ -131,6 +131,14 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
     }
 
+    // Error Message Handler
+
+    public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
+    public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
+    public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
+    public static String SHORT_OR_LONG_ARG_SIZE  = ChatColor.RED + "Required argument length is less or greater than needed!";
+    public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait before using this command again!";
+
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
@@ -141,23 +149,23 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
-                    sender.sendMessage(ChatColor.RED + "You don't have enough permission to execute this command!");
+                    sender.sendMessage(NO_PERMISSION);
                     return true;
                 }
 
                 if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "This command is only executable by players!");
+                    sender.sendMessage(ONLY_BY_PLAYERS);
                     return true;
                 }
 
                 if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-                    sender.sendMessage(ChatColor.RED + "This command is only executable by console!");
+                    sender.sendMessage(ONLY_BY_CONSOLE);
                     return true;
                 }
 
                 if (cooldowns.containsKey(sender)) {
                     if (command.cooldown() > 0 && ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60 <= command.cooldown()) {
-                        sender.sendMessage(ChatColor.RED + "You have to wait before using this command again!");
+                        sender.sendMessage(WAIT_BEFORE_USING_AGAIN);
                         return true;
                     } else {
                         cooldowns.remove(sender);
@@ -175,7 +183,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                         e.printStackTrace();
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Required argument length is less or greater than needed!");
+                    sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
                 }
 
                 return true;
