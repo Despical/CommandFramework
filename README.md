@@ -6,7 +6,7 @@
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add command to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
-and maximum argument length through the code.
+and maximum argument length through the code and adds bunch of new methods to improve your code.
 
 ## Documentation
 More information can be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki). The [Javadoc](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
@@ -28,7 +28,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -41,7 +41,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.1";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.2";
 }
 ```
 
@@ -50,7 +50,7 @@ dependencies {
 public class ExampleClass extends JavaPlugin {
 
     // Don't forget to shade framework in to your project
-    CommandFramework commandFramework;
+    private CommandFramework commandFramework;
 
     @Override
     public void onEnable() {
