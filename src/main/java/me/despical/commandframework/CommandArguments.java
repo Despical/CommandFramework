@@ -99,4 +99,22 @@ public class CommandArguments {
         if (message == null) return;
         commandSender.sendMessage(message);
     }
+
+    /**
+     * Checks if command sender is console.
+     *
+     * @return true if sender is console otherwise false
+     */
+    public boolean isSenderConsole() {
+        return !isSenderPlayer();
+    }
+
+    /**
+     * Checks if command sender is player.
+     *
+     * @return true if sender is player otherwise false
+     */
+    public boolean isSenderPlayer() {
+        return commandSender instanceof Player;
+    }
 }
