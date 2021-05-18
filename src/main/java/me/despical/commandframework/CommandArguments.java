@@ -81,4 +81,22 @@ public class CommandArguments {
     public String getArgument(int i) {
         return arguments.length > i && i >= 0 ? arguments[i] : null;
     }
+
+    /**
+     * @return true if command arguments are empty otherwise false
+     */
+    public boolean isArgumentsEmpty() {
+        return arguments.length == 0;
+    }
+
+    /**
+     * Sends message to sender without receiving command
+     * sender.
+     *
+     * @param message to send
+     */
+    public void sendMessage(String message) {
+        if (message == null) return;
+        commandSender.sendMessage(message);
+    }
 }
