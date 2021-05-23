@@ -117,4 +117,14 @@ public class CommandArguments {
     public boolean isSenderPlayer() {
         return commandSender instanceof Player;
     }
+
+    /**
+     * Checks if command sender has specified permission.
+     *
+     * @param permission to check
+     * @return true if sender has permission otherwise false
+     */
+    public boolean hasPermission(String permission) {
+        return commandSender.hasPermission(permission);
+    }
 }
