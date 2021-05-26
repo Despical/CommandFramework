@@ -45,7 +45,7 @@ public class CommandArguments {
     /**
      * Do not try to cast objects except subclasses of {@link CommandSender}
      * otherwise {@link ClassCastException} will occur. Also casting for {@link Player}
-     * {@link org.bukkit.command.ConsoleCommandSender} isn't needed.
+     * or {@link org.bukkit.command.ConsoleCommandSender} isn't needed.
      *
      * @return sender of command as Player or CommandSender
      */
@@ -126,5 +126,12 @@ public class CommandArguments {
      */
     public boolean hasPermission(String permission) {
         return commandSender.hasPermission(permission);
+    }
+
+    /**
+     * @return length of the arguments
+     */
+    public int getArgumentsLength() {
+        return arguments.length;
     }
 }
