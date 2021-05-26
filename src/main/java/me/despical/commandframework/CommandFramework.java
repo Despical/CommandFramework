@@ -201,11 +201,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             if (command.getName().equalsIgnoreCase(completer.name()) || Stream.of(completer.aliases()).anyMatch(command.getName()::equalsIgnoreCase)) {
                 try {
                     Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
-                    List<String> list = (List<String>) instance;
 
-                    if (args.length - 1 < list.size()) {
-                        return list;
-                    }
+                    return (List<String>) instance;
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
