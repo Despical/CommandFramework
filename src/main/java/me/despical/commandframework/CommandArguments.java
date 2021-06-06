@@ -23,10 +23,11 @@ import org.bukkit.entity.Player;
 
 /**
  * An utility class to use command arguments without external
- * Bukkit parameters.
+ * Bukkit parameters and includes some useful methods to improve
+ * user's code.
  *
- * @author  Despical
- * @since   1.0.0
+ * @author Despical
+ * @since 1.0.0
  */
 public class CommandArguments {
 

@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
  * An utility class in framework to create argument completions
  * for commands.
  *
- * @author  Despical
- * @since   1.0.0
+ * @author Despical
+ * @since 1.0.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

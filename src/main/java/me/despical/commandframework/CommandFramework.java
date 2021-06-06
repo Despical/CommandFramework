@@ -22,19 +22,23 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
- * Main class of the framework to register commands.
+ * Main class of the framework to register commands, add tab
+ * completions and implement a consumer to run if there is no
+ * matched commands related this framework.
  *
- * @author  Despical
- * @since   1.0.0
+ * @author Despical
+ * @since 1.0.0
  */
 public class CommandFramework implements CommandExecutor, TabCompleter {
 
@@ -59,6 +63,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     private final Map<CommandSender, Long> cooldowns = new HashMap<>();
 
     /**
+     * Consumer to accept if there is no matched commands related framework.
+     */
+    private Consumer<CommandArguments> anyMatchConsumer;
+
+    /**
      * Default command map of Bukkit.
      */
     private CommandMap commandMap;
@@ -78,6 +87,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Consumer to accept if there is no matched commands related framework.
+     *
+     * @param anyMatchConsumer to be accepted if there is no matched commands
+     */
+    public void setAnyMatch(Consumer<CommandArguments> anyMatchConsumer) {
+        this.anyMatchConsumer = anyMatchConsumer;
     }
 
     /**
@@ -104,9 +122,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     /**
      * Register the command with given parameters.
      *
-     * @param command  main object of command
-     * @param method   method that command will run
-     * @param instance class of the method above
+     * @param command of the main object
+     * @param method that command will run
+     * @param instance of the method above
      */
     private void registerCommand(Command command, Method method, Object instance) {
         commands.put(command, new AbstractMap.SimpleEntry<>(method, instance));
@@ -140,12 +158,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait before using this command again!";
 
     @Override
-    public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
             Command command = entry.getKey();
             String[] splitted = command.name().split("\\.");
             String allArgs = String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
-            String cmdName = command.name().contains(".") ? splitted[0] + "." + (args.length > 0 ? allArgs : "") : cmd.getName();
+            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + "." + allArgs;
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
@@ -190,11 +208,16 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             }
         }
 
+		if (anyMatchConsumer != null) {
+			anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+			return true;
+		}
+
         return false;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {
         for (Map.Entry<Completer, Map.Entry<Method, Object>> entry : completions.entrySet()) {
             Completer completer = entry.getKey();
 
