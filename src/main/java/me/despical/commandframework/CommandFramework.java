@@ -162,8 +162,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
             Command command = entry.getKey();
             String[] splitted = command.name().split("\\.");
-            String allArgs = String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
-            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + "." + allArgs;
+            String allArgs = args.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
+            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + allArgs;
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
@@ -197,21 +197,22 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                 if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
                     try {
                         entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+                        return true;
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
+                        return true;
                     }
                 } else {
                     sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
+                    return true;
                 }
-
-                return true;
             }
         }
 
-		if (anyMatchConsumer != null) {
-			anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
-			return true;
-		}
+        if (anyMatchConsumer != null) {
+            anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+            return true;
+        }
 
         return false;
     }
