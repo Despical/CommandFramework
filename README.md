@@ -66,7 +66,7 @@ public class ExampleClass extends JavaPlugin {
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
             
             // StringMatcher is an external class from Despical's Commons library which is not in this framework
-            ListStringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
+            List<StringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
                 arguments.sendMessage("Did you mean %command%?").replace("%command%", label + " " + matches.get(0).getMatch());
@@ -76,16 +76,18 @@ public class ExampleClass extends JavaPlugin {
 
     // Before creating command the method must only have
     // CommandArguments parameter and also @Command annotation
-    @Command(name = "example",
+    @Command(
+            name = "example",
             aliases = {"firstAlias", "secondAlias"},
             permission = "example.permission",
-            description = "Sends an example message to sender",
+            desc = "Sends an example message to sender",
             usage = "/example",
             min = 1,
             max = 5,
             cooldown = 10,
-            senderType = Command.SenderType.CONSOLE)
-    public void exampleCommandMethod(CommandArguments arguments) {
+            senderType = Command.SenderType.CONSOLE
+    )
+    public void exampleCommand(CommandArguments arguments) {
         // CommandArguments class contains basic things related Bukkit commands
         CommandSender sender = arguments.getSender();
         // And here it's all done, you've created command with properties above!
@@ -93,7 +95,10 @@ public class ExampleClass extends JavaPlugin {
     }
 
     // Aliases don't need to be same with the command above
-    @Completer(name = "example", aliases = {"firstAlias", "secondAlias"})
+    @Completer(
+              name = "example",
+              aliases = {"firstAlias", "secondAlias"}
+    )
     public List<String> exampleCommandCompletion(CommandArguments arguments) {
         // And you've created a tab completion for the command above
         return Arrays.asList("first", "second", "third");
@@ -128,7 +133,7 @@ You can learn more about contributing via GitHub in [contribution guidelines](CO
 ## Building from source
 If you want to build this project from source code, run the following from Git Bash:
 ```
-git clone https://www.github.com/Despical/CommandFramework.git && cd CommandFramework
+git clone https://www.github.com/Despical/CommandFramework && cd CommandFramework
 mvn clean package
 ```
 Also don't forget to install Maven before building.
