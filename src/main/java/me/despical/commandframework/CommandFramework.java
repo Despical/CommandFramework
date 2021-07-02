@@ -162,8 +162,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
             Command command = entry.getKey();
             String[] splitted = command.name().split("\\.");
-            String allArgs = args.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
-            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + allArgs;
+            String allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
+            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + (splitted.length == 1 && allArgs.isEmpty() ? "" : "." + allArgs);
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
