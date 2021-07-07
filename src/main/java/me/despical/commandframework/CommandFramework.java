@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -45,34 +46,40 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     /**
      * Main instance of framework.
      */
+    @NotNull
     private final Plugin plugin;
 
     /**
      * Map of registered commands by framework.
      */
+    @NotNull
     private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
 
     /**
      * Map of registered tab completions by framework.
      */
+    @NotNull
     private final Map<Completer, Map.Entry<Method, Object>> completions = new HashMap<>();
 
     /**
      * Map of registered command cooldowns by framework.
      */
+    @NotNull
     private final Map<CommandSender, Long> cooldowns = new HashMap<>();
 
     /**
      * Consumer to accept if there is no matched commands related framework.
      */
+    @Nullable
     private Consumer<CommandArguments> anyMatchConsumer;
 
     /**
      * Default command map of Bukkit.
      */
+    @Nullable
     private CommandMap commandMap;
 
-    public CommandFramework(Plugin plugin) {
+    public CommandFramework(@NotNull Plugin plugin) {
         this.plugin = plugin;
 
         if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
@@ -94,7 +101,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      *
      * @param anyMatchConsumer to be accepted if there is no matched commands
      */
-    public void setAnyMatch(Consumer<CommandArguments> anyMatchConsumer) {
+    public void setAnyMatch(@NotNull Consumer<CommandArguments> anyMatchConsumer) {
         this.anyMatchConsumer = anyMatchConsumer;
     }
 
@@ -103,7 +110,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      *
      * @param instance object class
      */
-    public void registerCommands(Object instance) {
+    public void registerCommands(@NotNull Object instance) {
         for (Method method : instance.getClass().getMethods()) {
             Command command = method.getAnnotation(Command.class);
 
@@ -241,6 +248,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      *
      * @return list of commands.
      */
+    @NotNull
     public List<Command> getCommands() {
         return new ArrayList<>(commands.keySet());
     }
