@@ -20,6 +20,8 @@ package me.despical.commandframework;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An utility class to use command arguments without external
@@ -50,6 +52,7 @@ public class CommandArguments {
      *
      * @return sender of command as Player or CommandSender
      */
+    @NotNull
     public <T extends CommandSender> T getSender() {
         return (T) commandSender;
     }
@@ -57,6 +60,7 @@ public class CommandArguments {
     /**
      * @return base command.
      */
+    @NotNull
     public Command getCommand() {
         return command;
     }
@@ -64,6 +68,7 @@ public class CommandArguments {
     /**
      * @return label of the command.
      */
+    @NotNull
     public String getLabel() {
         return label;
     }
@@ -71,6 +76,7 @@ public class CommandArguments {
     /**
      * @return arguments of the command.
      */
+    @NotNull
     public String[] getArguments() {
         return arguments;
     }
@@ -79,6 +85,7 @@ public class CommandArguments {
      * @param i index
      * @return indexed element or null if index out of bounds
      */
+    @Nullable
     public String getArgument(int i) {
         return arguments.length > i && i >= 0 ? arguments[i] : null;
     }
