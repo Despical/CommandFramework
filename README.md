@@ -114,7 +114,7 @@ See the [LICENSE](https://github.com/Despical/CommandFramework/blob/main/LICENSE
 ## Donations
 You like the Command Framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
 
-## Contributing
+## ~~Contributing~~ (No more contributing)
 
 I accept Pull Requests via GitHub. There are some guidelines which will make applying PRs easier for me:
 + Ensure you didn't use tabs! Please use spaces for indentation.

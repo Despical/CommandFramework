@@ -35,8 +35,7 @@ public class CommandArguments {
 
     private final CommandSender commandSender;
     private final Command command;
-    private final String label;
-    private final String[] arguments;
+    private final String label, arguments[];
 
     public CommandArguments(CommandSender commandSender, Command command, String label, String... arguments) {
         this.commandSender = commandSender;

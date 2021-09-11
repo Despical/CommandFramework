@@ -168,8 +168,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
             Command command = entry.getKey();
-            String[] splitted = command.name().split("\\.");
-            String allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
+            String splitted[] = command.name().split("\\."), allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
             String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + (splitted.length == 1 && allArgs.isEmpty() ? "" : "." + allArgs);
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
