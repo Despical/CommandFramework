@@ -121,7 +121,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
                 registerCommand(command, method, instance);
             } else if (method.getAnnotation(Completer.class) != null) {
-                completions.put(method.getAnnotation(Completer.class), new AbstractMap.SimpleEntry<>(method, instance));
+                completions.put(method.getAnnotation(Completer.class), me.despical.commons.util.Collections.mapEntry(method, instance));
             }
         }
     }
@@ -134,7 +134,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      * @param instance of the method above
      */
     private void registerCommand(Command command, Method method, Object instance) {
-        commands.put(command, new AbstractMap.SimpleEntry<>(method, instance));
+        commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
 
         try {
             Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);

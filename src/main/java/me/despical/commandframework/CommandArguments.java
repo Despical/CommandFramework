@@ -17,6 +17,7 @@
 
 package me.despical.commandframework;
 
+import me.despical.commons.number.NumberUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -80,6 +81,8 @@ public class CommandArguments {
         return arguments;
     }
 
+    // SOME GETTER METHODS FOR COMMON PRIMITIVE TYPES //
+
     /**
      * @param i index
      * @return indexed element or null if index out of bounds
@@ -88,6 +91,28 @@ public class CommandArguments {
     public String getArgument(int i) {
         return arguments.length > i && i >= 0 ? arguments[i] : null;
     }
+
+    /**
+     * @param i index
+     * @return Integer if indexed element is primitive type of int
+     *         or 0 if element is null.
+     */
+    @NotNull
+    public Integer getArgumentAsInt(int i) {
+        return NumberUtils.getInt(this.getArgument(i));
+    }
+
+    /**
+     * @param i index
+     * @return Double if indexed element is primitive type of double
+     *         or 0 if element is null.
+     */
+    @NotNull
+    public Double getArgumentAsDouble(int i) {
+        return NumberUtils.getDouble(this.getArgument(i));
+    }
+
+    // ---------------------------------------------- //
 
     /**
      * @return true if command arguments are empty otherwise false

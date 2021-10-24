@@ -28,7 +28,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -41,7 +41,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.6";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.7";
 }
 ```
 
@@ -65,7 +65,7 @@ public class ExampleClass extends JavaPlugin {
 
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
             
-            // StringMatcher is an external class from Despical's Commons library which is not in this framework
+            // StringMatcher is an external class from Despical's Commons library which is used in this framework but not all the parts included
             List<StringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
@@ -89,9 +89,8 @@ public class ExampleClass extends JavaPlugin {
     )
     public void exampleCommand(CommandArguments arguments) {
         // CommandArguments class contains basic things related Bukkit commands
-        CommandSender sender = arguments.getSender();
         // And here it's all done, you've created command with properties above!
-        sender.sendMessage("This is how you can create a example command using framework.");
+        arguments.sendMessage("This is how you can create a example command using framework.");
     }
 
     // Aliases don't need to be same with the command above
