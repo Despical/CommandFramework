@@ -83,10 +83,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
 
         if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
-            SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
+            final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
 
             try {
-                Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+                final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
                 field.setAccessible(true);
 
                 commandMap = (CommandMap) field.get(manager);
@@ -112,7 +112,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      */
     public void registerCommands(@NotNull Object instance) {
         for (Method method : instance.getClass().getMethods()) {
-            Command command = method.getAnnotation(Command.class);
+            final Command command = method.getAnnotation(Command.class);
 
             if (command != null) {
                 if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
@@ -137,12 +137,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
 
         try {
-            Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+            final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
             constructor.setAccessible(true);
 
-            String splittedCommand = command.name().split("\\.")[0];
+            final String splittedCommand = command.name().split("\\.")[0];
 
-            PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
+            final  PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
             pluginCommand.setTabCompleter(this);
             pluginCommand.setExecutor(this);
             pluginCommand.setUsage(command.usage());
@@ -167,9 +167,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
         for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
-            Command command = entry.getKey();
-            String splitted[] = command.name().split("\\."), allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
-            String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + (splitted.length == 1 && allArgs.isEmpty() ? "" : "." + allArgs);
+            final Command command = entry.getKey();
+            final String splitted[] = command.name().split("\\."), allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
+            final String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + (splitted.length == 1 && allArgs.isEmpty() ? "" : "." + allArgs);
 
             if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
                 if (!sender.hasPermission(command.permission())) {
@@ -198,7 +198,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                     cooldowns.put(sender, System.currentTimeMillis());
                 }
 
-                String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+                final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
                 if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
                     try {
@@ -226,11 +226,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {
         for (Map.Entry<Completer, Map.Entry<Method, Object>> entry : completions.entrySet()) {
-            Completer completer = entry.getKey();
+            final Completer completer = entry.getKey();
 
             if (command.getName().equalsIgnoreCase(completer.name()) || Stream.of(completer.aliases()).anyMatch(command.getName()::equalsIgnoreCase)) {
                 try {
-                    Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
+                    final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
 
                     return (List<String>) instance;
                 } catch (IllegalAccessException | InvocationTargetException e) {
