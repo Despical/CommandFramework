@@ -12,7 +12,7 @@ and maximum argument length through the code and adds bunch of new methods to im
 More information can be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki). The [Java documentations](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
 related to the usage of Command Framework should be posted on my [Discord server](https://discord.com/invite/rVkaGmyszE).
 
-# Donations
+## Donations
 You like the framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
 Donations are more like motivation than money and, they are speeding up the development.
 
@@ -125,6 +125,7 @@ I accept Pull Requests via GitHub. There are some guidelines which will make app
 You can learn more about contributing via GitHub in [contribution guidelines](../CONTRIBUTING.md).
 
 ## Known issues
+* Framework can't detect the sub commands when a sub command registered with the name of main command.
 * ~~Sub-commands aren't compatible with tab completions.~~
 
 ## To do list
