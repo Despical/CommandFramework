@@ -1,38 +1,29 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
+about: Help us with framework issues
+title: "[Category] Short description"
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Description of Issue
+<!-- Please provide as much detail as possible. -->
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## Steps to Reproduce
+1. What do you do...
+2. ...to find this bug?
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Command Framework Version
+<!-- Self-explanatory. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Server Version
+<!-- Self-explanatory. -->
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## Stack Trace/Log Files/Crash Reports
+<!-- Any relevant log files. Drag and drop text files here to upload to GitHub directly, OR upload the complete contents to Pastebin. https://pastebin.com/ -->
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+<!-- **DO NOT directly copy and paste log contents OR stack trace here on GitHub.** -->
 
-**Additional context**
-Add any other context about the problem here.
+## Additional Information
+<!-- Here goes any final remarks and everything else that might not fit in the previous sections. -->
