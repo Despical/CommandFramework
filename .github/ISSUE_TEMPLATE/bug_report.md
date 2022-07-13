@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Help us with framework issues
+about: Help us with issues related Command Framework
 title: "[Category] Short description"
 labels: ''
 assignees: ''
