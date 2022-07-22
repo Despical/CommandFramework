@@ -52,6 +52,7 @@ public class CommandArguments {
      *
      * @return sender of command as Player or CommandSender
      */
+    @SuppressWarnings("unchecked")
     @NotNull
     public <T extends CommandSender> T getSender() {
         return (T) commandSender;
@@ -110,6 +111,16 @@ public class CommandArguments {
     @NotNull
     public Double getArgumentAsDouble(int i) {
         return NumberUtils.getDouble(this.getArgument(i));
+    }
+
+    /**
+     * @param i index
+     * @return Double if indexed element is primitive type of double
+     *         or 0 if element is null.
+     */
+    @NotNull
+    public Float getArgumentAsFloat(int i) {
+        return NumberUtils.getFloat(this.getArgument(i));
     }
 
     // ---------------------------------------------- //
