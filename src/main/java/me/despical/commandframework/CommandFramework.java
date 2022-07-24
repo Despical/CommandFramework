@@ -56,6 +56,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
 
     /**
+     * Map of registered subcommands by framework.
+     */
+    @NotNull
+    private final Map<Command, Map.Entry<Method, Object>> subCommands = new HashMap<>();
+
+    /**
      * Map of registered tab completions by framework.
      */
     @NotNull
@@ -134,15 +140,18 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      * @param instance of the method above
      */
     private void registerCommand(Command command, Method method, Object instance) {
-        commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+        if (command.name().contains(".")) {
+            subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+        } else {
+            commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+        }
 
         try {
             final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
             constructor.setAccessible(true);
 
             final String splittedCommand = command.name().split("\\.")[0];
-
-            final  PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
+            final PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
             pluginCommand.setTabCompleter(this);
             pluginCommand.setExecutor(this);
             pluginCommand.setUsage(command.usage());
@@ -156,6 +165,44 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
     }
 
+    @Nullable
+    private Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
+        Command command = null;
+
+        // Search for the sub commands first
+        for (Command cmd : subCommands.keySet()) {
+            final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+
+            if (name.equalsIgnoreCase(cmdName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                command = cmd;
+                break;
+            }
+        }
+
+        // If we found the sub command then return it, otherwise search the commands map
+        if (command != null) {
+            return me.despical.commons.util.Collections.mapEntry(command, subCommands.get(command));
+        }
+
+        // If our command is not a sub command then search for a main command
+        for (Command cmd : commands.keySet()) {
+            final String name = cmd.name();
+
+            if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                command = cmd;
+                break;
+            }
+        }
+
+        // If we found the command return it, otherwise return null
+        if (command != null) {
+            return me.despical.commons.util.Collections.mapEntry(command, commands.get(command));
+        }
+
+        // Return null if the given command is not registered by Command Framework
+        return null;
+    }
+
     // Error Message Handler
 
     public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
@@ -166,61 +213,59 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-        for (Map.Entry<Command, Map.Entry<Method, Object>> entry : commands.entrySet()) {
-            final Command command = entry.getKey();
-            final String splitted[] = command.name().split("\\."), allArgs = args.length == 0 ? "" : String.join(".", Arrays.copyOfRange(args, 0, splitted.length - 1));
-            final String cmdName = (command.name().contains(".") ? splitted[0] : cmd.getName()) + (splitted.length == 1 && allArgs.isEmpty() ? "" : "." + allArgs);
+        Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
-            if (command.name().equalsIgnoreCase(cmdName) || Stream.of(command.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
-                if (!sender.hasPermission(command.permission())) {
-                    sender.sendMessage(NO_PERMISSION);
-                    return true;
-                }
-
-                if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-                    sender.sendMessage(ONLY_BY_PLAYERS);
-                    return true;
-                }
-
-                if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-                    sender.sendMessage(ONLY_BY_CONSOLE);
-                    return true;
-                }
-
-                if (cooldowns.containsKey(sender)) {
-                    if (command.cooldown() > 0 && ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60 <= command.cooldown()) {
-                        sender.sendMessage(WAIT_BEFORE_USING_AGAIN);
-                        return true;
-                    } else {
-                        cooldowns.remove(sender);
-                    }
-                } else {
-                    cooldowns.put(sender, System.currentTimeMillis());
-                }
-
-                final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
-
-                if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
-                    try {
-                        entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
-                        return true;
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                        return true;
-                    }
-                } else {
-                    sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
-                    return true;
-                }
+        if (entry == null) {
+            return true;
+        } else {
+            if (anyMatchConsumer != null) {
+                anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+                return true;
             }
         }
 
-        if (anyMatchConsumer != null) {
-            anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+        Command command = entry.getKey();
+
+        if (!sender.hasPermission(command.permission())) {
+            sender.sendMessage(NO_PERMISSION);
             return true;
         }
 
-        return false;
+        if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
+            sender.sendMessage(ONLY_BY_PLAYERS);
+            return true;
+        }
+
+        if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
+            sender.sendMessage(ONLY_BY_CONSOLE);
+            return true;
+        }
+
+        if (cooldowns.containsKey(sender)) {
+            if (command.cooldown() > 0 && ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60 <= command.cooldown()) {
+                sender.sendMessage(WAIT_BEFORE_USING_AGAIN);
+                return true;
+            } else {
+                cooldowns.remove(sender);
+            }
+        } else {
+            cooldowns.put(sender, System.currentTimeMillis());
+        }
+
+        final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+
+        if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
+            try {
+                entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+                return true;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                return true;
+            }
+        } else {
+            sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
+            return true;
+        }
     }
 
     @Override
@@ -243,12 +288,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Get the copied list of registered commands.
+     * Get the copied list of registered commands and subcommands.
      *
-     * @return list of commands.
+     * @return list of commands and subcommands.
      */
     @NotNull
     public List<Command> getCommands() {
-        return new ArrayList<>(commands.keySet());
+        List<Command> commands = new ArrayList<>(this.commands.keySet());
+        commands.addAll(subCommands.keySet());
+
+        return commands;
     }
 }
