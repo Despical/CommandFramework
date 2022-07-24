@@ -216,12 +216,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
         if (entry == null) {
-            return true;
-        } else {
             if (anyMatchConsumer != null) {
                 anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
-                return true;
             }
+
+            return true;
         }
 
         Command command = entry.getKey();
