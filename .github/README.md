@@ -32,7 +32,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -45,7 +45,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.8";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.0.9";
 }
 ```
 
@@ -125,7 +125,7 @@ I accept Pull Requests via GitHub. There are some guidelines which will make app
 You can learn more about contributing via GitHub in [contribution guidelines](../CONTRIBUTING.md).
 
 ## Known issues
-* Framework can't detect the sub commands when a sub command registered with the name of main command.
+* ~~Framework can't detect the sub commands when a sub command registered with the name of main command.~~
 * ~~Sub-commands aren't compatible with tab completions.~~
 
 ## To do list
