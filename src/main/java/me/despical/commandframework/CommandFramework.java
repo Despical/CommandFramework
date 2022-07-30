@@ -17,7 +17,6 @@
 
 package me.despical.commandframework;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -32,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -221,8 +219,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
         if (entry == null) {
-            Bukkit.getLogger().log(Level.INFO, "command == null");
-
             if (anyMatchConsumer != null) {
                 anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
             }
