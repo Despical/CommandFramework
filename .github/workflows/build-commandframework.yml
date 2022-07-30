@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${ "!contains(github.event.head_commit.message, 'Bump')" || "!contains(github.event.head_commit.message, '[skip]')}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 8
@@ -21,3 +20,4 @@ jobs:
         with:
           name: CommandFramework
           path: target/**
+    if: "!contains(github.event.head_commit.message, 'Bump')"
