@@ -115,7 +115,7 @@ public class CommandArguments {
 
     /**
      * @param i index
-     * @return Double if indexed element is primitive type of double
+     * @return Float if indexed element is primitive type of float
      *         or 0 if element is null.
      */
     @NotNull
@@ -125,7 +125,7 @@ public class CommandArguments {
 
     /**
      * @param i index
-     * @return Long if indexed element is primitive type of double
+     * @return Long if indexed element is primitive type of long
      *         or 0 if element is null.
      */
     @NotNull
@@ -135,7 +135,7 @@ public class CommandArguments {
 
     /**
      * @param i index
-     * @return Long if indexed element is primitive type of double
+     * @return Boolean if indexed element is primitive type of boolean
      *         or 0 if element is null.
      */
     @NotNull
