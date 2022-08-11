@@ -123,6 +123,27 @@ public class CommandArguments {
         return NumberUtils.getFloat(this.getArgument(i));
     }
 
+    /**
+     * @param i index
+     * @return Long if indexed element is primitive type of double
+     *         or 0 if element is null.
+     */
+    @NotNull
+    public Long getArgumentAsLong(int i) {
+        return NumberUtils.getLong(this.getArgument(i));
+    }
+
+    /**
+     * @param i index
+     * @return Long if indexed element is primitive type of double
+     *         or 0 if element is null.
+     */
+    @NotNull
+    public Boolean getArgumentAsBoolean(int i) {
+        final String arg = this.getArgument(i);
+        return arg != null && arg.equalsIgnoreCase("true");
+    }
+
     // ---------------------------------------------- //
 
     /**
