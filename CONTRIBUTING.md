@@ -9,7 +9,7 @@ Please note we have a code of conduct, please follow it in all your interactions
 If you want to help this project and don't know where to start, check out the [currently opened issues](https://github.com/Despical/CommandFramework/issues)
 before creating any PRs. Because there are people that could can use your help.
 
-* Ensure you didn't use tabs! Please use spaces for indentation.
+* Ensure you didn't use spaces! Please use tabs for indentation.
 * Respect the code style.
 * Do not increase the version numbers in any examples files and the README.md to the
   new version that this Pull Request would represent.
