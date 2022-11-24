@@ -212,7 +212,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
     public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
     public static String SHORT_OR_LONG_ARG_SIZE  = ChatColor.RED + "Required argument length is less or greater than needed!";
-    public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait before using this command again!";
+    public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
@@ -244,11 +244,13 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
 
         if (cooldowns.containsKey(sender)) {
-            if (command.cooldown() > 0 && ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60 <= command.cooldown()) {
-                sender.sendMessage(WAIT_BEFORE_USING_AGAIN);
+            final int remainingTime = (int) ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60;
+
+            if (command.cooldown() > 0 && remainingTime <= command.cooldown()) {
+                sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
                 return true;
             } else {
-                cooldowns.remove(sender);
+                cooldowns.put(sender, System.currentTimeMillis());
             }
         } else {
             cooldowns.put(sender, System.currentTimeMillis());
@@ -297,7 +299,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     @NotNull
     public List<Command> getCommands() {
         List<Command> commands = new ArrayList<>(this.commands.keySet());
-        commands.addAll(subCommands.keySet());
+        commands.addAll(this.subCommands.keySet());
 
         return commands;
     }
