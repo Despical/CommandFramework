@@ -1,6 +1,9 @@
-# Command Framework
+<h1 align="center">Command Framework</h1>
+
+<div align="center">
+
+[![Build](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Despical/CommandFramework/CommandFramework%20Build)
 [![](https://img.shields.io/badge/JavaDocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
 [![discord](https://img.shields.io/discord/719922452259668000.svg?color=lime&label=Discord)](https://discord.com/invite/rVkaGmyszE)
 
@@ -8,9 +11,12 @@ This framework is very lightweight annotation based command system that works si
 add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
 and maximum argument length through the code and adds bunch of new methods to improve your code.
 
+</div>
+
 ## Documentation
-More information can be found on the [wiki page](https://github.com/Despical/CommandFramework/wiki). The [Java documentations](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html) can be browsed. Questions
-related to the usage of Command Framework should be posted on my [Discord server](https://discord.com/invite/rVkaGmyszE).
+- [Wiki](https://github.com/Despical/CommandFramework/wiki)
+- [JavaDocs](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
+- [Discord Community](https://www.discord.gg/rVkaGmyszE)
 
 ## Donations
 You like the framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
@@ -134,9 +140,10 @@ You can learn more about contributing via GitHub in [contribution guidelines](..
 * ~~Message handler to change system messages.~~
 
 ## Building from source
-If you want to build this project from source code, run the following from Git Bash:
+To build this project from source code, run the following from Git Bash:
 ```
 git clone https://www.github.com/Despical/CommandFramework && cd CommandFramework
 mvn clean package -Dmaven.javadoc.skip=true
 ```
-Also don't forget to install Maven before building.
+
+> **Note** Don't forget to install Maven before building.
