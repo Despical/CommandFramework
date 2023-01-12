@@ -39,7 +39,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -52,7 +52,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.1.4";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.1.5";
 }
 ```
 
@@ -137,7 +137,7 @@ You can learn more about contributing via GitHub in [contribution guidelines](..
 * ~~Sub-commands aren't compatible with tab completions.~~
 
 ## To do list
-* Exception log handler.
+* ~~Exception log handler.~~
 * ~~Message handler to change system messages.~~
 
 ## Building from source
