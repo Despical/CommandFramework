@@ -216,7 +216,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-        Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
+        final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
         if (entry == null) {
             if (anyMatchConsumer != null) {
@@ -226,9 +226,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Command command = entry.getKey();
+        final Command command = entry.getKey();
+        final String permission = command.permission();
 
-        if (!sender.hasPermission(command.permission())) {
+        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
             sender.sendMessage(NO_PERMISSION);
             return true;
         }
