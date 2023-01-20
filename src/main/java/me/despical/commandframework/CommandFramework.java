@@ -59,13 +59,13 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
      * Map of registered subcommands by framework.
      */
     @NotNull
-    private final Map<Command, Map.Entry<Method, Object>> subCommands = new HashMap<>();
+    private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparingInt(command -> command.name().length()));
 
     /**
      * Map of registered tab completions by framework.
      */
     @NotNull
-    private final Map<Completer, Map.Entry<Method, Object>> completions = new HashMap<>();
+    private final Map<Completer, Map.Entry<Method, Object>> completions = new TreeMap<>(Comparator.comparingInt(completer -> completer.name().length()));
 
     /**
      * Map of registered command cooldowns by framework.
