@@ -31,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -62,10 +63,16 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
     private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
 
     /**
+     * Map of registered sub command tab completions by framework.
+     */
+    @NotNull
+    private final Map<Completer, Map.Entry<Method, Object>> commandCompletions = new HashMap<>();
+
+    /**
      * Map of registered tab completions by framework.
      */
     @NotNull
-    private final Map<Completer, Map.Entry<Method, Object>> completions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
+    private final Map<Completer, Map.Entry<Method, Object>> subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
 
     /**
      * Map of registered command cooldowns by framework.
@@ -127,7 +134,18 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
                 registerCommand(command, method, instance);
             } else if (method.getAnnotation(Completer.class) != null) {
-                completions.put(method.getAnnotation(Completer.class), me.despical.commons.util.Collections.mapEntry(method, instance));
+                if (!List.class.isAssignableFrom(method.getReturnType())) {
+                    plugin.getLogger().log(Level.WARNING, "Skipped registration of '{0}' because it is not returning java.util.List type.");
+                    continue;
+                }
+
+                final Completer completer = method.getAnnotation(Completer.class);
+
+                if (completer.name().contains(".")) {
+                    subCommandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+                } else {
+                    commandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+                }
             }
         }
     }
@@ -273,20 +291,51 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
         }
     }
 
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {
-        for (Map.Entry<Completer, Map.Entry<Method, Object>> entry : completions.entrySet()) {
-            final Completer completer = entry.getKey();
+    @Nullable
+    private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
+        Completer completer = null;
 
-            if (command.getName().equalsIgnoreCase(completer.name()) || Stream.of(completer.aliases()).anyMatch(command.getName()::equalsIgnoreCase)) {
-                try {
-                    final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, command, label, args));
+        for (Completer comp : subCommandCompletions.keySet()) {
+            final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-                    return (List<String>) instance;
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+            if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                completer = comp;
+                break;
             }
+        }
+
+        if (completer != null) {
+            return me.despical.commons.util.Collections.mapEntry(completer, subCommandCompletions.get(completer));
+        }
+
+        for (Completer comp : commandCompletions.keySet()) {
+            final String name = comp.name();
+
+            if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                completer = comp;
+                break;
+            }
+        }
+
+        if (completer != null) {
+            return me.despical.commons.util.Collections.mapEntry(completer, commandCompletions.get(completer));
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
+        final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
+
+        if (entry == null) return null;
+
+        try {
+            final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, args));
+
+            return (List<String>) instance;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
 
         return null;
