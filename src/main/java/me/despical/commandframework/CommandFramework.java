@@ -135,7 +135,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
                 registerCommand(command, method, instance);
             } else if (method.getAnnotation(Completer.class) != null) {
                 if (!List.class.isAssignableFrom(method.getReturnType())) {
-                    plugin.getLogger().log(Level.WARNING, "Skipped registration of '{0}' because it is not returning java.util.List type.");
+                    plugin.getLogger().log(Level.WARNING, "Skipped registration of {0} because it is not returning java.util.List type.", method.getName());
                     continue;
                 }
 
