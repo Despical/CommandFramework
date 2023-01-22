@@ -44,313 +44,305 @@ import java.util.stream.Stream;
  */
 public class CommandFramework implements CommandExecutor, TabCompleter {
 
-    /**
-     * Main instance of framework.
-     */
-    @NotNull
-    private final Plugin plugin;
+	public static String ONLY_BY_PLAYERS = ChatColor.RED + "This command is only executable by players!";
+	public static String ONLY_BY_CONSOLE = ChatColor.RED + "This command is only executable by console!";
+	public static String NO_PERMISSION = ChatColor.RED + "You don't have enough permission to execute this command!";
+	public static String SHORT_OR_LONG_ARG_SIZE = ChatColor.RED + "Required argument length is less or greater than needed!";
+	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
+	/**
+	 * Main instance of framework.
+	 */
+	@NotNull
+	private final Plugin plugin;
+	/**
+	 * Map of registered commands by framework.
+	 */
+	@NotNull
+	private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
+	/**
+	 * Map of registered subcommands by framework.
+	 */
+	@NotNull
+	private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
+	/**
+	 * Map of registered sub command tab completions by framework.
+	 */
+	@NotNull
+	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions = new HashMap<>();
+	/**
+	 * Map of registered tab completions by framework.
+	 */
+	@NotNull
+	private final Map<Completer, Map.Entry<Method, Object>> subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
+	/**
+	 * Map of registered command cooldowns by framework.
+	 */
+	@NotNull
+	private final Map<CommandSender, Long> cooldowns = new HashMap<>();
+	/**
+	 * Consumer to accept if there is no matched commands related framework.
+	 */
+	@Nullable
+	private Consumer<CommandArguments> anyMatchConsumer;
+	/**
+	 * Default command map of Bukkit.
+	 */
+	@Nullable
+	private CommandMap commandMap;
 
-    /**
-     * Map of registered commands by framework.
-     */
-    @NotNull
-    private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
+	// Error Message Handler
 
-    /**
-     * Map of registered subcommands by framework.
-     */
-    @NotNull
-    private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
+	public CommandFramework(@NotNull Plugin plugin) {
+		this.plugin = plugin;
 
-    /**
-     * Map of registered sub command tab completions by framework.
-     */
-    @NotNull
-    private final Map<Completer, Map.Entry<Method, Object>> commandCompletions = new HashMap<>();
+		if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
+			final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
 
-    /**
-     * Map of registered tab completions by framework.
-     */
-    @NotNull
-    private final Map<Completer, Map.Entry<Method, Object>> subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
+			try {
+				final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+				field.setAccessible(true);
 
-    /**
-     * Map of registered command cooldowns by framework.
-     */
-    @NotNull
-    private final Map<CommandSender, Long> cooldowns = new HashMap<>();
+				commandMap = (CommandMap) field.get(manager);
+			} catch (IllegalArgumentException | SecurityException | IllegalAccessException | NoSuchFieldException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    /**
-     * Consumer to accept if there is no matched commands related framework.
-     */
-    @Nullable
-    private Consumer<CommandArguments> anyMatchConsumer;
+	/**
+	 * Consumer to accept if there is no matched commands related framework.
+	 *
+	 * @param anyMatchConsumer to be accepted if there is no matched commands
+	 */
+	public void setAnyMatch(@NotNull Consumer<CommandArguments> anyMatchConsumer) {
+		this.anyMatchConsumer = anyMatchConsumer;
+	}
 
-    /**
-     * Default command map of Bukkit.
-     */
-    @Nullable
-    private CommandMap commandMap;
+	/**
+	 * Register command methods in object class.
+	 *
+	 * @param instance object class
+	 */
+	public void registerCommands(@NotNull Object instance) {
+		for (Method method : instance.getClass().getMethods()) {
+			final Command command = method.getAnnotation(Command.class);
 
-    public CommandFramework(@NotNull Plugin plugin) {
-        this.plugin = plugin;
+			if (command != null) {
+				if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
+					continue;
+				}
 
-        if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
-            final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
+				registerCommand(command, method, instance);
+			}else if (method.getAnnotation(Completer.class) != null) {
+				if (!List.class.isAssignableFrom(method.getReturnType())) {
+					plugin.getLogger().log(Level.WARNING, "Skipped registration of {0} because it is not returning java.util.List type.", method.getName());
+					continue;
+				}
 
-            try {
-                final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-                field.setAccessible(true);
+				final Completer completer = method.getAnnotation(Completer.class);
 
-                commandMap = (CommandMap) field.get(manager);
-            } catch (IllegalArgumentException | SecurityException | IllegalAccessException | NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+				if (completer.name().contains(".")) {
+					subCommandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+				}else {
+					commandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+				}
+			}
+		}
+	}
 
-    /**
-     * Consumer to accept if there is no matched commands related framework.
-     *
-     * @param anyMatchConsumer to be accepted if there is no matched commands
-     */
-    public void setAnyMatch(@NotNull Consumer<CommandArguments> anyMatchConsumer) {
-        this.anyMatchConsumer = anyMatchConsumer;
-    }
+	/**
+	 * Register the command with given parameters.
+	 *
+	 * @param command  of the main object
+	 * @param method   that command will run
+	 * @param instance of the method above
+	 */
+	private void registerCommand(Command command, Method method, Object instance) {
+		if (command.name().contains(".")) {
+			subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+		}else {
+			commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+		}
 
-    /**
-     * Register command methods in object class.
-     *
-     * @param instance object class
-     */
-    public void registerCommands(@NotNull Object instance) {
-        for (Method method : instance.getClass().getMethods()) {
-            final Command command = method.getAnnotation(Command.class);
+		try {
+			final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+			constructor.setAccessible(true);
 
-            if (command != null) {
-                if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
-                    continue;
-                }
+			final String splittedCommand = command.name().split("\\.")[0];
+			final PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
+			pluginCommand.setTabCompleter(this);
+			pluginCommand.setExecutor(this);
+			pluginCommand.setUsage(command.usage());
+			pluginCommand.setPermission(command.permission());
+			pluginCommand.setDescription(command.desc());
+			pluginCommand.setAliases(Arrays.asList(command.aliases()));
 
-                registerCommand(command, method, instance);
-            } else if (method.getAnnotation(Completer.class) != null) {
-                if (!List.class.isAssignableFrom(method.getReturnType())) {
-                    plugin.getLogger().log(Level.WARNING, "Skipped registration of {0} because it is not returning java.util.List type.", method.getName());
-                    continue;
-                }
+			commandMap.register(splittedCommand, pluginCommand);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
 
-                final Completer completer = method.getAnnotation(Completer.class);
+	@Nullable
+	private Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
+		Command command = null;
 
-                if (completer.name().contains(".")) {
-                    subCommandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
-                } else {
-                    commandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
-                }
-            }
-        }
-    }
+		// Search for the sub commands first
+		for (Command cmd : subCommands.keySet()) {
+			final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-    /**
-     * Register the command with given parameters.
-     *
-     * @param command of the main object
-     * @param method that command will run
-     * @param instance of the method above
-     */
-    private void registerCommand(Command command, Method method, Object instance) {
-        if (command.name().contains(".")) {
-            subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
-        } else {
-            commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
-        }
+			if (name.equalsIgnoreCase(cmdName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+				command = cmd;
+				break;
+			}
+		}
 
-        try {
-            final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-            constructor.setAccessible(true);
+		// If we found the sub command then return it, otherwise search the commands map
+		if (command != null) {
+			return me.despical.commons.util.Collections.mapEntry(command, subCommands.get(command));
+		}
 
-            final String splittedCommand = command.name().split("\\.")[0];
-            final PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
-            pluginCommand.setTabCompleter(this);
-            pluginCommand.setExecutor(this);
-            pluginCommand.setUsage(command.usage());
-            pluginCommand.setPermission(command.permission());
-            pluginCommand.setDescription(command.desc());
-            pluginCommand.setAliases(Arrays.asList(command.aliases()));
+		// If our command is not a sub command then search for a main command
+		for (Command cmd : commands.keySet()) {
+			final String name = cmd.name();
 
-            commandMap.register(splittedCommand, pluginCommand);
-        } catch(Exception exception) {
-            exception.printStackTrace();
-        }
-    }
+			if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+				command = cmd;
+				break;
+			}
+		}
 
-    @Nullable
-    private Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
-        Command command = null;
+		// If we found the command return it, otherwise return null
+		if (command != null) {
+			// Quick fix to accept any match consumer if defined
+			if (command.min() >= possibleArgs.length || command.allowInfiniteArgs()) {
+				return me.despical.commons.util.Collections.mapEntry(command, commands.get(command));
+			}
+		}
 
-        // Search for the sub commands first
-        for (Command cmd : subCommands.keySet()) {
-            final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+		// Return null if the given command is not registered by Command Framework
+		return null;
+	}
 
-            if (name.equalsIgnoreCase(cmdName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-                command = cmd;
-                break;
-            }
-        }
+	@Override
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
+		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
-        // If we found the sub command then return it, otherwise search the commands map
-        if (command != null) {
-            return me.despical.commons.util.Collections.mapEntry(command, subCommands.get(command));
-        }
+		if (entry == null) {
+			if (anyMatchConsumer != null) {
+				anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+			}
 
-        // If our command is not a sub command then search for a main command
-        for (Command cmd : commands.keySet()) {
-            final String name = cmd.name();
+			return true;
+		}
 
-            if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-                command = cmd;
-                break;
-            }
-        }
+		final Command command = entry.getKey();
+		final String permission = command.permission();
 
-        // If we found the command return it, otherwise return null
-        if (command != null) {
-            // Quick fix to accept any match consumer if defined
-            if (command.min() >= possibleArgs.length) {
-                return me.despical.commons.util.Collections.mapEntry(command, commands.get(command));
-            }
-        }
+		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+			sender.sendMessage(NO_PERMISSION);
+			return true;
+		}
 
-        // Return null if the given command is not registered by Command Framework
-        return null;
-    }
+		if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
+			sender.sendMessage(ONLY_BY_PLAYERS);
+			return true;
+		}
 
-    // Error Message Handler
+		if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
+			sender.sendMessage(ONLY_BY_CONSOLE);
+			return true;
+		}
 
-    public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
-    public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
-    public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
-    public static String SHORT_OR_LONG_ARG_SIZE  = ChatColor.RED + "Required argument length is less or greater than needed!";
-    public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
+		if (cooldowns.containsKey(sender)) {
+			final int remainingTime = (int) ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60;
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-        final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
+			if (command.cooldown() > 0 && remainingTime <= command.cooldown()) {
+				sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
+				return true;
+			}else {
+				cooldowns.put(sender, System.currentTimeMillis());
+			}
+		}else {
+			cooldowns.put(sender, System.currentTimeMillis());
+		}
 
-        if (entry == null) {
-            if (anyMatchConsumer != null) {
-                anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
-            }
+		final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
-            return true;
-        }
+		if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
+			try {
+				entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+				return true;
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				e.printStackTrace();
+				return true;
+			}
+		}else {
+			sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
+			return true;
+		}
+	}
 
-        final Command command = entry.getKey();
-        final String permission = command.permission();
+	@Nullable
+	private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
+		Completer completer = null;
 
-        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            sender.sendMessage(NO_PERMISSION);
-            return true;
-        }
+		for (Completer comp : subCommandCompletions.keySet()) {
+			final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-        if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-            sender.sendMessage(ONLY_BY_PLAYERS);
-            return true;
-        }
+			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+				completer = comp;
+				break;
+			}
+		}
 
-        if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-            sender.sendMessage(ONLY_BY_CONSOLE);
-            return true;
-        }
+		if (completer != null) {
+			return me.despical.commons.util.Collections.mapEntry(completer, subCommandCompletions.get(completer));
+		}
 
-        if (cooldowns.containsKey(sender)) {
-            final int remainingTime = (int) ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60;
+		for (Completer comp : commandCompletions.keySet()) {
+			final String name = comp.name();
 
-            if (command.cooldown() > 0 && remainingTime <= command.cooldown()) {
-                sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
-                return true;
-            } else {
-                cooldowns.put(sender, System.currentTimeMillis());
-            }
-        } else {
-            cooldowns.put(sender, System.currentTimeMillis());
-        }
+			if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+				completer = comp;
+				break;
+			}
+		}
 
-        final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+		if (completer != null) {
+			return me.despical.commons.util.Collections.mapEntry(completer, commandCompletions.get(completer));
+		}
 
-        if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
-            try {
-                entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
-                return true;
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-                return true;
-            }
-        } else {
-            sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
-            return true;
-        }
-    }
+		return null;
+	}
 
-    @Nullable
-    private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
-        Completer completer = null;
+	@Override
+	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
+		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
 
-        for (Completer comp : subCommandCompletions.keySet()) {
-            final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+		if (entry == null) return null;
 
-            if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-                completer = comp;
-                break;
-            }
-        }
+		try {
+			final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, args));
 
-        if (completer != null) {
-            return me.despical.commons.util.Collections.mapEntry(completer, subCommandCompletions.get(completer));
-        }
+			return (List<String>) instance;
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
 
-        for (Completer comp : commandCompletions.keySet()) {
-            final String name = comp.name();
+		return null;
+	}
 
-            if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-                completer = comp;
-                break;
-            }
-        }
+	/**
+	 * Get the copied list of registered commands and subcommands.
+	 *
+	 * @return list of commands and subcommands.
+	 */
+	@NotNull
+	public List<Command> getCommands() {
+		List<Command> commands = new ArrayList<>(this.commands.keySet());
+		commands.addAll(this.subCommands.keySet());
 
-        if (completer != null) {
-            return me.despical.commons.util.Collections.mapEntry(completer, commandCompletions.get(completer));
-        }
-
-        return null;
-    }
-
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-        final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
-
-        if (entry == null) return null;
-
-        try {
-            final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, args));
-
-            return (List<String>) instance;
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    /**
-     * Get the copied list of registered commands and subcommands.
-     *
-     * @return list of commands and subcommands.
-     */
-    @NotNull
-    public List<Command> getCommands() {
-        List<Command> commands = new ArrayList<>(this.commands.keySet());
-        commands.addAll(this.subCommands.keySet());
-
-        return commands;
-    }
+		return commands;
+	}
 }
