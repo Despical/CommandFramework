@@ -73,7 +73,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * Map of registered command cooldowns by framework.
 	 */
 	@NotNull
-	private final Map<CommandSender, Long> cooldowns = new HashMap<>();
+	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
 	/**
 	 * Consumer to accept if there is no matched commands related framework.
 	 */
@@ -133,7 +133,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				}
 
 				registerCommand(command, method, instance);
-			}else if (method.getAnnotation(Completer.class) != null) {
+			} else if (method.getAnnotation(Completer.class) != null) {
 				if (!List.class.isAssignableFrom(method.getReturnType())) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of {0} because it is not returning java.util.List type.", method.getName());
 					continue;
@@ -143,7 +143,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 				if (completer.name().contains(".")) {
 					subCommandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
-				}else {
+				} else {
 					commandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
 				}
 			}
@@ -160,7 +160,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	private void registerCommand(Command command, Method method, Object instance) {
 		if (command.name().contains(".")) {
 			subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
-		}else {
+		} else {
 			commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
 		}
 
@@ -224,14 +224,40 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		return null;
 	}
 
+	private boolean hasCooldown(final CommandSender sender, final Command command) {
+		if (command.cooldown() < 1) return false;
+
+		final Map<Command, Long> cooldownMap = cooldowns.get(sender);
+
+		if (cooldownMap == null) {
+			cooldowns.put(sender, me.despical.commons.util.Collections.mapOf(command, System.currentTimeMillis()));
+			return false;
+		} else if (!cooldownMap.containsKey(command)) {
+			cooldownMap.put(command, System.currentTimeMillis());
+
+			cooldowns.replace(sender, cooldownMap);
+			return false;
+		}
+
+		final int remainingTime = (int) ((System.currentTimeMillis() - cooldownMap.get(command)) / 1000) % 60;
+
+		if (remainingTime <= command.cooldown()) {
+			sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
+			return true;
+		} else {
+			cooldownMap.put(command, System.currentTimeMillis());
+
+			cooldowns.replace(sender, cooldownMap);
+			return false;
+		}
+	}
+
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
 		if (entry == null) {
-			if (anyMatchConsumer != null) {
-				anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
-			}
+			if (anyMatchConsumer != null) anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
 
 			return true;
 		}
@@ -254,18 +280,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (cooldowns.containsKey(sender)) {
-			final int remainingTime = (int) ((System.currentTimeMillis() - cooldowns.get(sender)) / 1000) % 60;
-
-			if (command.cooldown() > 0 && remainingTime <= command.cooldown()) {
-				sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
-				return true;
-			}else {
-				cooldowns.put(sender, System.currentTimeMillis());
-			}
-		}else {
-			cooldowns.put(sender, System.currentTimeMillis());
-		}
+		if (this.hasCooldown(sender, command)) return true;
 
 		final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
@@ -277,7 +292,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				e.printStackTrace();
 				return true;
 			}
-		}else {
+		} else {
 			sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
 			return true;
 		}
