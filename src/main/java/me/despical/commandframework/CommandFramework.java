@@ -337,6 +337,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		if (entry == null) return null;
 
+		final String permission = entry.getKey().permission();
+
+		if (!permission.isEmpty() && !sender.hasPermission(permission)) return null;
+
 		try {
 			final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, args));
 

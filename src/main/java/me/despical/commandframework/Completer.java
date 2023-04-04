@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An utility class in framework to create argument completions
+ * A utility class in framework to create argument completions
  * for commands.
  *
  * @author Despical
@@ -41,6 +41,13 @@ public @interface Completer {
 	 * @return name of the command or subcommand
 	 */
 	String name();
+
+	/**
+	 * The permission that sender must have to receive tab complete.
+	 *
+	 * @return name of the permission
+	 */
+	String permission() default "";
 
 	/**
 	 * An alternative name list of command. Check {@link #name()}
