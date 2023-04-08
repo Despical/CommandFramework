@@ -158,28 +158,29 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * @param instance of the method above
 	 */
 	private void registerCommand(Command command, Method method, Object instance) {
-		if (command.name().contains(".")) {
+		final String cmdName = command.name();
+
+		if (cmdName.contains(".")) {
 			subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
 		} else {
 			commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
-		}
 
-		try {
-			final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-			constructor.setAccessible(true);
+			try {
+				final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+				constructor.setAccessible(true);
 
-			final String splittedCommand = command.name().split("\\.")[0];
-			final PluginCommand pluginCommand = constructor.newInstance(splittedCommand, plugin);
-			pluginCommand.setTabCompleter(this);
-			pluginCommand.setExecutor(this);
-			pluginCommand.setUsage(command.usage());
-			pluginCommand.setPermission(command.permission());
-			pluginCommand.setDescription(command.desc());
-			pluginCommand.setAliases(Arrays.asList(command.aliases()));
+				final PluginCommand pluginCommand = constructor.newInstance(cmdName, plugin);
+				pluginCommand.setTabCompleter(this);
+				pluginCommand.setExecutor(this);
+				pluginCommand.setUsage(command.usage());
+				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
+				pluginCommand.setDescription(command.desc());
+				pluginCommand.setAliases(Arrays.asList(command.aliases()));
 
-			commandMap.register(splittedCommand, pluginCommand);
-		} catch (Exception exception) {
-			exception.printStackTrace();
+				commandMap.register(cmdName, pluginCommand);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
