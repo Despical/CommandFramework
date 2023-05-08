@@ -20,8 +20,8 @@ and maximum argument length through the code and adds bunch of new methods to im
 - [Discord Community](https://www.discord.gg/rVkaGmyszE)
 
 ## Donations
-You like the framework? Then [donate](https://www.patreon.com/despical) back me to support the development.
-Donations are more like motivation than money and, they are speeding up the development.
+- [Patreon](https://www.patreon.com/despical)
+- [Buy Me A Coffe](https://www.buymeacoffee.com/despical)
 
 ## Using Command Framework
 The project isn't in the Central Repository yet, so specifying a repository is needed.<br>
