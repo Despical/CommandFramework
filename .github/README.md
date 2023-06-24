@@ -47,7 +47,7 @@ To add this project as a dependency to your project, add the following to your p
 ### Gradle dependency
 ```
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url = uri("https://jitpack.io") }
 }
 ```
 ```
