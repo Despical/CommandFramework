@@ -17,7 +17,7 @@
 
 package me.despical.commandframework;
 
-import me.despical.commons.number.NumberUtils;
+import me.despical.commandframework.utils.NumberUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An utility class to use command arguments without external
+ * A utility class to use command arguments without external
  * Bukkit parameters and includes some useful methods to improve
  * user's code.
  *
