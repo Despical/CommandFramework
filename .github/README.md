@@ -39,7 +39,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.1.9</version>
+    <version>1.2.0</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -52,7 +52,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.1.9";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.0";
 }
 ```
 
@@ -76,7 +76,7 @@ public class ExampleClass extends JavaPlugin {
 
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
             
-            // StringMatcher is an external class from Despical's Commons library which is used in this framework but not all the parts included
+            // StringMatcher is an external class from Despical's Commons library.
             List<StringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
