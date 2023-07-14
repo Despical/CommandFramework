@@ -17,6 +17,7 @@
 
 package me.despical.commandframework;
 
+import me.despical.commandframework.utils.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -142,9 +143,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				final Completer completer = method.getAnnotation(Completer.class);
 
 				if (completer.name().contains(".")) {
-					subCommandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+					subCommandCompletions.put(completer, Utils.mapEntry(method, instance));
 				} else {
-					commandCompletions.put(completer, me.despical.commons.util.Collections.mapEntry(method, instance));
+					commandCompletions.put(completer, Utils.mapEntry(method, instance));
 				}
 			}
 		}
@@ -161,9 +162,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String cmdName = command.name();
 
 		if (cmdName.contains(".")) {
-			subCommands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+			subCommands.put(command, Utils.mapEntry(method, instance));
 		} else {
-			commands.put(command, me.despical.commons.util.Collections.mapEntry(method, instance));
+			commands.put(command, Utils.mapEntry(method, instance));
 
 			try {
 				final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
@@ -200,7 +201,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		// If we found the sub command then return it, otherwise search the commands map
 		if (command != null) {
-			return me.despical.commons.util.Collections.mapEntry(command, subCommands.get(command));
+			return Utils.mapEntry(command, subCommands.get(command));
 		}
 
 		// If our command is not a sub command then search for a main command
@@ -217,7 +218,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		if (command != null) {
 			// Quick fix to accept any match consumer if defined
 			if (command.min() >= possibleArgs.length || command.allowInfiniteArgs()) {
-				return me.despical.commons.util.Collections.mapEntry(command, commands.get(command));
+				return Utils.mapEntry(command, commands.get(command));
 			}
 		}
 
@@ -231,7 +232,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final Map<Command, Long> cooldownMap = cooldowns.get(sender);
 
 		if (cooldownMap == null) {
-			cooldowns.put(sender, me.despical.commons.util.Collections.mapOf(command, System.currentTimeMillis()));
+			cooldowns.put(sender, Utils.mapOf(command, System.currentTimeMillis()));
 			return false;
 		} else if (!cooldownMap.containsKey(command)) {
 			cooldownMap.put(command, System.currentTimeMillis());
@@ -313,7 +314,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 
 		if (completer != null) {
-			return me.despical.commons.util.Collections.mapEntry(completer, subCommandCompletions.get(completer));
+			return Utils.mapEntry(completer, subCommandCompletions.get(completer));
 		}
 
 		for (Completer comp : commandCompletions.keySet()) {
@@ -326,7 +327,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 
 		if (completer != null) {
-			return me.despical.commons.util.Collections.mapEntry(completer, commandCompletions.get(completer));
+			return Utils.mapEntry(completer, commandCompletions.get(completer));
 		}
 
 		return null;

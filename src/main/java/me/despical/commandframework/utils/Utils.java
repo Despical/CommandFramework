@@ -18,6 +18,11 @@
 
 package me.despical.commandframework.utils;
 
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * @author Despical
  * <p>
@@ -25,9 +30,9 @@ package me.despical.commandframework.utils;
  *
  * This class is a part of Despical's Commons library.
  */
-public class NumberUtils {
+public class Utils {
 
-	private NumberUtils() {
+	private Utils() {
 	}
 
 	/**
@@ -144,5 +149,44 @@ public class NumberUtils {
 		} catch (NumberFormatException ignored) {
 			return def;
 		}
+	}
+
+	/**
+	 * Returns a {@link Map.Entry} containing the given key and value.
+	 *
+	 * @param a new key to be stored in this entry.
+	 * @param b new value to be stored in this entry.
+	 * @param <K> new key type to be stored in this entry.
+	 * @param <V> new value type to be stored in this entry.
+	 * @return new {@link Map.Entry} containing the given key and value.
+	 */
+	public static <K, V> Map.Entry<K, V> mapEntry(K a, V b) {
+		return new AbstractMap.SimpleEntry<>(a, b);
+	}
+
+	/**
+	 * Returns an mutable map containing one element.
+	 *
+	 * @param a key to be stored in this map.
+	 * @param b value to be stored in this map.
+	 * @param <K> key type to be stored in this map.
+	 * @param <V> value type to be stored in this map.
+	 * @return Returns an mutable map containing one element.
+	 */
+	public static <K, V> Map<K, V> mapOf(K a, V b) {
+		return mapOf(mapEntry(a, b));
+	}
+
+	/**
+	 * Returns a mutable map containing an arbitrary number of elements.
+	 *
+	 * @param a Array of given entries to be stored in this map.
+	 * @param <K> key type to be stored in this map.
+	 * @param <V> value type to be stored in this map.
+	 * @return Returns a mutable map containing an arbitrary number of elements.
+	 */
+	@SafeVarargs
+	public static <K, V> Map<K, V> mapOf(Map.Entry<K, V>... a) {
+		return Arrays.stream(a).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (b, c) -> c));
 	}
 }

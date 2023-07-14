@@ -17,7 +17,7 @@
 
 package me.despical.commandframework;
 
-import me.despical.commandframework.utils.NumberUtils;
+import me.despical.commandframework.utils.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -100,7 +100,7 @@ public class CommandArguments {
 	 */
 	@NotNull
 	public Integer getArgumentAsInt(int i) {
-		return NumberUtils.getInt(this.getArgument(i));
+		return Utils.getInt(this.getArgument(i));
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class CommandArguments {
 	 */
 	@NotNull
 	public Double getArgumentAsDouble(int i) {
-		return NumberUtils.getDouble(this.getArgument(i));
+		return Utils.getDouble(this.getArgument(i));
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class CommandArguments {
 	 */
 	@NotNull
 	public Float getArgumentAsFloat(int i) {
-		return NumberUtils.getFloat(this.getArgument(i));
+		return Utils.getFloat(this.getArgument(i));
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class CommandArguments {
 	 */
 	@NotNull
 	public Long getArgumentAsLong(int i) {
-		return NumberUtils.getLong(this.getArgument(i));
+		return Utils.getLong(this.getArgument(i));
 	}
 
 	/**
