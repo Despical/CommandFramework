@@ -5,19 +5,17 @@
 [![Build](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
 [![](https://img.shields.io/badge/JavaDocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-[![Discord](https://img.shields.io/discord/719922452259668000.svg?color=lime&label=Discord)](https://discord.gg/rVkaGmyszE)
 [![Support](https://img.shields.io/badge/Patreon-Support-lime.svg?logo=Patreon)](https://www.patreon.com/despical)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
-and maximum argument length through the code and adds bunch of new methods to improve your code.
+and maximum argument length through the code and adds a bunch of new methods to improve your code.
 
 </div>
 
 ## Documentation
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [JavaDocs](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-- [Discord Community](https://www.discord.gg/rVkaGmyszE)
 
 ## Donations
 - [Patreon](https://www.patreon.com/despical)
@@ -39,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -52,7 +50,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.0";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.1";
 }
 ```
 
