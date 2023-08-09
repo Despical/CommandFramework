@@ -125,7 +125,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * @param instance object class
 	 */
 	public void registerCommands(@NotNull Object instance) {
-		for (Method method : instance.getClass().getMethods()) {
+		for (final Method method : instance.getClass().getMethods()) {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
@@ -183,6 +183,66 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				exception.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Unregisters command and tab completer if there is with the given name.
+	 *
+	 * @param commandName name of the command that's going to be removed
+	 */
+	public void unregisterCommand(@NotNull String commandName) {
+		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
+
+		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(commandName, new String[0]);
+
+		if (entry == null) {
+			plugin.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
+			return;
+		}
+
+		final Command command = entry.getKey();
+		final String name = command.name();
+		final PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
+
+		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
+			try {
+				cmd.unregister(commandMap);
+
+				this.commandMap.getKnownCommands().remove(name);
+			} catch (Exception exception) {
+				plugin.getLogger().log(Level.WARNING, "Something went wrong while trying to unregister command(name: {0}) from server!", name);
+			}
+
+			this.commands.remove(command);
+			new HashMap<>(this.subCommands).keySet().stream().filter(subCmd -> subCmd.name().startsWith(name)).forEach(this.subCommands::remove); // Copy elements to new map to avoid modification exception
+		});
+	}
+
+	/**
+	 * Unregisters commands and tab completers within the given instance class.
+	 *
+	 * @param instance the object using to get target class to unregister commands.
+	 */
+	public void unregisterCommands(@NotNull Object instance) {
+		for (final Method method : instance.getClass().getMethods()) {
+			final Command command = method.getAnnotation(Command.class);
+
+			if (command != null) {
+				if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
+					continue;
+				}
+
+				this.unregisterCommand(command.name());
+			}
+		}
+	}
+
+	/**
+	 * Unregisters all of registered commands and tab completers created using that instance.
+	 */
+	public void unregisterCommands() {
+		// Copy elements to new map to avoid modification exception
+		new HashMap<>(commands).keySet().stream().map(Command::name).forEach(this::unregisterCommand);
 	}
 
 	@Nullable
