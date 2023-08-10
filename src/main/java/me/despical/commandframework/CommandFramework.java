@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -176,7 +177,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				pluginCommand.setUsage(command.usage());
 				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
-				pluginCommand.setAliases(Arrays.asList(command.aliases()));
+				pluginCommand.setAliases(Stream.of(command.aliases()).map(String::toLowerCase).collect(Collectors.toList()));
 
 				commandMap.register(cmdName, pluginCommand);
 			} catch (Exception exception) {
