@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,10 +77,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	@NotNull
 	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
 	/**
-	 * Consumer to accept if there is no matched commands related framework.
+	 * Function to apply if there is no matched commands related framework.
+	 *
+	 * <pre>
+	 *     // To disable sending usage to command sender return true
+	 *     CommandFramework#setMatchFunction(arguments -> true);
+	 * </pre>
 	 */
 	@Nullable
-	private Consumer<CommandArguments> anyMatchConsumer;
+	private Function<CommandArguments, Boolean> matchFunction = (arguments) -> false;
 	/**
 	 * Default command map of Bukkit.
 	 */
@@ -112,12 +117,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Consumer to accept if there is no matched commands related framework.
+	 * Function to apply if there is no matched commands related framework.
 	 *
-	 * @param anyMatchConsumer to be accepted if there is no matched commands
+	 * @param matchFunction to be applied if there is no matched commands
 	 */
-	public void setAnyMatch(@NotNull Consumer<CommandArguments> anyMatchConsumer) {
-		this.anyMatchConsumer = anyMatchConsumer;
+	public void setMatchFunction(@NotNull Function<CommandArguments, Boolean> matchFunction) {
+		this.matchFunction = matchFunction;
 	}
 
 	/**
@@ -320,7 +325,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
 		if (entry == null) {
-			if (anyMatchConsumer != null) anyMatchConsumer.accept(new CommandArguments(sender, cmd, label, args));
+			if (matchFunction != null) return matchFunction.apply(new CommandArguments(sender, cmd, label, args));
 
 			return true;
 		}
