@@ -90,7 +90,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * Default command map of Bukkit.
 	 */
 	@Nullable
-	private CommandMap commandMap;
+	protected CommandMap commandMap;
 
 	// Error Message Handler
 	public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
