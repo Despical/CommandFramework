@@ -72,15 +72,13 @@ class CommandRegistrationTest {
 		player.performCommand("example firstParam");
 		player.assertSaid("This is how you can create a example command using framework.");
 
-		//TODO: fix the execution of aliases and enable these tests.
-
 		// first alias
-		//player.performCommand("firstAlias");
-		//player.assertSaid("§cRequired argument length is less or greater than needed!");
+		player.performCommand("firstAlias");
+		player.assertSaid("§cRequired argument length is less or greater than needed!");
 
 		// second alias
-		//player.performCommand("secondAlias");
-		//player.assertSaid("§cRequired argument length is less or greater than needed!");
+		player.performCommand("secondAlias");
+		player.assertSaid("§cRequired argument length is less or greater than needed!");
 	}
 
 	@AfterEach
