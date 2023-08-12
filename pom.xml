@@ -17,17 +17,11 @@
         </license>
     </licenses>
 
+    <!-- Developers listed below are members of the project's core development -->
     <developers>
         <developer>
             <name>Despical</name>
             <url>https://www.spigotmc.org/members/615094/</url>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>gamerover98</name>
-            <url>https://www.spigotmc.org/resources/authors/gamerover98.27106/</url>
             <roles>
                 <role>developer</role>
             </roles>
@@ -48,9 +42,6 @@
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- TEST -->
-
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -58,7 +49,6 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.github.seeseemelk</groupId>
             <artifactId>MockBukkit-v1.20</artifactId>
@@ -71,7 +61,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
