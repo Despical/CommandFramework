@@ -23,6 +23,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -421,11 +422,23 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Get the copied list of registered commands and subcommands.
+	 * Get a copy of registered sub-commands.
 	 *
-	 * @return list of commands and subcommands.
+	 * @return list of sub-commands.
 	 */
 	@NotNull
+	@Contract(pure = true)
+	public List<Command> getSubCommands() {
+		return new ArrayList<>(this.subCommands.keySet());
+	}
+
+	/**
+	 * Get a copy of registered commands and sub-commands.
+	 *
+	 * @return list of commands and sub-commands.
+	 */
+	@NotNull
+	@Contract(pure = true)
 	public List<Command> getCommands() {
 		List<Command> commands = new ArrayList<>(this.commands.keySet());
 		commands.addAll(this.subCommands.keySet());
