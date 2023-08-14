@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.4</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.2";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.4";
 }
 ```
 
@@ -94,6 +94,7 @@ public class ExampleClass extends JavaPlugin {
             min = 1,
             max = 5,
             cooldown = 10,
+            onlyOp = false, // this option will ignore permission if it is set
             senderType = Command.SenderType.CONSOLE
     )
     public void exampleCommand(CommandArguments arguments) {
