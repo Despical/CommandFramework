@@ -215,7 +215,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			try {
 				cmd.unregister(commandMap);
 
-				this.commandMap.getKnownCommands().remove(name);
+				Field field = commandMap.getClass().getDeclaredField("knownCommands");
+				field.setAccessible(true);
+
+				Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field.get(commandMap);
+				knownCommands.remove(name);
 			} catch (Exception exception) {
 				plugin.getLogger().log(Level.WARNING, "Something went wrong while trying to unregister command(name: {0}) from server!", name);
 			}
