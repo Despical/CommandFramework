@@ -87,10 +87,10 @@ public @interface Command {
 	int max() default -1;
 
 	/**
-	 * The time between using command again. Use egative
-	 * integers for infinite.
+	 * The time between using command again. Use a negative
+	 * integer for no cooldown.
 	 *
-	 * @return value of time between using command again.
+	 * @return value of time to use command again.
 	 */
 	int cooldown() default -1;
 
@@ -100,6 +100,16 @@ public @interface Command {
 	 * @return allow infinite arguments.
 	 */
 	boolean allowInfiniteArgs() default false;
+
+	/**
+	 * Only op players can execute this command.
+	 * <p>
+	 * Permissions will be ignored if this option
+	 * is enabled.
+	 *
+	 * @return allow only op players.
+	 */
+	boolean onlyOp() default false;
 
 	/**
 	 * Enum value of command sender type to define who will

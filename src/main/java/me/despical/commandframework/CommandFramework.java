@@ -97,6 +97,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
 	public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
 	public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
+	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
 	public static String SHORT_OR_LONG_ARG_SIZE  = ChatColor.RED + "Required argument length is less or greater than needed!";
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
 
@@ -338,7 +339,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final Command command = entry.getKey();
 		final String permission = command.permission();
 
-		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+		if (command.onlyOp() && !sender.isOp()) {
+			sender.sendMessage(MUST_HAVE_OP);
+			return true;
+		}
+
+		if ((!permission.isEmpty() && !sender.hasPermission(permission))) {
 			sender.sendMessage(NO_PERMISSION);
 			return true;
 		}
