@@ -170,6 +170,14 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String cmdName = command.name();
 
 		if (cmdName.contains(".")) {
+			final String splitName = cmdName.split("\\.")[0];
+
+			// This is an unsupported behaviour at least for now.
+			// All sub-commands must have their own main command to be registered.
+			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
+				throw new IllegalStateException("You can not create sub-commands without a main command!");
+			}
+
 			subCommands.put(command, Utils.mapEntry(method, instance));
 		} else {
 			commands.put(command, Utils.mapEntry(method, instance));
@@ -364,18 +372,25 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
 		if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
-			try {
-				entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
-				return true;
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				e.printStackTrace();
-				return true;
+			final Runnable invocation = () -> {
+				try {
+					entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
+            };
+
+			if (command.async()) {
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
+			} else {
+				invocation.run();
 			}
-		} else {
+        } else {
 			sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
-			return true;
-		}
-	}
+        }
+
+        return true;
+    }
 
 	@Nullable
 	private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {

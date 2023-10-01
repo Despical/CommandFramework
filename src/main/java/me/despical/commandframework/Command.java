@@ -112,6 +112,16 @@ public @interface Command {
 	boolean onlyOp() default false;
 
 	/**
+	 * This option makes command to execute in a separate thread
+	 * but involves HIGH RISKS because the Bukkit API, except the
+	 * scheduler package, is not thread safe nor guaranteed to be
+	 * thread safe.
+	 *
+	 * @return asynchronous execution of command.
+	 */
+	boolean async() default false;
+
+	/**
 	 * Enum value of command sender type to define who will
 	 * use the command.
 	 *
