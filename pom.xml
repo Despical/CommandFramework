@@ -3,7 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
+
+    <name>Command Framework</name>
+    <inceptionYear>2020</inceptionYear>
+    <url>https://www.spigotmc.org/resources/89933</url>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>8</java.version>
