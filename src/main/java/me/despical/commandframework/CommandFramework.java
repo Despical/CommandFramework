@@ -160,13 +160,18 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		subCommands.forEach((key, value) -> {
 			final String splitName = key.name().split("\\.")[0];
+			boolean shouldThrowException = false;
 
 			// This is an unsupported behaviour at least for now.
 			// All sub-commands must have their own main command to be registered.
 			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
+				shouldThrowException = true;
+
 				unregisterCommand(key.name());
-				throw new IllegalStateException(String.format("You can not create sub-commands without a main command! (%s)", key.name()));
 			}
+
+			if (shouldThrowException)
+				throw new IllegalStateException(String.format("You can not create sub-commands without a main command! (%s)", key.name()));
 		});
 	}
 
