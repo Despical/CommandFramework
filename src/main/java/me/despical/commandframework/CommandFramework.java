@@ -157,6 +157,17 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				}
 			}
 		}
+
+		subCommands.forEach((key, value) -> {
+			final String splitName = key.name().split("\\.")[0];
+
+			// This is an unsupported behaviour at least for now.
+			// All sub-commands must have their own main command to be registered.
+			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
+				unregisterCommand(key.name());
+				throw new IllegalStateException(String.format("You can not create sub-commands without a main command! (%s)", key.name()));
+			}
+		});
 	}
 
 	/**
@@ -170,14 +181,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String cmdName = command.name();
 
 		if (cmdName.contains(".")) {
-			final String splitName = cmdName.split("\\.")[0];
-
-			// This is an unsupported behaviour at least for now.
-			// All sub-commands must have their own main command to be registered.
-			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
-				throw new IllegalStateException("You can not create sub-commands without a main command!");
-			}
-
 			subCommands.put(command, Utils.mapEntry(method, instance));
 		} else {
 			commands.put(command, Utils.mapEntry(method, instance));
