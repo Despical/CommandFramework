@@ -18,6 +18,8 @@
 
 package me.despical.commandframework.utils;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
  *
  * This class is a part of Despical's Commons library.
  */
+@ApiStatus.Internal
 public class Utils {
 
 	private Utils() {
@@ -65,7 +68,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an double, returning zero if the conversion
+	 * Convert a String to a double, returning zero if the conversion
 	 * fails. If the string is null, zero is returned.
 	 *
 	 * @param string the string to convert, may be null
@@ -76,7 +79,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an double, returning a default value if the conversion
+	 * Convert a String to a double, returning a default value if the conversion
 	 * fails. If the string is null, the default value is returned.
 	 *
 	 * @param string the string to convert, may be null
@@ -94,7 +97,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an long, returning zero if the conversion
+	 * Convert a String to a long, returning zero if the conversion
 	 * fails. If the string is null, zero is returned.
 	 *
 	 * @param string the string to convert, may be null
@@ -105,7 +108,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an long, returning a default value if the conversion
+	 * Convert a String to a long, returning a default value if the conversion
 	 * fails. If the string is null, the default value is returned.
 	 *
 	 * @param string the string to convert, may be null
@@ -123,7 +126,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an float, returning zero if the conversion
+	 * Convert a String to a float, returning zero if the conversion
 	 * fails. If the string is null, zero is returned.
 	 *
 	 * @param string the string to convert, may be null
@@ -134,7 +137,7 @@ public class Utils {
 	}
 
 	/**
-	 * Convert a String to an float, returning a default value if the conversion
+	 * Convert a String to a float, returning a default value if the conversion
 	 * fails. If the string is null, the default value is returned.
 	 *
 	 * @param string the string to convert, may be null
