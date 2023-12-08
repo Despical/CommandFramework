@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 
 /**
  * Main class of the framework to register commands, add tab
- * completions and implement a consumer to run if there is no
+ * completions and implement a function to run if there is no
  * matched commands related this framework.
  *
  * @author Despical

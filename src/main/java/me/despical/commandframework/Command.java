@@ -129,6 +129,9 @@ public @interface Command {
 	 */
 	SenderType senderType() default SenderType.BOTH;
 
+	/**
+	 * Available command sender or senders.
+	 */
 	enum SenderType {
 		BOTH, CONSOLE, PLAYER
 	}

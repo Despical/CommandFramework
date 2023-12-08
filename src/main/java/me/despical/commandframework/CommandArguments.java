@@ -20,6 +20,7 @@ package me.despical.commandframework;
 import me.despical.commandframework.utils.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,8 +49,9 @@ public class CommandArguments {
 	/**
 	 * Do not try to cast objects except subclasses of {@link CommandSender}
 	 * otherwise {@link ClassCastException} will occur. Also casting for {@link Player}
-	 * or {@link org.bukkit.command.ConsoleCommandSender} isn't needed.
+	 * or {@link ConsoleCommandSender} isn't needed.
 	 *
+	 * @param <T> {@link CommandSender}
 	 * @return sender of command as Player or CommandSender
 	 */
 	@SuppressWarnings("unchecked")
