@@ -18,8 +18,6 @@
 
 package me.despical.commandframework.utils;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
  *
  * This class is a part of Despical's Commons library.
  */
-@ApiStatus.Internal
 public class Utils {
 
 	private Utils() {
