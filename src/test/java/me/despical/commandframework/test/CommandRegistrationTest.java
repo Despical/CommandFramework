@@ -72,6 +72,10 @@ class CommandRegistrationTest {
 		player.performCommand("example firstParam");
 		player.assertSaid("This is how you can create a example command using framework.");
 
+		// more params than maximum param amount
+		player.performCommand("example firstParam secondParam thirdParam fourthParam fifthParam sixthParam");
+		player.assertSaid("/example");
+
 		// first alias
 		player.performCommand("firstAlias");
 		player.assertSaid("§cRequired argument length is less or greater than needed!");
