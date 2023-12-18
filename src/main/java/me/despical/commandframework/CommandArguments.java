@@ -142,8 +142,7 @@ public class CommandArguments {
 	 */
 	@NotNull
 	public Boolean getArgumentAsBoolean(int i) {
-		final String arg = this.getArgument(i);
-		return arg != null && arg.equalsIgnoreCase("true");
+		return "true".equalsIgnoreCase(this.getArgument(i));
 	}
 
 	// ---------------------------------------------- //
