@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
 
     <name>Command Framework</name>
     <inceptionYear>2020</inceptionYear>
@@ -28,9 +28,6 @@
         <developer>
             <name>Despical</name>
             <url>https://www.spigotmc.org/members/615094/</url>
-            <roles>
-                <role>developer</role>
-            </roles>
         </developer>
     </developers>
 
@@ -46,18 +43,18 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>com.destroystokyo.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- TEST -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.destroystokyo.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
@@ -106,9 +103,6 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
                     </execution>
                 </executions>
                 <goals>
@@ -158,7 +152,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
                 <configuration>
-                    <skipTests>true</skipTests>
                     <systemPropertyVariables>
                         <java.version>17</java.version>
                     </systemPropertyVariables>
