@@ -137,14 +137,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
-				if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
+				if (!method.isAnnotationPresent(NoCommandArguments.class) && (method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != CommandArguments.class)) {
+					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not annotated @NoCommandArguments neither contains CommandArguments as the first parameter!", method.getName());
 					continue;
 				}
 
 				registerCommand(command, method, instance);
-			} else if (method.getAnnotation(Completer.class) != null) {
+			} else if (method.isAnnotationPresent(Completer.class)) {
 				if (!List.class.isAssignableFrom(method.getReturnType())) {
-					plugin.getLogger().log(Level.WARNING, "Skipped registration of {0} because it is not returning java.util.List type.", method.getName());
+					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
 					continue;
 				}
 
@@ -382,7 +383,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
 			final Runnable invocation = () -> {
 				try {
-					entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, newArgs));
+					final Method method = entry.getValue().getKey();
+					final Object instance = entry.getValue().getValue();
+
+					if (method.isAnnotationPresent(NoCommandArguments.class)) {
+						method.invoke(instance);
+						return;
+					}
+
+					method.invoke(instance, new CommandArguments(sender, cmd, label, newArgs));
 				} catch (IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
 				}
@@ -437,16 +446,23 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
 
-		if (entry == null) return null;
+		if (entry == null)return null;
 
 		final String permission = entry.getKey().permission();
 
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) return null;
 
 		try {
-			final Object instance = entry.getValue().getKey().invoke(entry.getValue().getValue(), new CommandArguments(sender, cmd, label, args));
+			final Method method = entry.getValue().getKey();
+			final Object completer, instance = entry.getValue().getValue();
 
-			return (List<String>) instance;
+			if (method.isAnnotationPresent(NoCommandArguments.class)) {
+				completer = method.invoke(instance);
+			} else {
+				completer = method.invoke(instance, new CommandArguments(sender, cmd, label, args));
+			}
+
+			return (List<String>) completer;
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
