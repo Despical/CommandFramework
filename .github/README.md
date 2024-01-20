@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.2.7</version>
+    <version>1.2.8</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.7";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.8";
 }
 ```
 
@@ -104,6 +104,16 @@ public class ExampleClass extends JavaPlugin {
         // CommandArguments class contains basic things related Bukkit commands
         // And here it's all done, you've created command with properties above!
         arguments.sendMessage("This is how you can create a example command using framework.");
+    }
+
+    // Use @NoCommandArguments annotation to create commands without passing parameters.
+    // This annotation is highly aimed for debugging and testing purposes.
+    @Command(
+            name = "nocommandargs"
+    )
+    @NoCommandArguments
+    public void noCommandArgsTest() {
+        Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
     }
 
     // Aliases don't need to be same with the command above

@@ -130,7 +130,10 @@ class CommandRegistrationTest {
 			Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
 		}
 
-		@Completer(name = "example", aliases = {"firstAlias", "secondAlias"})
+		@Completer(
+			name = "example"
+			, aliases = {"firstAlias", "secondAlias"}
+		)
 		public List<String> exampleCommandCompletion(CommandArguments arguments) {
 			return Arrays.asList("first", "second", "third");
 		}
