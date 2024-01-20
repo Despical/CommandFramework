@@ -112,6 +112,9 @@ public @interface Command {
 	boolean onlyOp() default false;
 
 	/**
+	 * This option is now deprecated. In newer versions of framework
+	 * a new API will be introduced with additional features.
+	 * <p>
 	 * This option makes command to execute in a separate thread
 	 * but involves HIGH RISKS because the Bukkit API, except the
 	 * scheduler package, is not thread safe nor guaranteed to be
@@ -119,6 +122,7 @@ public @interface Command {
 	 *
 	 * @return asynchronous execution of command.
 	 */
+	@Deprecated
 	boolean async() default false;
 
 	/**
