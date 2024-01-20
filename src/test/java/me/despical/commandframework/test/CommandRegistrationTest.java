@@ -4,10 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.MockPlugin;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import me.despical.commandframework.Command;
-import me.despical.commandframework.CommandArguments;
-import me.despical.commandframework.CommandFramework;
-import me.despical.commandframework.Completer;
+import me.despical.commandframework.*;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -50,7 +48,7 @@ class CommandRegistrationTest {
 	@Test
 	void testCommandRegistration() {
 		CommandFramework commandFramework = createCommandFramework();
-		assertEquals(1, commandFramework.getCommands().size());
+		assertEquals(2, commandFramework.getCommands().size());
 	}
 
 	/**
@@ -83,6 +81,8 @@ class CommandRegistrationTest {
 		// second alias
 		player.performCommand("secondAlias");
 		player.assertSaid("§cRequired argument length is less or greater than needed!");
+
+		player.performCommand("nocommandargs");
 	}
 
 	@AfterEach
@@ -120,6 +120,14 @@ class CommandRegistrationTest {
 		public void exampleCommandMethod(CommandArguments arguments) {
 			CommandSender sender = arguments.getSender();
 			sender.sendMessage("This is how you can create a example command using framework.");
+		}
+
+		@Command(
+			name = "nocommandargs"
+		)
+		@NoCommandArguments
+		public void noCommandArgsTest() {
+			Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
 		}
 
 		@Completer(name = "example", aliases = {"firstAlias", "secondAlias"})
