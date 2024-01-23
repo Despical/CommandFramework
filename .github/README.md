@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.2.9</version>
+    <version>1.3.0</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,12 +50,17 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.2.9";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.0";
 }
 ```
 
 ## Example usage
+
 ```java
+import me.despical.commandframework.Command;
+import me.despical.commandframework.CommandArguments;
+import me.despical.commandframework.CustomParameters;
+
 public class ExampleClass extends JavaPlugin {
 
     // Don't forget to shade framework in to your project
@@ -65,6 +70,9 @@ public class ExampleClass extends JavaPlugin {
     public void onEnable() {
         // Initialize the framework before using
         commandFramework = new CommandFramework(this);
+        // Adding custom parameters
+        // Now all String type objects will return first argument.
+        commandFramework.addCustomParameter(String.class, arguments -> arguments.getArgument(0));
 
         // Then this will register all the @Command methods as a command
         // so there is no necessity to add command to your plugin.yml
@@ -73,9 +81,9 @@ public class ExampleClass extends JavaPlugin {
             if (arguments.isArgumentsEmpty()) return false;
 
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
-            
+
             // StringMatcher is an external class from Despical's Commons library which is not in this framework
-            ListStringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
+            ListStringMatcher.Match > matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
                 arguments.sendMessage("Did you mean %command%?".replace("%command%", label + " " + matches.get(0).getMatch()));
@@ -119,10 +127,21 @@ public class ExampleClass extends JavaPlugin {
         Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
     }
 
+    @Command(
+            name = "customargs",
+            min = 1
+    )
+    // Do not forget to annotate with @CustomParameters; otherwise, the method won't be registered.
+    @CustomParameters
+    public void customParamCommand(String firstParameter, CommandArguments arguments) {
+        // CommandArguments parameter can be added to anywhere in method as a parameter.
+        arguments.sendMessage("First parameter is " + firstParameter);
+    }
+ 
     // Aliases don't need to be same with the command above
     @Completer(
-              name = "example",
-              aliases = {"firstAlias", "secondAlias"}
+            name = "example",
+            aliases = {"firstAlias", "secondAlias"}
     )
     public List<String> exampleCommandCompletion(CommandArguments arguments) {
         // And you've created a tab completion for the command above
