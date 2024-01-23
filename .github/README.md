@@ -69,17 +69,20 @@ public class ExampleClass extends JavaPlugin {
         // Then this will register all the @Command methods as a command
         // so there is no necessity to add command to your plugin.yml
         commandFramework.registerCommands(this);
-        commandFramework.setAnyMatch(arguments -> {
-            if (arguments.isArgumentsEmpty()) return;
+        commandFramework.setMatchFunction(arguments -> {
+            if (arguments.isArgumentsEmpty()) return false;
 
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
             
-            // StringMatcher is an external class from Despical's Commons library.
-            List<StringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
+            // StringMatcher is an external class from Despical's Commons library which is not in this framework
+            ListStringMatcher.Match> matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
                 arguments.sendMessage("Did you mean %command%?".replace("%command%", label + " " + matches.get(0).getMatch()));
+                return true;
             }
+
+            return false;
         });
     }
 
