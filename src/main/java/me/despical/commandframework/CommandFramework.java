@@ -27,10 +27,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -78,11 +75,16 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	@NotNull
 	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
 	/**
+	 * Map of custom parameters for command methods.
+	 */
+	@NotNull
+	private final Map<String, Function<CommandArguments, Object>> customParametersMap = new HashMap<>();
+	/**
 	 * Function to apply if there is no matched commands related framework.
-	 *
+	 * <p>
 	 * <pre>
-	 *     // To disable sending usage to command sender return true
-	 *     CommandFramework#setMatchFunction(arguments -> true);
+	 * // To disable sending usage to command sender return true
+	 * CommandFramework#setMatchFunction(arguments -> true);
 	 * </pre>
 	 */
 	@Nullable
@@ -127,6 +129,14 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		this.matchFunction = matchFunction;
 	}
 
+	public void addCustomParameter(@NotNull Class<?> instanceClass, @NotNull Function<CommandArguments, Object> function) {
+		final String simpleName = instanceClass.getSimpleName();
+
+		if (this.customParametersMap.containsKey(simpleName))
+			throw new CommandException("Object type '%s' is already registered as a custom parameter!", simpleName);
+		this.customParametersMap.put(simpleName, function);
+	}
+
 	/**
 	 * Register command methods in object class.
 	 *
@@ -137,7 +147,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
-				if (!method.isAnnotationPresent(NoCommandArguments.class) && (method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != CommandArguments.class)) {
+				if (method.isAnnotationPresent(CustomParameters.class) && method.getParameterTypes().length == 0) {
+					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is annotated @CustomParameters and doesn't have any parameter!", method.getName());
+					return;
+				}
+
+				if ((!method.isAnnotationPresent(CustomParameters.class) && !method.isAnnotationPresent(NoCommandArguments.class)) && (method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != CommandArguments.class)) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not annotated @NoCommandArguments neither contains CommandArguments as the first parameter!", method.getName());
 					continue;
 				}
@@ -172,7 +187,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			}
 
 			if (shouldThrowException)
-				throw new IllegalStateException(String.format("You can not create sub-commands without a main command! (%s)", key.name()));
+				throw new CommandException("You can not create sub-commands without a main command! (%s)", key.name());
 		});
 	}
 
@@ -230,6 +245,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
 
 		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
+			// Do not unregister if matched command is not registered from our instance plugin.
+			if (!pluginCommand.getPlugin().equals(plugin))
+				return;
+
 			try {
 				cmd.unregister(commandMap);
 
@@ -391,6 +410,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 						return;
 					}
 
+					if (method.isAnnotationPresent(CustomParameters.class)) {
+						method.invoke(instance, getParameterArray(method.getParameters(), new CommandArguments(sender, cmd, label, newArgs)));
+						return;
+					}
+
 					method.invoke(instance, new CommandArguments(sender, cmd, label, newArgs));
 				} catch (IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
@@ -442,11 +466,32 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		return null;
 	}
 
+	@NotNull
+	private Object[] getParameterArray(Parameter[] parameters, CommandArguments commandArguments) {
+		final Object[] methodParameters = new Object[parameters.length];
+
+		for (int i = 0; i < parameters.length; i++) {
+			final String simpleName = parameters[i].getType().getSimpleName();
+
+			if ("CommandArguments".equals(simpleName)) {
+				methodParameters[i] = commandArguments;
+				continue;
+			}
+
+			if (!customParametersMap.containsKey(simpleName))
+				throw new CommandException("Custom parameter(%s) is requested but return function is not found!", simpleName);
+
+			methodParameters[i] = customParametersMap.get(simpleName).apply(commandArguments);
+		}
+
+		return methodParameters;
+	}
+
 	@Override
 	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
 
-		if (entry == null)return null;
+		if (entry == null) return null;
 
 		final String permission = entry.getKey().permission();
 
