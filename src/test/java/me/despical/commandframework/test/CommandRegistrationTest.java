@@ -48,7 +48,7 @@ class CommandRegistrationTest {
 	@Test
 	void testCommandRegistration() {
 		CommandFramework commandFramework = createCommandFramework();
-		assertEquals(2, commandFramework.getCommands().size());
+		assertEquals(3, commandFramework.getCommands().size());
 	}
 
 	/**
@@ -82,7 +82,12 @@ class CommandRegistrationTest {
 		player.performCommand("secondAlias");
 		player.assertSaid("§cRequired argument length is less or greater than needed!");
 
+		// no command arguments
 		player.performCommand("nocommandargs");
+
+		// custom parameters
+		player.performCommand("customargs test");
+		player.assertSaid("First parameter is test");
 	}
 
 	@AfterEach
@@ -97,6 +102,7 @@ class CommandRegistrationTest {
 	private CommandFramework createCommandFramework() {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
 		commandFramework.registerCommands(new ExampleCommand());
+		commandFramework.addCustomParameter(String.class, arguments -> arguments.getArgument(0));
 		return commandFramework;
 	}
 
@@ -130,9 +136,22 @@ class CommandRegistrationTest {
 			Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
 		}
 
+		@Command(
+			name = "customargs",
+			min = 1
+		)
+		// Do not forget to annotate with @CustomParameters; otherwise, the method won't be registered.
+		@CustomParameters
+		public void customParamCommand(String firstParameter, CommandArguments arguments) {
+			CommandSender sender = arguments.getSender();
+			// Check if arguments are empty; otherwise, firstParameter will return null.
+			// CommandArguments parameter can be added to anywhere in method as a parameter.
+			sender.sendMessage("First parameter is " + firstParameter);
+		}
+
 		@Completer(
-			name = "example"
-			, aliases = {"firstAlias", "secondAlias"}
+			name = "example",
+			aliases = {"firstAlias", "secondAlias"}
 		)
 		public List<String> exampleCommandCompletion(CommandArguments arguments) {
 			return Arrays.asList("first", "second", "third");
