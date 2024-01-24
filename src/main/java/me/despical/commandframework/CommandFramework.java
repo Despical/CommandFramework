@@ -79,7 +79,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * Map of custom parameters for command methods.
 	 */
 	@NotNull
-	private final Map<String, Function<CommandArguments, Object>> customParametersMap = new HashMap<>();
+	private final Map<String, Function<CommandArguments, ?>> customParametersMap = new HashMap<>();
 	/**
 	 * Function to apply if there is no matched commands related framework.
 	 * <p>
@@ -130,7 +130,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		this.matchFunction = matchFunction;
 	}
 
-	public void addCustomParameter(@NotNull Class<?> instanceClass, @NotNull Function<CommandArguments, Object> function) {
+	public <A, B extends A> void addCustomParameter(@NotNull Class<A> instanceClass, @NotNull Function<CommandArguments, B> function) {
 		final String simpleName = instanceClass.getSimpleName();
 
 		if (this.customParametersMap.containsKey(simpleName))
