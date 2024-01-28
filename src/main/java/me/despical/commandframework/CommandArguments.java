@@ -101,8 +101,7 @@ public class CommandArguments {
 	 * @return Integer if indexed element is primitive type of int
 	 * or 0 if element is null.
 	 */
-	@NotNull
-	public Integer getArgumentAsInt(int i) {
+	public int getArgumentAsInt(int i) {
 		return Utils.getInt(this.getArgument(i));
 	}
 
@@ -111,8 +110,7 @@ public class CommandArguments {
 	 * @return Double if indexed element is primitive type of double
 	 * or 0 if element is null.
 	 */
-	@NotNull
-	public Double getArgumentAsDouble(int i) {
+	public double getArgumentAsDouble(int i) {
 		return Utils.getDouble(this.getArgument(i));
 	}
 
@@ -121,8 +119,7 @@ public class CommandArguments {
 	 * @return Float if indexed element is primitive type of float
 	 * or 0 if element is null.
 	 */
-	@NotNull
-	public Float getArgumentAsFloat(int i) {
+	public float getArgumentAsFloat(int i) {
 		return Utils.getFloat(this.getArgument(i));
 	}
 
@@ -131,8 +128,7 @@ public class CommandArguments {
 	 * @return Long if indexed element is primitive type of long
 	 * or 0 if element is null.
 	 */
-	@NotNull
-	public Long getArgumentAsLong(int i) {
+	public long getArgumentAsLong(int i) {
 		return Utils.getLong(this.getArgument(i));
 	}
 
@@ -141,8 +137,7 @@ public class CommandArguments {
 	 * @return Boolean if indexed element is primitive type of boolean
 	 * or 0 if element is null.
 	 */
-	@NotNull
-	public Boolean getArgumentAsBoolean(int i) {
+	public boolean getArgumentAsBoolean(int i) {
 		return "true".equalsIgnoreCase(this.getArgument(i));
 	}
 
