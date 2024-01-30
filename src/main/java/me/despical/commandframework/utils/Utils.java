@@ -18,6 +18,10 @@
 
 package me.despical.commandframework.utils;
 
+import me.despical.commandframework.Command;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.lang.annotation.Annotation;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
  *
  * This class is a part of Despical's Commons library.
  */
+@ApiStatus.Internal
 public class Utils {
 
 	private Utils() {
@@ -188,5 +193,75 @@ public class Utils {
 	@SafeVarargs
 	public static <K, V> Map<K, V> mapOf(Map.Entry<K, V>... a) {
 		return Arrays.stream(a).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (b, c) -> c));
+	}
+
+	public static Command createCommand(final Command command, final String commandName) {
+		return new Command() {
+
+			@Override
+			public String name() {
+				return commandName;
+			}
+
+			@Override
+			public String permission() {
+				return command.permission();
+			}
+
+			@Override
+			public String[] aliases() {
+				return new String[0];
+			}
+
+			@Override
+			public String desc() {
+				return command.desc();
+			}
+
+			@Override
+			public String usage() {
+				return command.usage();
+			}
+
+			@Override
+			public int min() {
+				return command.min();
+			}
+
+			@Override
+			public int max() {
+				return command.max();
+			}
+
+			@Override
+			public int cooldown() {
+				return command.cooldown();
+			}
+
+			@Override
+			public boolean allowInfiniteArgs() {
+				return command.allowInfiniteArgs();
+			}
+
+			@Override
+			public boolean onlyOp() {
+				return command.onlyOp();
+			}
+
+			@Override
+			public boolean async() {
+				return command.async();
+			}
+
+			@Override
+			public SenderType senderType() {
+				return command.senderType();
+			}
+
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return command.annotationType();
+			}
+		};
 	}
 }

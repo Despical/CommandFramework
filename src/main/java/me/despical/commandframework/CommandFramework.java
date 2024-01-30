@@ -115,8 +115,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				field.setAccessible(true);
 
 				commandMap = (CommandMap) field.get(manager);
-			} catch (IllegalArgumentException | SecurityException | IllegalAccessException | NoSuchFieldException e) {
-				e.printStackTrace();
+			} catch (ReflectiveOperationException exception) {
+				exception.printStackTrace();
 			}
 		}
 	}
@@ -159,6 +159,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				}
 
 				registerCommand(command, method, instance);
+
+				// If aliases are registered as a sub-command then register them as a plugin command.
+				// Otherwise, they will not be recognized as a command and will not be proceeded.
+				Stream.of(command.aliases()).filter(alias -> alias.contains(".")).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
 			} else if (method.isAnnotationPresent(Completer.class)) {
 				if (!List.class.isAssignableFrom(method.getReturnType())) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
@@ -177,18 +181,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		subCommands.forEach((key, value) -> {
 			final String splitName = key.name().split("\\.")[0];
-			boolean shouldThrowException = false;
 
-			// This is an unsupported behaviour at least for now.
-			// All sub-commands must have their own main command to be registered.
+			// Framework is going to work properly but this should not be handled that way.
 			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
-				shouldThrowException = true;
-
-				unregisterCommand(key.name());
+				registerCommand(Utils.createCommand(key, splitName), null, null);
 			}
-
-			if (shouldThrowException)
-				throw new CommandException("You can not create sub-commands without a main command! (%s)", key.name());
 		});
 	}
 
@@ -217,7 +214,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				pluginCommand.setUsage(command.usage());
 				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
-				pluginCommand.setAliases(Stream.of(command.aliases()).map(String::toLowerCase).collect(Collectors.toList()));
+				pluginCommand.setAliases(Stream.of(command.aliases()).filter(alias -> !alias.contains(".")).collect(Collectors.toList()));
 
 				commandMap.register(cmdName, pluginCommand);
 			} catch (Exception exception) {
@@ -405,6 +402,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				try {
 					final Method method = entry.getValue().getKey();
 					final Object instance = entry.getValue().getValue();
+
+					if (method == null)
+						return;
 
 					if (method.isAnnotationPresent(NoCommandArguments.class)) {
 						method.invoke(instance);
