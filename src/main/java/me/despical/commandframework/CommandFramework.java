@@ -312,7 +312,18 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	private boolean hasCooldown(final CommandSender sender, final Command command) {
-		if (command.cooldown() < 1) return false;
+		final Method method = this.commands.get(command).getKey();
+
+		if (!method.isAnnotationPresent(Cooldown.class)) return false;
+
+		final Cooldown cooldown = method.getAnnotation(Cooldown.class);
+
+		if (cooldown.cooldown() <= 0 || cooldown.bypassPerm().isEmpty()) return false;
+
+		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
+
+		if (isConsoleSender && !cooldown.overrideConsole()) return false;
+		if (!isConsoleSender && sender.hasPermission(cooldown.bypassPerm())) return false;
 
 		final Map<Command, Long> cooldownMap = cooldowns.get(sender);
 
@@ -326,10 +337,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return false;
 		}
 
-		final int remainingTime = (int) ((System.currentTimeMillis() - cooldownMap.get(command)) / 1000) % 60;
+		final long remainingSeconds = ((System.currentTimeMillis() - cooldownMap.get(command)) / 1000) % 60;
+		final long cooldownInSeconds = cooldown.timeUnit().toSeconds(cooldown.cooldown());
+		final int timeBetween = (int) (cooldownInSeconds - remainingSeconds); // less precious more accurate
 
-		if (remainingTime <= command.cooldown()) {
-			sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, command.cooldown() - remainingTime));
+		if (timeBetween > 0) {
+			sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, timeBetween));
 			return true;
 		} else {
 			cooldownMap.put(command, System.currentTimeMillis());
