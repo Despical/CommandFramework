@@ -265,25 +265,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Unregisters commands and tab completers within the given instance class.
-	 *
-	 * @param instance the object using to get target class to unregister commands.
-	 */
-	public void unregisterCommands(@NotNull Object instance) {
-		for (final Method method : instance.getClass().getMethods()) {
-			final Command command = method.getAnnotation(Command.class);
-
-			if (command != null) {
-				if (method.getParameterTypes().length > 0 && method.getParameterTypes()[0] != CommandArguments.class) {
-					continue;
-				}
-
-				this.unregisterCommand(command.name());
-			}
-		}
-	}
-
-	/**
 	 * Unregisters all of registered commands and tab completers created using that instance.
 	 */
 	public void unregisterCommands() {
