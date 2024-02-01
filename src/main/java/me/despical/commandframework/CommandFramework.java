@@ -250,7 +250,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			try {
 				cmd.unregister(commandMap);
 
-				Field field = commandMap.getClass().getDeclaredField("knownCommands");
+				Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
 				field.setAccessible(true);
 
 				Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field.get(commandMap);
