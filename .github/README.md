@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.2";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.3";
 }
 ```
 
@@ -59,7 +59,10 @@ dependencies {
 ```java
 import me.despical.commandframework.Command;
 import me.despical.commandframework.CommandArguments;
+import me.despical.commandframework.Cooldown;
 import me.despical.commandframework.CustomParameters;
+
+import java.util.concurrent.TimeUnit;
 
 public class ExampleClass extends JavaPlugin {
 
@@ -104,12 +107,17 @@ public class ExampleClass extends JavaPlugin {
             usage = "/example",
             min = 1,
             max = 5,
-            cooldown = 10,
             onlyOp = false, // this option will ignore permission if it is set
             // be careful if you are using non-thread safe operations
             // and if you want to enable option below
             async = false,
             senderType = Command.SenderType.CONSOLE
+    )
+    @Cooldown(
+            cooldown = 10,
+            timeUnit = TimeUnit.SECONDS,
+            bypassPerm = "command.cooldownBypass",
+            overrideConsole = true // console will now be affected by cooldown
     )
     public void exampleCommand(CommandArguments arguments) {
         // CommandArguments class contains basic things related Bukkit commands
@@ -137,7 +145,7 @@ public class ExampleClass extends JavaPlugin {
         // CommandArguments parameter can be added to anywhere in method as a parameter.
         arguments.sendMessage("First parameter is " + firstParameter);
     }
- 
+
     // Aliases don't need to be same with the command above
     @Completer(
             name = "example",
