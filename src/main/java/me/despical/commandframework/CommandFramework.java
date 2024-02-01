@@ -32,7 +32,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -148,6 +147,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
+				Arrays.stream(method.getParameters()).forEach(parameter -> System.out.println(parameter.getName()));
 				if (method.isAnnotationPresent(CustomParameters.class) && method.getParameterTypes().length == 0) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is annotated @CustomParameters and doesn't have any parameter!", method.getName());
 					return;
@@ -160,9 +160,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 				registerCommand(command, method, instance);
 
-				// If aliases are registered as a sub-command then register them as a plugin command.
-				// Otherwise, they will not be recognized as a command and will not be proceeded.
-				Stream.of(command.aliases()).filter(alias -> alias.contains(".")).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
+				// Register all aliases as a plugin command. If it is a sub-command then register it as a sub-command.
+				Stream.of(command.aliases()).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
 			} else if (method.isAnnotationPresent(Completer.class)) {
 				if (!List.class.isAssignableFrom(method.getReturnType())) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
@@ -214,7 +213,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				pluginCommand.setUsage(command.usage());
 				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
-				pluginCommand.setAliases(Stream.of(command.aliases()).filter(alias -> !alias.contains(".")).collect(Collectors.toList()));
 
 				commandMap.register(cmdName, pluginCommand);
 			} catch (Exception exception) {
