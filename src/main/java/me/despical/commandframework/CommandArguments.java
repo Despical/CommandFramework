@@ -164,7 +164,7 @@ public class CommandArguments {
 	/**
 	 * Checks if command sender is console.
 	 *
-	 * @return true if sender is console otherwise false
+	 * @return true if sender is console, otherwise false
 	 */
 	public boolean isSenderConsole() {
 		return !isSenderPlayer();
@@ -173,7 +173,7 @@ public class CommandArguments {
 	/**
 	 * Checks if command sender is player.
 	 *
-	 * @return true if sender is player otherwise false
+	 * @return true if sender is player, otherwise false
 	 */
 	public boolean isSenderPlayer() {
 		return commandSender instanceof Player;
@@ -183,10 +183,10 @@ public class CommandArguments {
 	 * Checks if command sender has specified permission.
 	 *
 	 * @param permission to check
-	 * @return true if sender has permission otherwise false
+	 * @return true if sender has permission or <code>permission</code> is empty, otherwise false
 	 */
 	public boolean hasPermission(String permission) {
-		return commandSender.hasPermission(permission);
+		return permission.isEmpty() || commandSender.hasPermission(permission);
 	}
 
 	/**
