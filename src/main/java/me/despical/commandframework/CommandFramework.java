@@ -87,7 +87,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * CommandFramework#setMatchFunction(arguments -> true);
 	 * </pre>
 	 */
-	@Nullable
+	@NotNull
 	private Function<CommandArguments, Boolean> matchFunction = (arguments) -> false;
 	/**
 	 * Default command map of Bukkit.
@@ -277,8 +277,13 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		// Search for the sub commands first
 		for (Command cmd : subCommands.keySet()) {
 			final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+			// Checking aliases...
+			if (name.equals(cmdName)) {
+				command = cmd;
+				break;
+			}
 
-			if (name.equalsIgnoreCase(cmdName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+			if (name.equalsIgnoreCase(cmdName)) {
 				command = cmd;
 				break;
 			}
@@ -286,7 +291,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		// If we found the sub command then return it, otherwise search the commands map
 		if (command != null) {
-			return Utils.mapEntry(command, subCommands.get(command));
+			final long argCount = command.name().chars().mapToObj(c -> (char) c).filter(c -> c == '.').count();
+
+			// Extra check for possible arguments.
+			if (command.min() >= possibleArgs.length - argCount || command.allowInfiniteArgs()) {
+				return Utils.mapEntry(command, subCommands.get(command));
+			}
 		}
 
 		// If our command is not a sub command then search for a main command
@@ -311,9 +321,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		return null;
 	}
 
-	private boolean hasCooldown(final CommandSender sender, final Command command) {
-		final Method method = this.commands.get(command).getKey();
+	private boolean hasCooldown(final CommandSender sender, final Command command, Map.Entry<Command, Map.Entry<Method, Object>> entry) {
+		final Method method = entry.getValue().getKey();
 
+		if (method == null) return false;
 		if (!method.isAnnotationPresent(Cooldown.class)) return false;
 
 		final Cooldown cooldown = method.getAnnotation(Cooldown.class);
@@ -357,9 +368,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
 		if (entry == null) {
-			if (matchFunction != null) return matchFunction.apply(new CommandArguments(sender, cmd, label, args));
-
-			return true;
+			return matchFunction.apply(new CommandArguments(sender, cmd, label, args));
 		}
 
 		final Command command = entry.getKey();
@@ -385,10 +394,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (this.hasCooldown(sender, command))
+		if (this.hasCooldown(sender, command, entry))
 			return true;
 
-		final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+		final String[] splitted = command.name().split("\\.");
+		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
 		if (this.checkArgumentLength(sender, command, args, splitted, newArgs))
 			return true;
