@@ -88,14 +88,6 @@ public @interface Command {
 	int max() default -1;
 
 	/**
-	 * The time between using command again. Use a negative
-	 * integer for no cooldown.
-	 *
-	 * @return value of time to use command again.
-	 */
-	int cooldown() default -1;
-
-	/**
 	 * Allows command to take infinite arguments.
 	 *
 	 * @return allow infinite arguments.

@@ -138,7 +138,6 @@ class CommandRegistrationTest {
 			usage = "/example",
 			min = 1,
 			max = 5,
-			cooldown = 0, // no cooldown
 			senderType = Command.SenderType.BOTH
 		)
 		public void exampleCommandMethod(CommandArguments arguments) {
