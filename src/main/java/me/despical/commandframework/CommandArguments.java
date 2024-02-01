@@ -192,7 +192,7 @@ public class CommandArguments {
 	/**
 	 * @return length of the arguments
 	 */
-	public int getArgumentsLength() {
+	public int getLength() {
 		return arguments.length;
 	}
 }
