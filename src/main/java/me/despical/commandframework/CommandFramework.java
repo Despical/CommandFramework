@@ -100,7 +100,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
 	public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
 	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
-	public static String SHORT_OR_LONG_ARG_SIZE  = ChatColor.RED + "Required argument length is less or greater than needed!";
+	public static String SHORT_ARG_SIZE          = ChatColor.RED + "Required argument length is less than needed!";
+	public static String LONG_ARG_SIZE           = ChatColor.RED + "Required argument length greater than needed!";
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
 
 	public CommandFramework(@NotNull Plugin plugin) {
@@ -147,7 +148,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
-				Arrays.stream(method.getParameters()).forEach(parameter -> System.out.println(parameter.getName()));
 				if (method.isAnnotationPresent(CustomParameters.class) && method.getParameterTypes().length == 0) {
 					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is annotated @CustomParameters and doesn't have any parameter!", method.getName());
 					return;
@@ -372,43 +372,43 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (this.hasCooldown(sender, command)) return true;
+		if (this.hasCooldown(sender, command))
+			return true;
 
 		final String[] splitted = command.name().split("\\."), newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
-		if (args.length >= command.min() + splitted.length - 1 && newArgs.length <= (command.max() == -1 ? newArgs.length + 1 : command.max())) {
-			final Runnable invocation = () -> {
-				try {
-					final Method method = entry.getValue().getKey();
-					final Object instance = entry.getValue().getValue();
+		if (this.checkArgumentLength(sender, command, args, splitted, newArgs))
+			return true;
 
-					if (method == null)
-						return;
+		final Runnable invocation = () -> {
+			try {
+				final Method method = entry.getValue().getKey();
+				final Object instance = entry.getValue().getValue();
 
-					if (method.isAnnotationPresent(NoCommandArguments.class)) {
-						method.invoke(instance);
-						return;
-					}
+				if (method == null)
+					return;
 
-					if (method.isAnnotationPresent(CustomParameters.class)) {
-						method.invoke(instance, getParameterArray(method.getParameters(), new CommandArguments(sender, cmd, label, newArgs)));
-						return;
-					}
-
-					method.invoke(instance, new CommandArguments(sender, cmd, label, newArgs));
-				} catch (IllegalAccessException | InvocationTargetException e) {
-					e.printStackTrace();
+				if (method.isAnnotationPresent(NoCommandArguments.class)) {
+					method.invoke(instance);
+					return;
 				}
-            };
 
-			if (command.async()) {
-				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
-			} else {
-				invocation.run();
+				if (method.isAnnotationPresent(CustomParameters.class)) {
+					method.invoke(instance, getParameterArray(method.getParameters(), new CommandArguments(sender, cmd, label, newArgs)));
+					return;
+				}
+
+				method.invoke(instance, new CommandArguments(sender, cmd, label, newArgs));
+			} catch (ReflectiveOperationException exception) {
+				exception.printStackTrace();
 			}
-        } else {
-			sender.sendMessage(SHORT_OR_LONG_ARG_SIZE);
-        }
+		};
+
+		if (command.async()) {
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
+		} else {
+			invocation.run();
+		}
 
         return true;
     }
@@ -465,6 +465,20 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 
 		return methodParameters;
+	}
+
+	private boolean checkArgumentLength(CommandSender sender, Command command, String[] args, String[] splitted, String[] newArgs) {
+		if (args.length < command.min() + splitted.length - 1) {
+			sender.sendMessage(SHORT_ARG_SIZE);
+			return true;
+		}
+
+		if (newArgs.length > Math.max(command.max(), newArgs.length + 1)) {
+			sender.sendMessage(LONG_ARG_SIZE);
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
