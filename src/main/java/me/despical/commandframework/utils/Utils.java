@@ -234,11 +234,6 @@ public class Utils {
 			}
 
 			@Override
-			public int cooldown() {
-				return command.cooldown();
-			}
-
-			@Override
 			public boolean allowInfiniteArgs() {
 				return command.allowInfiniteArgs();
 			}
