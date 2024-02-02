@@ -19,7 +19,7 @@ and maximum argument length through the code and adds a bunch of new methods to 
 
 ## Donations
 - [Patreon](https://www.patreon.com/despical)
-- [Buy Me A Coffe](https://www.buymeacoffee.com/despical)
+- [Buy Me A Coffee](https://www.buymeacoffee.com/despical)
 
 ## Using Command Framework
 The project isn't in the Central Repository yet, so specifying a repository is needed.<br>
