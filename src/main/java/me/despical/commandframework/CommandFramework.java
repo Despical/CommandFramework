@@ -148,16 +148,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
-				if (method.isAnnotationPresent(CustomParameters.class) && method.getParameterTypes().length == 0) {
-					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is annotated @CustomParameters and doesn't have any parameter!", method.getName());
-					return;
-				}
-
-				if ((!method.isAnnotationPresent(CustomParameters.class) && !method.isAnnotationPresent(NoCommandArguments.class)) && (method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != CommandArguments.class)) {
-					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not annotated @NoCommandArguments neither contains CommandArguments as the first parameter!", method.getName());
-					continue;
-				}
-
 				registerCommand(command, method, instance);
 
 				// Register all aliases as a plugin command. If it is a sub-command then register it as a sub-command.
@@ -411,17 +401,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				if (method == null)
 					return;
 
-				if (method.isAnnotationPresent(NoCommandArguments.class)) {
-					method.invoke(instance);
-					return;
-				}
-
-				if (method.isAnnotationPresent(CustomParameters.class)) {
-					method.invoke(instance, getParameterArray(method.getParameters(), new CommandArguments(sender, cmd, label, newArgs)));
-					return;
-				}
-
-				method.invoke(instance, new CommandArguments(sender, cmd, label, newArgs));
+				method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, newArgs)));
 			} catch (ReflectiveOperationException exception) {
 				exception.printStackTrace();
 			}
@@ -470,7 +450,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	@NotNull
-	private Object[] getParameterArray(Parameter[] parameters, CommandArguments commandArguments) {
+	private Object[] getParameterArray(Method method, CommandArguments commandArguments) {
+		final Parameter[] parameters = method.getParameters();
 		final Object[] methodParameters = new Object[parameters.length];
 
 		for (int i = 0; i < parameters.length; i++) {
@@ -516,13 +497,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		try {
 			final Method method = entry.getValue().getKey();
-			final Object completer, instance = entry.getValue().getValue();
-
-			if (method.isAnnotationPresent(NoCommandArguments.class)) {
-				completer = method.invoke(instance);
-			} else {
-				completer = method.invoke(instance, new CommandArguments(sender, cmd, label, args));
-			}
+			final Object instance = entry.getValue().getValue();
+			final Object completer = method.invoke(instance, new CommandArguments(sender, cmd, label, args));
 
 			return (List<String>) completer;
 		} catch (IllegalAccessException | InvocationTargetException e) {

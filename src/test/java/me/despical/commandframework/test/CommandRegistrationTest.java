@@ -82,7 +82,7 @@ class CommandRegistrationTest {
 
 		// no params
 		player.performCommand("example");
-		player.assertSaid("§cRequired argument length is less or greater than needed!");
+		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
 
 		// one param
 		player.performCommand("example firstParam");
@@ -94,11 +94,11 @@ class CommandRegistrationTest {
 
 		// first alias
 		player.performCommand("firstAlias");
-		player.assertSaid("§cRequired argument length is less or greater than needed!");
+		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
 
 		// second alias
 		player.performCommand("secondAlias");
-		player.assertSaid("§cRequired argument length is less or greater than needed!");
+		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
 
 		// no command arguments
 		player.performCommand("nocommandargs");
@@ -148,17 +148,14 @@ class CommandRegistrationTest {
 		@Command(
 			name = "nocommandargs"
 		)
-		@NoCommandArguments
 		public void noCommandArgsTest() {
-			Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
+			Logger.getLogger(this.getClass().getSimpleName()).info("This command is running without any parameters.");
 		}
 
 		@Command(
 			name = "customargs",
 			min = 1
 		)
-		// Do not forget to annotate with @CustomParameters; otherwise, the method won't be registered.
-		@CustomParameters
 		public void customParamCommand(String firstParameter, CommandArguments arguments) {
 			CommandSender sender = arguments.getSender();
 			// Check if arguments are empty; otherwise, firstParameter will return null.

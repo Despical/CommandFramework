@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.3.4</version>
+    <version>1.3.5</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.4";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.5";
 }
 ```
 
@@ -125,12 +125,9 @@ public class ExampleClass extends JavaPlugin {
         arguments.sendMessage("This is how you can create a example command using framework.");
     }
 
-    // Use @NoCommandArguments annotation to create commands without passing parameters.
-    // This annotation is highly aimed for debugging and testing purposes.
     @Command(
             name = "nocommandargs"
     )
-    @NoCommandArguments
     public void noCommandArgsTest() {
         Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
     }
@@ -139,8 +136,7 @@ public class ExampleClass extends JavaPlugin {
             name = "customargs",
             min = 1
     )
-    // Do not forget to annotate with @CustomParameters; otherwise, the method won't be registered.
-    @CustomParameters
+    // See CommandFramework#addCustomParameter method above.
     public void customParamCommand(String firstParameter, CommandArguments arguments) {
         // CommandArguments parameter can be added to anywhere in method as a parameter.
         arguments.sendMessage("First parameter is " + firstParameter);
