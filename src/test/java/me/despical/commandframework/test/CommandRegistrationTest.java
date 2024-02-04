@@ -167,7 +167,7 @@ class CommandRegistrationTest {
 			name = "example",
 			aliases = {"firstAlias", "secondAlias"}
 		)
-		public List<String> exampleCommandCompletion(CommandArguments arguments) {
+		public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
 			return Arrays.asList("first", "second", "third");
 		}
 	}
