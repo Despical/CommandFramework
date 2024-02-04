@@ -48,24 +48,12 @@ public class Utils {
 	 * @return the int represented by the string, or zero if conversion fails
 	 */
 	public static int getInt(String string) {
-		return getInt(string, 0);
-	}
-
-	/**
-	 * Convert a String to an int, returning a default value if the conversion
-	 * fails. If the string is null, the default value is returned.
-	 *
-	 * @param string the string to convert, may be null
-	 * @param def the default value
-	 * @return the int represented by the string, or the default if conversion fails
-	 */
-	public static int getInt(String string, int def) {
-		if (string == null) return def;
+		if (string == null) return 0;
 
 		try {
 			return Integer.parseInt(string);
 		} catch (NumberFormatException ignored) {
-			return def;
+			return 0;
 		}
 	}
 
@@ -77,24 +65,12 @@ public class Utils {
 	 * @return the double represented by the string, or zero if conversion fails
 	 */
 	public static double getDouble(String string) {
-		return getDouble(string, 0);
-	}
-
-	/**
-	 * Convert a String to a double, returning a default value if the conversion
-	 * fails. If the string is null, the default value is returned.
-	 *
-	 * @param string the string to convert, may be null
-	 * @param def the default value
-	 * @return the double represented by the string, or the default if conversion fails
-	 */
-	public static double getDouble(String string, double def) {
-		if (string == null) return def;
+		if (string == null) return 0d;
 
 		try {
 			return Double.parseDouble(string);
 		} catch (NumberFormatException ignored) {
-			return def;
+			return 0d;
 		}
 	}
 
@@ -106,24 +82,12 @@ public class Utils {
 	 * @return the long represented by the string, or zero if conversion fails
 	 */
 	public static long getLong(String string) {
-		return getLong(string, 0);
-	}
-
-	/**
-	 * Convert a String to a long, returning a default value if the conversion
-	 * fails. If the string is null, the default value is returned.
-	 *
-	 * @param string the string to convert, may be null
-	 * @param def the default value
-	 * @return the long represented by the string, or the default if conversion fails
-	 */
-	public static long getLong(String string, long def) {
-		if (string == null) return def;
+		if (string == null) return 0L;
 
 		try {
 			return Long.parseLong(string);
 		} catch (NumberFormatException ignored) {
-			return def;
+			return 0L;
 		}
 	}
 
@@ -135,24 +99,12 @@ public class Utils {
 	 * @return the float represented by the string, or zero if conversion fails
 	 */
 	public static float getFloat(String string) {
-		return getFloat(string, 0);
-	}
-
-	/**
-	 * Convert a String to a float, returning a default value if the conversion
-	 * fails. If the string is null, the default value is returned.
-	 *
-	 * @param string the string to convert, may be null
-	 * @param def the default value
-	 * @return the float represented by the string, or the default if conversion fails
-	 */
-	public static float getFloat(String string, float def) {
-		if (string == null) return def;
+		if (string == null) return 0F;
 
 		try {
 			return Float.parseFloat(string);
 		} catch (NumberFormatException ignored) {
-			return def;
+			return 0F;
 		}
 	}
 
