@@ -2,10 +2,11 @@
 
 <div align="center">
 
-[![Build](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
+[![](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
 [![](https://img.shields.io/badge/JavaDocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-[![Support](https://img.shields.io/badge/Patreon-Support-lime.svg?logo=Patreon)](https://www.patreon.com/despical)
+[![](https://img.shields.io/badge/Patreon-Support-lime.svg?logo=Patreon)](https://www.patreon.com/despical)
+[![](https://img.shields.io/badge/BuyMeACoffee-Support-lime.svg?logo=BuyMeACoffee)](https://www.buymeacoffee.com/despical)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
@@ -86,7 +87,7 @@ public class ExampleClass extends JavaPlugin {
             String label = arguments.getLabel(), arg = arguments.getArgument(0);
 
             // StringMatcher is an external class from Despical's Commons library which is not in this framework
-            ListStringMatcher.Match > matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
+            List<StringMatcher.Match > matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
 
             if (!matches.isEmpty()) {
                 arguments.sendMessage("Did you mean %command%?".replace("%command%", label + " " + matches.get(0).getMatch()));
@@ -129,7 +130,7 @@ public class ExampleClass extends JavaPlugin {
             name = "nocommandargs"
     )
     public void noCommandArgsTest() {
-        Logger.getLogger(this.getClass().getSimpleName()).info("This command is annotated with @NoCommandArguments to run without required parameters.");
+        Logger.getLogger(this.getClass().getSimpleName()).info("This command is running without any parameters.");
     }
 
     @Command(
@@ -147,8 +148,7 @@ public class ExampleClass extends JavaPlugin {
             name = "example",
             aliases = {"firstAlias", "secondAlias"}
     )
-    public List<String> exampleCommandCompletion(CommandArguments arguments) {
-        // And you've created a tab completion for the command above
+    public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
         return Arrays.asList("first", "second", "third");
     }
 }
@@ -182,7 +182,8 @@ You can learn more about contributing via GitHub in [contribution guidelines](..
 To build this project from source code, run the following from Git Bash:
 ```
 git clone https://www.github.com/Despical/CommandFramework && cd CommandFramework
-mvn clean package -Dmaven.javadoc.skip=true
+mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 ```
 
-> **Note** Don't forget to install Maven before building.
+> [!IMPORTANT]  
+> Don't forget to install Maven before building.
