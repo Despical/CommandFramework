@@ -402,8 +402,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 					return;
 
 				method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, newArgs)));
-			} catch (ReflectiveOperationException exception) {
-				exception.printStackTrace();
+			} catch (Exception exception) {
+				Utils.handleExceptions(exception);
 			}
 		};
 
@@ -489,11 +489,13 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
 
-		if (entry == null) return null;
+		if (entry == null)
+			return null;
 
 		final String permission = entry.getKey().permission();
 
-		if (!permission.isEmpty() && !sender.hasPermission(permission)) return null;
+		if (!permission.isEmpty() && !sender.hasPermission(permission))
+			return null;
 
 		try {
 			final Method method = entry.getValue().getKey();
@@ -501,8 +503,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final Object completer = method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, args)));
 
 			return (List<String>) completer;
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
+		} catch (Exception exception) {
+			Utils.handleExceptions(exception);
 		}
 
 		return null;

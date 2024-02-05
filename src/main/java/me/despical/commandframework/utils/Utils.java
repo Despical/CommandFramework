@@ -147,6 +147,13 @@ public class Utils {
 		return Arrays.stream(a).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (b, c) -> c));
 	}
 
+	public static void handleExceptions(Exception exception) {
+		Throwable cause = exception.getCause();
+
+		if (cause == null) exception.printStackTrace();
+		else cause.printStackTrace();
+	}
+
 	public static Command createCommand(final Command command, final String commandName) {
 		return new Command() {
 
