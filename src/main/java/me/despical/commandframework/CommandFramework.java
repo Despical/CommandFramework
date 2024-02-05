@@ -50,42 +50,42 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	@NotNull
 	private final Plugin plugin;
 	/**
-	 * Map of registered commands by framework.
+	 * The map of registered commands by framework.
 	 */
 	@NotNull
 	private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
 	/**
-	 * Map of registered subcommands by framework.
+	 * The map of registered sub-commands by framework.
 	 */
 	@NotNull
 	private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
 	/**
-	 * Map of registered sub command tab completions by framework.
+	 * The map of registered sub-commands' tab completions by framework.
 	 */
 	@NotNull
 	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions = new HashMap<>();
 	/**
-	 * Map of registered tab completions by framework.
+	 * The map of registered tab completions by framework.
 	 */
 	@NotNull
 	private final Map<Completer, Map.Entry<Method, Object>> subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
 	/**
-	 * Map of registered command cooldowns by framework.
+	 * The map of registered command cooldowns by framework.
 	 */
 	@NotNull
 	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
 	/**
-	 * Map of custom parameters for command methods.
+	 * The map of custom parameters for command methods.
 	 */
 	@NotNull
 	private final Map<String, Function<CommandArguments, ?>> customParametersMap = new HashMap<>();
 	/**
 	 * Function to apply if there is no matched commands related framework.
-	 * <p>
-	 * <pre>
-	 * // To disable sending usage to command sender return true
-	 * CommandFramework#setMatchFunction(arguments -> true);
-	 * </pre>
+	 *
+	 * <blockquote>To disable sending usage to command sender,
+	 * <pre>{@code
+	 *     CommandFramework#setMatchFunction(arguments -> true);
+	 * }</pre></blockquote>
 	 */
 	@NotNull
 	private Function<CommandArguments, Boolean> matchFunction = (arguments) -> false;
@@ -122,9 +122,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Function to apply if there is no matched commands related framework.
+	 * Sets match function which will be applied if the matched command
+	 * is not related to this instance of framework.
 	 *
-	 * @param matchFunction to be applied if there is no matched commands
+	 * @param matchFunction
+	 *        the function that will be executed when no commands matched
 	 */
 	public void setMatchFunction(@NotNull Function<CommandArguments, Boolean> matchFunction) {
 		this.matchFunction = matchFunction;
@@ -139,9 +141,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Register command methods in object class.
+	 * Registers commands in given object's class.
 	 *
-	 * @param instance object class
+	 * @param instance   the class instance of given object.
 	 */
 	public void registerCommands(@NotNull Object instance) {
 		for (final Method method : instance.getClass().getMethods()) {
@@ -179,11 +181,17 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Register the command with given parameters.
+	 * Registers the command with given parameters if there are any.
 	 *
-	 * @param command  of the main object
-	 * @param method   that command will run
-	 * @param instance of the method above
+	 * @param command
+	 *        the command object of registered command method.
+	 *
+	 * @param method
+	 *        the command method which will invoked run when the
+	 *        command is executed.
+	 *
+	 * @param instance
+	 *        the class instance of the command method.
 	 */
 	private void registerCommand(Command command, Method method, Object instance) {
 		final String cmdName = command.name();
@@ -206,7 +214,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 				commandMap.register(cmdName, pluginCommand);
 			} catch (Exception exception) {
-				exception.printStackTrace();
+				Utils.handleExceptions(exception);
 			}
 		}
 	}
@@ -511,9 +519,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Get a copy of registered sub-commands.
+	 * Get a copy of registered sub-commands-.
 	 *
-	 * @return list of sub-commands.
+	 * @return list of the sub-commands.
 	 */
 	@NotNull
 	@Contract(pure = true)
@@ -524,7 +532,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	/**
 	 * Get a copy of registered commands and sub-commands.
 	 *
-	 * @return list of commands and sub-commands.
+	 * @return list of the commands and sub-commands.
 	 */
 	@NotNull
 	@Contract(pure = true)
