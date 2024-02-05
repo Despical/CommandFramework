@@ -19,12 +19,15 @@
 package me.despical.commandframework;
 
 import me.despical.commandframework.utils.Utils;
-import org.bukkit.command.CommandSender;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A utility class to use command arguments without external
@@ -88,7 +91,7 @@ public class CommandArguments {
 	// SOME GETTER METHODS FOR COMMON PRIMITIVE TYPES //
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return indexed element or null if index out of bounds
 	 */
 	@Nullable
@@ -97,45 +100,45 @@ public class CommandArguments {
 	}
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return Integer if indexed element is primitive type of int
-	 * or 0 if element is null.
+	 *         or 0 if element is null.
 	 */
 	public int getArgumentAsInt(int i) {
 		return Utils.getInt(this.getArgument(i));
 	}
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return Double if indexed element is primitive type of double
-	 * or 0 if element is null.
+	 *         or 0 if element is null.
 	 */
 	public double getArgumentAsDouble(int i) {
 		return Utils.getDouble(this.getArgument(i));
 	}
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return Float if indexed element is primitive type of float
-	 * or 0 if element is null.
+	 *         or 0 if element is null.
 	 */
 	public float getArgumentAsFloat(int i) {
 		return Utils.getFloat(this.getArgument(i));
 	}
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return Long if indexed element is primitive type of long
-	 * or 0 if element is null.
+	 *         or 0 if element is null.
 	 */
 	public long getArgumentAsLong(int i) {
 		return Utils.getLong(this.getArgument(i));
 	}
 
 	/**
-	 * @param i index
+	 * @param i   the index of desired argument.
 	 * @return Boolean if indexed element is primitive type of boolean
-	 * or 0 if element is null.
+	 *         or 0 if element is null.
 	 */
 	public boolean getArgumentAsBoolean(int i) {
 		return "true".equalsIgnoreCase(this.getArgument(i));
@@ -144,7 +147,7 @@ public class CommandArguments {
 	// ---------------------------------------------- //
 
 	/**
-	 * @return true if command arguments are empty otherwise false
+	 * @return true if arguments are empty, otherwise false.
 	 */
 	public boolean isArgumentsEmpty() {
 		return arguments.length == 0;
@@ -154,10 +157,11 @@ public class CommandArguments {
 	 * Sends message to sender without receiving command
 	 * sender.
 	 *
-	 * @param message to send
+	 * @param message   the message will be sent to sender.
 	 */
 	public void sendMessage(String message) {
-		if (message == null) return;
+		if (message == null)
+			return;
 		commandSender.sendMessage(message);
 	}
 
@@ -182,17 +186,55 @@ public class CommandArguments {
 	/**
 	 * Checks if command sender has specified permission.
 	 *
-	 * @param permission to check
-	 * @return true if sender has permission or <code>permission</code> is empty, otherwise false
+	 * @param permission   the permission to check.
+	 * @return true if sender has permission or {@code permission} is empty, otherwise false.
 	 */
 	public boolean hasPermission(String permission) {
 		return permission.isEmpty() || commandSender.hasPermission(permission);
 	}
 
 	/**
-	 * @return length of the arguments
+	 * @return length of the arguments array.
 	 */
 	public int getLength() {
 		return arguments.length;
 	}
+
+	/**
+	 * Gets player object from the server with given {@code name}.
+	 *
+	 * @param name
+	 *        the name of player.
+	 *
+	 * @return player with the given name if online, otherwise
+	 *         empty optional.
+	 *
+	 * @throws IllegalArgumentException
+	 *         if the {@code name} is null.
+	 *
+	 * @see Optional#empty()
+	 * @since 1.3.6
+	 */
+	public Optional<Player> getPlayer(String name) {
+		return Optional.ofNullable(Bukkit.getPlayer(name));
+	}
+
+	/**
+	 * Gets player object from the server with given argument.
+	 *
+	 * @param i
+	 *        the index of desired argument.
+	 *
+	 * @return player with the given name if online, otherwise
+	 *         empty optional.
+	 *
+	 * @throws IllegalArgumentException
+	 *         if given index is out of bounds.
+	 *
+	 * @see Optional#empty()
+	 * @since 1.3.6
+	 */
+	public Optional<Player> getPlayer(int i) {
+        return this.getPlayer(this.getArgument(i));
+    }
 }
