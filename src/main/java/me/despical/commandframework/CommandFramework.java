@@ -297,7 +297,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final long argCount = command.name().chars().mapToObj(c -> (char) c).filter(c -> c == '.').count();
 
 			// Extra check for possible arguments.
-			if (command.min() >= possibleArgs.length - argCount || command.allowInfiniteArgs()) {
+			if (command.min() >= possibleArgs.length - argCount || possibleArgs.length - argCount <= command.max() || command.allowInfiniteArgs()) {
 				return Utils.mapEntry(command, subCommands.get(command));
 			}
 		}
@@ -315,7 +315,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		// If we found the command return it, otherwise return null
 		if (command != null) {
 			// Quick fix to accept any match consumer if defined
-			if (command.min() >= possibleArgs.length || command.allowInfiniteArgs()) {
+			if (command.min() >= possibleArgs.length || possibleArgs.length <= command.max() || command.allowInfiniteArgs()) {
 				return Utils.mapEntry(command, commands.get(command));
 			}
 		}
