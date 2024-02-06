@@ -18,7 +18,7 @@
 
 package me.despical.commandframework;
 
-import me.despical.commandframework.utils.Utils;
+import me.despical.commandframework.utils.*;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -74,6 +74,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 */
 	@NotNull
 	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
+	/**
+	 * Custom {@code HashMap} implementation with expiring keys.
+	 */
+	@NotNull
+	private final SelfExpiringMap<CommandSender, Command> confirmations = new SelfExpiringHashMap<>();
 	/**
 	 * The map of custom parameters for command methods.
 	 */
@@ -361,6 +366,32 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 	}
 
+	private boolean checkConfirmations(final CommandSender sender, final Command command, Map.Entry<Command, Map.Entry<Method, Object>> entry) {
+		final Method method = entry.getValue().getKey();
+
+		if (method == null) return false;
+		if (!method.isAnnotationPresent(Confirmation.class)) return false;
+
+		final Confirmation confirmation = method.getAnnotation(Confirmation.class);
+
+		if (confirmation.expireAfter() <= 0) return false;
+
+		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
+
+		if (isConsoleSender && !confirmation.overrideConsole()) return false;
+		if (!isConsoleSender && !confirmation.bypassPerm().isEmpty() && sender.hasPermission(confirmation.bypassPerm())) return false;
+
+		if (confirmations.containsKey(sender)) {
+			confirmations.remove(sender);
+			return false;
+		} else {
+			confirmations.put(sender, command, confirmation.timeUnit().toMillis(confirmation.expireAfter()));
+
+			sender.sendMessage(confirmation.message());
+			return true;
+		}
+	}
+
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
@@ -391,6 +422,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			sender.sendMessage(ONLY_BY_CONSOLE);
 			return true;
 		}
+
+		if (this.checkConfirmations(sender, command, entry))
+			return true;
 
 		if (this.hasCooldown(sender, command, entry))
 			return true;
