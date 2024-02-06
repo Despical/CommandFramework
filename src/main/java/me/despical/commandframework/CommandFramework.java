@@ -332,12 +332,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		final Cooldown cooldown = method.getAnnotation(Cooldown.class);
 
-		if (cooldown.cooldown() <= 0 || cooldown.bypassPerm().isEmpty()) return false;
+		if (cooldown.cooldown() <= 0) return false;
 
 		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
 
 		if (isConsoleSender && !cooldown.overrideConsole()) return false;
-		if (!isConsoleSender && sender.hasPermission(cooldown.bypassPerm())) return false;
+		if (!isConsoleSender && !cooldown.bypassPerm().isEmpty() && sender.hasPermission(cooldown.bypassPerm())) return false;
 
 		final Map<Command, Long> cooldownMap = cooldowns.get(sender);
 
