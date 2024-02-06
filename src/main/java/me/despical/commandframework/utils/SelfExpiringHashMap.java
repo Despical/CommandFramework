@@ -22,17 +22,26 @@ public class SelfExpiringHashMap<K, V> implements SelfExpiringMap<K, V> {
 		this.map = new HashMap<>();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public V put(K key, V value, long lifeTimeMs) {
 		this.map.put(key, Utils.mapEntry(value, new ExpiringData(System.currentTimeMillis(), lifeTimeMs)));
 		return value;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public V put(K key, V value) {
 		return this.put(key, value, Long.MAX_VALUE);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean containsKey(Object key) {
 		final Map.Entry<V, ExpiringData> entry = this.map.get(key);
@@ -46,6 +55,9 @@ public class SelfExpiringHashMap<K, V> implements SelfExpiringMap<K, V> {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public V get(Object key) {
 		final Map.Entry<V, ExpiringData> entry = this.map.get(key);
@@ -59,6 +71,9 @@ public class SelfExpiringHashMap<K, V> implements SelfExpiringMap<K, V> {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public V remove(Object key) {
 		final Map.Entry<V, ExpiringData> entry = this.map.remove(key);

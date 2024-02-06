@@ -15,13 +15,44 @@ import java.util.concurrent.TimeUnit;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Confirmation {
 
+	/**
+	 * The message will be sent to the sender if they
+	 * have not confirmed yet.
+	 *
+	 * @return the confirmation message.
+	 */
 	String message();
 
+	/**
+	 * The permission to bypass confirmations.
+	 *
+	 * @return the bypass permission.
+	 */
 	String bypassPerm() default "";
 
+	/**
+	 * How many seconds should pass so the confirmation
+	 * gets expired.
+	 *
+	 * @return the time required for the confirmation period
+	 *         to expire.
+	 * @see #timeUnit()
+	 */
 	int expireAfter();
 
+	/**
+	 * The time unit for {@code #expireAfter()}.
+	 *
+	 * @return the unit of expiration time.
+	 */
 	TimeUnit timeUnit() default TimeUnit.SECONDS;
 
+	/**
+	 * If option is true, console will be affected by
+	 * confirmations; otherwise, it will override the
+	 * confirmation period to use the command again.
+	 *
+	 * @return false if console overrides confirmations, otherwise true
+	 */
 	boolean overrideConsole() default false;
 }

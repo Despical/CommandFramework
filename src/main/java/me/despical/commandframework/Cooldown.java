@@ -62,7 +62,6 @@ public @interface Cooldown {
 	 * delay to use the command again.
 	 *
 	 * @return false if console overrides cooldowns, otherwise true
-	 *
 	 */
 	 boolean overrideConsole() default false;
 }
