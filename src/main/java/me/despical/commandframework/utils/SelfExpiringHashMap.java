@@ -128,9 +128,9 @@ public class SelfExpiringHashMap<K, V> implements SelfExpiringMap<K, V> {
 
 		private final long start, lifeTimeMs;
 
-		ExpiringData(long start, long end) {
+		ExpiringData(long start, long lifeTimeMs) {
 			this.start = start;
-			this.lifeTimeMs = end;
+			this.lifeTimeMs = lifeTimeMs;
 		}
 	}
 }
