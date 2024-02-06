@@ -38,7 +38,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.3.6</version>
+    <version>1.3.7</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -51,7 +51,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.6";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.7";
 }
 ```
 
@@ -141,6 +141,21 @@ public class ExampleClass extends JavaPlugin {
     public void customParamCommand(String firstParameter, CommandArguments arguments) {
         // CommandArguments parameter can be added to anywhere in method as a parameter.
         arguments.sendMessage("First parameter is " + firstParameter);
+    }
+
+    // Command with @Confirmation annotation.
+    @Command(
+            name = "confirmationTest"
+    )
+    @Confirmation(
+            message = "Are you sure, if so, please execute command again to confirm.",
+            expireAfter = 10,
+            bypassPerm = "confirmation.bypass",
+            timeUnit = TimeUnit.SECONDS,
+            overrideConsole = true
+    )
+    public void confirmationCommand(CommandArguments arguments) {
+        arguments.sendMessage("Confirmation successful.");
     }
 
     // Aliases don't need to be same with the command above
