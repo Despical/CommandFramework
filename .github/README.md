@@ -38,7 +38,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.3.7</version>
+    <version>1.3.8</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -51,7 +51,7 @@ repositories {
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.7";
+    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.8";
 }
 ```
 
