@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -209,8 +210,7 @@ public class CommandArguments {
 	 * @return player with the given name if online, otherwise
 	 *         empty optional.
 	 *
-	 * @throws IllegalArgumentException
-	 *         if the {@code name} is null.
+	 * @throws IllegalArgumentException if the {@code name} is null.
 	 *
 	 * @see Optional#empty()
 	 * @since 1.3.6
@@ -228,8 +228,8 @@ public class CommandArguments {
 	 * @return player with the given name if online, otherwise
 	 *         empty optional.
 	 *
-	 * @throws IllegalArgumentException
-	 *         if given index is out of bounds.
+	 * @throws IllegalArgumentException if given index is out
+	 *         of bounds.
 	 *
 	 * @see Optional#empty()
 	 * @since 1.3.6
@@ -237,4 +237,32 @@ public class CommandArguments {
 	public Optional<Player> getPlayer(int i) {
         return this.getPlayer(this.getArgument(i));
     }
+
+	/**
+	 * Concatenates all arguments into a single {@code String}
+	 * object.
+	 *
+	 * @return all arguments as a single String object.
+	 * @since 1.3.8
+	 */
+	public String concatenateArguments() {
+		return String.join(" ", arguments);
+	}
+
+	/**
+	 * Concatenates a range of elements from the specified array
+	 * into a single string, using a space as the delimiter.
+	 *
+	 * @param from the starting index (inclusive) of the range.
+	 * @param to   the ending index (exclusive) of the range.
+	 * @return a string containing the concatenated elements within
+	 *         the specified range, separated by a space.
+	 * @throws ArrayIndexOutOfBoundsException if {@code from} is negative,
+	 *         {@code to} is greater than the length of the array,
+	 *         or {@code from} is greater than {@code to}.
+	 * @since 1.3.8
+	 */
+	public String concatenateRangeOf(int from, int to) {
+		return String.join(" ", Arrays.copyOfRange(arguments, from, to));
+	}
 }
