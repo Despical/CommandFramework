@@ -33,7 +33,7 @@ import java.util.Optional;
 /**
  * A utility class to use command arguments without external
  * Bukkit parameters and includes some useful methods to improve
- * user's code.
+ * code performance and quality.
  *
  * @author Despical
  * @since 1.0.0
@@ -264,5 +264,90 @@ public class CommandArguments {
 	 */
 	public String concatenateRangeOf(int from, int to) {
 		return String.join(" ", Arrays.copyOfRange(arguments, from, to));
+	}
+
+	/**
+	 * Checks if the value obtained from the argument at the specified index is numeric,
+	 * i.e., if it contains only digit characters (0-9).
+	 *
+	 * @param i   The index of the argument from which the value is retrieved.
+	 * @return {@code true} if the value at the specified argument index is numeric, {@code false} otherwise.
+	 *         Returns {@code false} for null or empty values obtained from the argument.
+	 */
+	public boolean isNumeric(int i) {
+		return this.isNumeric(this.getArgument(i));
+	}
+
+	/**
+	 * Checks if the given string is numeric, i.e., if it contains only digit characters (0-9).
+	 *
+	 * @param string   The input string to be checked for numeric content.
+	 * @return {@code true} if the input string is numeric, {@code false} otherwise.
+	 *         Returns {@code false} for null or empty strings.
+	 */
+	public boolean isNumeric(String string) {
+		if (string == null || string.isEmpty())
+			return false;
+
+		return string.chars().allMatch(Character::isDigit);
+	}
+
+	/**
+	 * Checks if the value obtained from the argument at the specified index can be successfully
+	 * parsed into an integer using {@code Integer.parseInt}.
+	 *
+	 * @param i   The index of the argument from which the value is retrieved.
+	 * @return {@code true} if the value at the specified argument index can be parsed into an integer,
+	 *         {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
+	 *         Also returns {@code false} for values that cannot be parsed into an integer.
+	 */
+	public boolean isInteger(int i) {
+		return this.isInteger(this.getArgument(i));
+	}
+
+	/**
+	 * Checks if the given string can be successfully parsed into an integer using {@code Integer.parseInt}.
+	 *
+	 * @param string   The input string to be checked for its ability to be parsed into an integer.
+	 * @return {@code true} if the string can be parsed into an integer, {@code false} otherwise.
+	 *         Returns {@code false} for null strings or strings that cannot be parsed into an integer.
+	 */
+	public boolean isInteger(String string) {
+		try {
+			Integer.parseInt(string);
+			return true;
+		} catch (NumberFormatException | NullPointerException exception) {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if the value obtained from the argument at the specified index can be successfully
+	 * parsed into a floating-point decimal using {@code Double.parseDouble}.
+	 *
+	 * @param i   The index of the argument from which the value is retrieved.
+	 * @return {@code true} if the value at the specified argument index can be parsed into a floating-point decimal,
+	 *         {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
+	 *         Also returns {@code false} for values that cannot be parsed into a floating-point decimal.
+	 */
+	public boolean isFloatingDecimal(int i) {
+		return this.isFloatingDecimal(this.getArgument(i));
+	}
+
+	/**
+	 * Checks if the given string can be successfully parsed into a floating decimal using {@code Double.parseDouble}.
+	 * Supports primitive types such as {@code Integer}, {@code Float}, {@code Double}, {@code Long}, etc.
+	 *
+	 * @param string   The input string to be checked for its ability to be parsed into a decimal.
+	 * @return {@code true} if the string can be parsed into a decimal, {@code false} otherwise.
+	 *         Returns {@code false} for null strings or strings that cannot be parsed into a decimal.
+	 */
+	public boolean isFloatingDecimal(String string) {
+		try {
+			Double.parseDouble(string);
+			return true;
+		} catch (NumberFormatException | NullPointerException exception) {
+			return false;
+		}
 	}
 }
