@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author Despical
+ * This class is a part of Despical's Commons library.
  * <p>
  * Created at 30.05.2020
  *
- * This class is a part of Despical's Commons library.
+ * @author Despical
  */
 @ApiStatus.Internal
 public class Utils {
@@ -48,11 +48,9 @@ public class Utils {
 	 * @return the int represented by the string, or zero if conversion fails
 	 */
 	public static int getInt(String string) {
-		if (string == null) return 0;
-
 		try {
 			return Integer.parseInt(string);
-		} catch (NumberFormatException ignored) {
+		} catch (NumberFormatException | NullPointerException ignored) {
 			return 0;
 		}
 	}
@@ -65,11 +63,9 @@ public class Utils {
 	 * @return the double represented by the string, or zero if conversion fails
 	 */
 	public static double getDouble(String string) {
-		if (string == null) return 0d;
-
 		try {
 			return Double.parseDouble(string);
-		} catch (NumberFormatException ignored) {
+		} catch (NumberFormatException | NullPointerException ignored) {
 			return 0d;
 		}
 	}
@@ -82,11 +78,9 @@ public class Utils {
 	 * @return the long represented by the string, or zero if conversion fails
 	 */
 	public static long getLong(String string) {
-		if (string == null) return 0L;
-
 		try {
 			return Long.parseLong(string);
-		} catch (NumberFormatException ignored) {
+		} catch (NumberFormatException | NullPointerException ignored) {
 			return 0L;
 		}
 	}
@@ -99,11 +93,9 @@ public class Utils {
 	 * @return the float represented by the string, or zero if conversion fails
 	 */
 	public static float getFloat(String string) {
-		if (string == null) return 0F;
-
 		try {
 			return Float.parseFloat(string);
-		} catch (NumberFormatException ignored) {
+		} catch (NumberFormatException | NullPointerException ignored) {
 			return 0F;
 		}
 	}
