@@ -542,7 +542,9 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		try {
 			final Method method = entry.getValue().getKey();
 			final Object instance = entry.getValue().getValue();
-			final Object completer = method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, args)));
+			final String[] splitName = entry.getKey().name().split("\\.");
+			final String[] newArgs = Arrays.copyOfRange(args, splitName.length - 1, args.length);
+			final Object completer = method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, newArgs)));
 
 			return (List<String>) completer;
 		} catch (Exception exception) {
