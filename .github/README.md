@@ -38,7 +38,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.3.9</version>
+    <version>1.4.0</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -46,12 +46,12 @@ To add this project as a dependency to your project, add the following to your p
 ### Gradle dependency
 ```
 repositories {
-    maven { url = uri("https://jitpack.io") }
+    maven { url 'https://jitpack.io' }
 }
 ```
 ```
 dependencies {
-    compileOnly group: "com.github.Despical", name: "CommandFramework", version: "1.3.9";
+    compileOnly 'com.github.Despical:CommandFramework:1.4.0'
 }
 ```
 
