@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -107,7 +108,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
 	public static String SHORT_ARG_SIZE          = ChatColor.RED + "Required argument length is less than needed!";
 	public static String LONG_ARG_SIZE           = ChatColor.RED + "Required argument length greater than needed!";
-	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait %ds before using this command again!";
+	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
 
 	public CommandFramework(@NotNull Plugin plugin) {
 		this.plugin = plugin;
@@ -269,8 +270,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * Unregisters all of registered commands and tab completers created using that instance.
 	 */
 	public void unregisterCommands() {
-		// Copy elements to new map to avoid modification exception
-		new HashMap<>(commands).keySet().stream().map(Command::name).forEach(this::unregisterCommand);
+		Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
+
+		while (names.hasNext()) {
+			this.unregisterCommand(names.next());
+		}
 	}
 
 	@Nullable
@@ -356,7 +360,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final int timeBetween = (int) (cooldownInSeconds - remainingSeconds); // less precious more accurate
 
 		if (timeBetween > 0) {
-			sender.sendMessage(String.format(WAIT_BEFORE_USING_AGAIN, timeBetween));
+			sender.sendMessage(MessageFormat.format(WAIT_BEFORE_USING_AGAIN, timeBetween));
 			return true;
 		} else {
 			cooldownMap.put(command, System.currentTimeMillis());
