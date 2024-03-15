@@ -46,6 +46,10 @@ import java.util.stream.Stream;
 public class CommandFramework implements CommandExecutor, TabCompleter {
 
 	/**
+	 * Instance of framework.
+	 */
+	protected static CommandFramework instance;
+	/**
 	 * Main instance of framework.
 	 */
 	@NotNull
@@ -96,6 +100,11 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	@NotNull
 	private Function<CommandArguments, Boolean> matchFunction = (arguments) -> false;
 	/**
+	 * Function to apply messages that will be sent using CommandArguments#sendMessage method.
+	 */
+	@NotNull
+	private Function<String, String> colorFormatter = (string) -> ChatColor.translateAlternateColorCodes('&', string);
+	/**
 	 * Default command map of Bukkit.
 	 */
 	@Nullable
@@ -111,7 +120,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
 
 	public CommandFramework(@NotNull Plugin plugin) {
+		if (instance != null) {
+			throw new IllegalStateException("Instance already initialized!");
+		}
+
 		this.plugin = plugin;
+		CommandFramework.instance = this;
 
 		if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
 			final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
@@ -136,6 +150,21 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 */
 	public void setMatchFunction(@NotNull Function<CommandArguments, Boolean> matchFunction) {
 		this.matchFunction = matchFunction;
+	}
+
+	/**
+	 * For instance, can be used to translate Minecraft color and Hex color codes.
+	 *
+	 * @param colorFormatter
+	 *        the function that will be applied to the strings to color
+	 */
+	public void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
+		this.colorFormatter = colorFormatter;
+	}
+
+	@NotNull
+	public Function<String, String> getColorFormatter() {
+		return colorFormatter;
 	}
 
 	public <A, B extends A> void addCustomParameter(@NotNull Class<A> instanceClass, @NotNull Function<CommandArguments, B> function) {

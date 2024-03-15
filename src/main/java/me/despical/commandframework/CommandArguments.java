@@ -163,7 +163,7 @@ public class CommandArguments {
 	public void sendMessage(String message) {
 		if (message == null)
 			return;
-		commandSender.sendMessage(message);
+		commandSender.sendMessage(CommandFramework.instance.getColorFormatter().apply(message));
 	}
 
 	/**
