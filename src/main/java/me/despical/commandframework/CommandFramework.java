@@ -456,16 +456,16 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (this.checkConfirmations(sender, command, entry))
-			return true;
-
-		if (this.hasCooldown(sender, command, entry))
-			return true;
-
 		final String[] splitted = command.name().split("\\.");
 		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
 		if (this.checkArgumentLength(sender, command, args, splitted, newArgs))
+			return true;
+
+		if (this.checkConfirmations(sender, command, entry))
+			return true;
+
+		if (this.hasCooldown(sender, command, entry))
 			return true;
 
 		final Runnable invocation = () -> {
