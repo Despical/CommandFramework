@@ -335,14 +335,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			final String name = cmd.name();
 
 			if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-				command = cmd;
-				break;
+				return Utils.mapEntry(cmd, commands.get(cmd));
 			}
-		}
-
-		// If we found the command return it, otherwise return null
-		if (command != null) {
-			return Utils.mapEntry(command, commands.get(command));
 		}
 
 		// Return null if the given command is not registered by Command Framework
@@ -485,32 +479,20 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 	@Nullable
 	private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
-		Completer completer = null;
-
 		for (Completer comp : subCommandCompletions.keySet()) {
 			final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
 			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(target -> target.equalsIgnoreCase(cmdName) || target.equalsIgnoreCase(commandName))) {
-				completer = comp;
-				break;
+				return Utils.mapEntry(comp, subCommandCompletions.get(comp));
 			}
-		}
-
-		if (completer != null) {
-			return Utils.mapEntry(completer, subCommandCompletions.get(completer));
 		}
 
 		for (Completer comp : commandCompletions.keySet()) {
 			final String name = comp.name();
 
 			if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-				completer = comp;
-				break;
+				return Utils.mapEntry(comp, commandCompletions.get(comp));
 			}
-		}
-
-		if (completer != null) {
-			return Utils.mapEntry(completer, commandCompletions.get(completer));
 		}
 
 		return null;
