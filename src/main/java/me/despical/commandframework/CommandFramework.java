@@ -327,12 +327,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		// If we found the sub command then return it, otherwise search the commands map
 		if (command != null) {
-			final long argCount = command.name().chars().mapToObj(c -> (char) c).filter(c -> c == '.').count();
-
-			// Extra check for possible arguments.
-			if (command.min() >= possibleArgs.length - argCount || possibleArgs.length - argCount <= command.max() || command.allowInfiniteArgs()) {
-				return Utils.mapEntry(command, subCommands.get(command));
-			}
+			return Utils.mapEntry(command, subCommands.get(command));
 		}
 
 		// If our command is not a sub command then search for a main command
@@ -347,10 +342,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		// If we found the command return it, otherwise return null
 		if (command != null) {
-			// Quick fix to accept any match consumer if defined
-			if (command.min() >= possibleArgs.length || possibleArgs.length <= command.max() || command.allowInfiniteArgs()) {
-				return Utils.mapEntry(command, commands.get(command));
-			}
+			return Utils.mapEntry(command, commands.get(command));
 		}
 
 		// Return null if the given command is not registered by Command Framework
@@ -459,7 +451,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String[] splitted = command.name().split("\\.");
 		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
 
-		if (this.checkArgumentLength(sender, command, args, splitted, newArgs))
+		if (!this.checkArgumentLength(sender, command, newArgs))
 			return true;
 
 		if (this.checkConfirmations(sender, command, entry))
@@ -498,7 +490,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		for (Completer comp : subCommandCompletions.keySet()) {
 			final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
 				completer = comp;
 				break;
 			}
@@ -546,18 +538,18 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		return methodParameters;
 	}
 
-	private boolean checkArgumentLength(CommandSender sender, Command command, String[] args, String[] splitted, String[] newArgs) {
-		if (args.length < command.min() + splitted.length - 1) {
+	private boolean checkArgumentLength(CommandSender sender, Command command, String[] newArgs) {
+		if (newArgs.length < command.min()) {
 			sender.sendMessage(SHORT_ARG_SIZE);
-			return true;
+			return false;
 		}
 
-		if (newArgs.length > Math.max(command.max(), newArgs.length + 1)) {
+		if (command.max() != -1 && newArgs.length > command.max()) {
 			sender.sendMessage(LONG_ARG_SIZE);
-			return true;
+			return false;
 		}
 
-		return false;
+		return command.allowInfiniteArgs() || (command.max() != -1 ^ newArgs.length == 0);
 	}
 
 	@Override
