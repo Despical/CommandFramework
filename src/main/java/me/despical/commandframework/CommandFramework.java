@@ -490,7 +490,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		for (Completer comp : subCommandCompletions.keySet()) {
 			final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(cmdName::equalsIgnoreCase)) {
+			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(target -> target.equalsIgnoreCase(cmdName) || target.equalsIgnoreCase(commandName))) {
 				completer = comp;
 				break;
 			}
