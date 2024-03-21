@@ -210,6 +210,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 			// Framework is going to work properly but this should not be handled that way.
 			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
+				plugin.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", splitName);
+
 				registerCommand(Utils.createCommand(key, splitName), null, null);
 			}
 		});
