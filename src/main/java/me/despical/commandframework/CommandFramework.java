@@ -531,7 +531,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			return false;
 		}
 
-		return command.allowInfiniteArgs() || (command.max() != -1 ^ newArgs.length == 0);
+		return true;
 	}
 
 	@Override

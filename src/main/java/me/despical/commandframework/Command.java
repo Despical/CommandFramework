@@ -88,13 +88,6 @@ public @interface Command {
 	int max() default -1;
 
 	/**
-	 * Allows command to take infinite arguments.
-	 *
-	 * @return allow infinite arguments.
-	 */
-	boolean allowInfiniteArgs() default false;
-
-	/**
 	 * Only op players can execute this command.
 	 * <p>
 	 * Permissions will be ignored if this option
