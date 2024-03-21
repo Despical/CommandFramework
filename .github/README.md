@@ -38,7 +38,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -51,7 +51,7 @@ repositories {
 ```
 ```
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.4.2'
+    implementation 'com.github.Despical:CommandFramework:1.4.3'
 }
 ```
 
@@ -77,25 +77,9 @@ public class ExampleClass extends JavaPlugin {
         // Adding custom parameters
         // Now all String type objects will return first argument.
         commandFramework.addCustomParameter(String.class, arguments -> arguments.getArgument(0));
-
         // Then this will register all the @Command methods as a command
         // so there is no necessity to add command to your plugin.yml
         commandFramework.registerCommands(this);
-        commandFramework.setMatchFunction(arguments -> {
-            if (arguments.isArgumentsEmpty()) return false;
-
-            String label = arguments.getLabel(), arg = arguments.getArgument(0);
-
-            // StringMatcher is an external class from Despical's Commons library which is not in this framework
-            List<StringMatcher.Match > matches = StringMatcher.match(arg, commandFramework.getCommands().stream().map(cmd -> cmd.name().replace(label + ".", "")).collect(Collectors.toList()));
-
-            if (!matches.isEmpty()) {
-                arguments.sendMessage("Did you mean %command%?".replace("%command%", label + " " + matches.get(0).getMatch()));
-                return true;
-            }
-
-            return false;
-        });
     }
 
     // Before creating command the method must only have
