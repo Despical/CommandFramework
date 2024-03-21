@@ -18,6 +18,8 @@
 
 package me.despical.commandframework;
 
+import java.text.MessageFormat;
+
 /**
  * @author Despical
  * <p>
@@ -30,6 +32,6 @@ public class CommandException extends RuntimeException {
 	}
 
 	public CommandException(final String message, final Object... params) {
-		super(String.format(message, params));
+		super(MessageFormat.format(message, params));
 	}
 }

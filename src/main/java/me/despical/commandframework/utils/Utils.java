@@ -185,11 +185,6 @@ public class Utils {
 			}
 
 			@Override
-			public boolean allowInfiniteArgs() {
-				return command.allowInfiniteArgs();
-			}
-
-			@Override
 			public boolean onlyOp() {
 				return command.onlyOp();
 			}

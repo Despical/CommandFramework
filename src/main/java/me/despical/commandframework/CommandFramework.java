@@ -90,16 +90,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	@NotNull
 	private final Map<String, Function<CommandArguments, ?>> customParametersMap = new HashMap<>();
 	/**
-	 * Function to apply if there is no matched commands related framework.
-	 *
-	 * <blockquote>To disable sending usage to command sender,
-	 * <pre>{@code
-	 *     CommandFramework#setMatchFunction(arguments -> true);
-	 * }</pre></blockquote>
-	 */
-	@NotNull
-	private Function<CommandArguments, Boolean> matchFunction = (arguments) -> false;
-	/**
 	 * Function to apply messages that will be sent using CommandArguments#sendMessage method.
 	 */
 	@NotNull
@@ -142,17 +132,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	/**
-	 * Sets match function which will be applied if the matched command
-	 * is not related to this instance of framework.
-	 *
-	 * @param matchFunction
-	 *        the function that will be executed when no commands matched
-	 */
-	public void setMatchFunction(@NotNull Function<CommandArguments, Boolean> matchFunction) {
-		this.matchFunction = matchFunction;
-	}
-
-	/**
 	 * For instance, can be used to translate Minecraft color and Hex color codes.
 	 *
 	 * @param colorFormatter
@@ -171,7 +150,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final String simpleName = instanceClass.getSimpleName();
 
 		if (this.customParametersMap.containsKey(simpleName))
-			throw new CommandException("Object type '%s' is already registered as a custom parameter!", simpleName);
+			throw new CommandException("Object type ''{0}'' is already registered as a custom parameter!", simpleName);
 		this.customParametersMap.put(simpleName, function);
 	}
 
@@ -417,9 +396,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
 
-		if (entry == null) {
-			return matchFunction.apply(new CommandArguments(sender, cmd, label, args));
-		}
+		if (entry == null) return false;
 
 		final Command command = entry.getKey();
 		final String permission = command.permission();
@@ -514,7 +491,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			}
 
 			if (!customParametersMap.containsKey(simpleName))
-				throw new CommandException("Custom parameter(%s) is requested but return function is not found!", simpleName);
+				throw new CommandException("Custom parameter (type: ''{0}'') is requested but return function is not found!", simpleName);
 
 			methodParameters[i] = customParametersMap.get(simpleName).apply(commandArguments);
 		}
