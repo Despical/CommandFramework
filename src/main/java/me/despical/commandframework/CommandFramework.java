@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.*;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -101,13 +102,17 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	protected CommandMap commandMap;
 
 	// Error Message Handler
+	private static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
+		arguments.sendMessage(command.usage());
+		return true;
+	};
+
 	public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
 	public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
 	public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
 	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
-	public static String SHORT_ARG_SIZE          = ChatColor.RED + "Required argument length is less than needed!";
-	public static String LONG_ARG_SIZE           = ChatColor.RED + "Required argument length greater than needed!";
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
+	public static BiFunction<Command, CommandArguments, Boolean> SHORT_ARG_SIZE = SEND_USAGE, LONG_ARG_SIZE = SEND_USAGE;
 
 	public CommandFramework(@NotNull Plugin plugin) {
 		if (instance != null) {
@@ -423,9 +428,15 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		final String[] splitted = command.name().split("\\.");
 		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
+		final CommandArguments arguments = new CommandArguments(sender, cmd, label, newArgs);
 
-		if (!this.checkArgumentLength(sender, command, newArgs))
-			return true;
+		if (newArgs.length < command.min()) {
+			return SHORT_ARG_SIZE.apply(command, arguments);
+		}
+
+		if (command.max() != -1 && newArgs.length > command.max()) {
+			return LONG_ARG_SIZE.apply(command, arguments);
+		}
 
 		if (this.checkConfirmations(sender, command, entry))
 			return true;
@@ -441,7 +452,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				if (method == null)
 					return;
 
-				method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, newArgs)));
+				method.invoke(instance, getParameterArray(method, arguments));
 			} catch (Exception exception) {
 				Utils.handleExceptions(exception);
 			}
@@ -497,20 +508,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 
 		return methodParameters;
-	}
-
-	private boolean checkArgumentLength(CommandSender sender, Command command, String[] newArgs) {
-		if (newArgs.length < command.min()) {
-			sender.sendMessage(SHORT_ARG_SIZE);
-			return false;
-		}
-
-		if (command.max() != -1 && newArgs.length > command.max()) {
-			sender.sendMessage(LONG_ARG_SIZE);
-			return false;
-		}
-
-		return true;
 	}
 
 	@Override
