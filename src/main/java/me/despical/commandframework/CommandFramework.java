@@ -103,7 +103,27 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 	// Error Message Handler
 	private static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
-		arguments.sendMessage(command.usage());
+		final String usage = command.usage();
+
+		if (!usage.isEmpty()) {
+			arguments.sendMessage(usage);
+			return false;
+		}
+
+		return true;
+	};
+
+	public static BiFunction<Command, CommandArguments, Boolean> SHORT_ARG_SIZE = (command, arguments) -> {
+		if (!SEND_USAGE.apply(command, arguments)) return true;
+
+		arguments.sendMessage("&cRequired argument length is less than needed!");
+		return true;
+	};
+
+	public static BiFunction<Command, CommandArguments, Boolean> LONG_ARG_SIZE = (command, arguments) -> {
+		if (!SEND_USAGE.apply(command, arguments)) return true;
+
+		arguments.sendMessage("&cRequired argument length greater than needed!");
 		return true;
 	};
 
@@ -112,7 +132,6 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
 	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
-	public static BiFunction<Command, CommandArguments, Boolean> SHORT_ARG_SIZE = SEND_USAGE, LONG_ARG_SIZE = SEND_USAGE;
 
 	public CommandFramework(@NotNull Plugin plugin) {
 		if (instance != null) {
