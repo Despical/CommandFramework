@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.text.MessageFormat;
 import java.util.*;
@@ -176,6 +177,12 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		if (this.customParametersMap.containsKey(simpleName))
 			throw new CommandException("Object type ''{0}'' is already registered as a custom parameter!", simpleName);
 		this.customParametersMap.put(simpleName, function);
+	}
+
+	public <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
+		if (this.customParametersMap.containsKey(value))
+			throw new CommandException("Custom parameter function called ''{0}'' is already registered!", value);
+		this.customParametersMap.put(value, function);
 	}
 
 	/**
@@ -512,6 +519,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		final Parameter[] parameters = method.getParameters();
 		final Object[] methodParameters = new Object[parameters.length];
 
+		outer_loop:
 		for (int i = 0; i < parameters.length; i++) {
 			final String simpleName = parameters[i].getType().getSimpleName();
 
@@ -520,8 +528,22 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 				continue;
 			}
 
-			if (!customParametersMap.containsKey(simpleName))
-				throw new CommandException("Custom parameter (type: ''{0}'') is requested but return function is not found!", simpleName);
+			for (Annotation annotation : parameters[i].getAnnotations()) {
+				if (annotation instanceof Param) {
+					String value = ((Param) annotation).value();
+
+					if (!customParametersMap.containsKey(value)) {
+						throw new CommandException("Custom parameter (type: {0}, value: {1}) is requested but return function is not found!", simpleName, value);
+					}
+
+					methodParameters[i] = customParametersMap.get(value).apply(commandArguments);
+					continue outer_loop;
+				}
+			}
+
+			if (!customParametersMap.containsKey(simpleName)) {
+				throw new CommandException("Custom parameter (type: {0}) is requested but return function is not found!", simpleName);
+			}
 
 			methodParameters[i] = customParametersMap.get(simpleName).apply(commandArguments);
 		}
