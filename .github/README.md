@@ -86,24 +86,24 @@ public class ExampleClass extends JavaPlugin {
 	// Before creating command the method must only have
 	// CommandArguments parameter and also @Command annotation
 	@Command(
-			name = "example",
-			aliases = {"firstAlias", "secondAlias"},
-			permission = "example.permission",
-			desc = "Sends an example message to sender",
-			usage = "/example",
-			min = 1,
-			max = 5,
-			onlyOp = false, // this option will ignore permission if it is set
-			// be careful if you are using non-thread safe operations
-			// and if you want to enable option below
-			async = false,
-			senderType = Command.SenderType.CONSOLE
+		name = "example",
+		aliases = {"firstAlias", "secondAlias"},
+		permission = "example.permission",
+		desc = "Sends an example message to sender",
+		usage = "/example",
+		min = 1,
+		max = 5,
+		onlyOp = false, // this option will ignore permission if it is set
+		// be careful if you are using non-thread safe operations
+		// and if you want to enable option below
+		async = false,
+		senderType = Command.SenderType.CONSOLE
 	)
 	@Cooldown(
-			cooldown = 10,
-			timeUnit = TimeUnit.SECONDS,
-			bypassPerm = "command.cooldownBypass",
-			overrideConsole = true // console will now be affected by cooldown
+		cooldown = 10,
+		timeUnit = TimeUnit.SECONDS,
+		bypassPerm = "command.cooldownBypass",
+		overrideConsole = true // console will now be affected by cooldown
 	)
 	public void exampleCommand(CommandArguments arguments) {
 		// CommandArguments class contains basic things related Bukkit commands
@@ -112,15 +112,15 @@ public class ExampleClass extends JavaPlugin {
 	}
 
 	@Command(
-			name = "noParams"
+		name = "noParams"
 	)
 	public void commandWithoutParameters() {
 		Bukkit.getConsoleSender().sendMessage("This command is running without any parameters.");
 	}
 
 	@Command(
-			name = "customParamWithoutAnnotations",
-			min = 1
+		name = "customParamWithoutAnnotations",
+		min = 1
 	)
 	// See CommandFramework#addCustomParameter method above.
 	public void customParamCommand(String firstParameter, CommandArguments arguments) {
@@ -129,29 +129,29 @@ public class ExampleClass extends JavaPlugin {
 	}
 
 	@Command(
-			name = "customParams",
-			min = 1
+		name = "customParams",
+		min = 1
 	)
 	// If command is executed with only one argument then the default value will be accepted.
 	// Otherwise, the given argument will be converted to specified type, in this case an int.
 	// If parameter is not annotated by @Default then command will throw an exception on execution.
 	// See the wiki page for creating custom parameters using @Param and @Default annotations.
 	public void customParamsCommand(CommandArguments arguments,
-									@Param("secondAsInt")
-									@Default("50")
-									int secondArg) {
+								@Param("secondAsInt")
+								@Default("50")
+								int secondArg) {
 		arguments.sendMessage("Second argument as integer is " + secondArg);
 	}
 
 	@Command(
-			name = "confirmationTest"
+		name = "confirmationTest"
 	)
 	@Confirmation(
-			message = "Are you sure, if so, please execute command again to confirm.",
-			expireAfter = 10,
-			bypassPerm = "confirmation.bypass",
-			timeUnit = TimeUnit.SECONDS,
-			overrideConsole = true
+		message = "Are you sure, if so, please execute command again to confirm.",
+		expireAfter = 10,
+		bypassPerm = "confirmation.bypass",
+		timeUnit = TimeUnit.SECONDS,
+		overrideConsole = true
 	)
 	public void confirmationCommand(CommandArguments arguments) {
 		arguments.sendMessage("Confirmation successful.");
@@ -159,8 +159,8 @@ public class ExampleClass extends JavaPlugin {
 
 	// Aliases don't need to be same with the command above
 	@Completer(
-			name = "example",
-			aliases = {"firstAlias", "secondAlias"}
+		name = "example",
+		aliases = {"firstAlias", "secondAlias"}
 	)
 	public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
 		return Arrays.asList("first", "second", "third");
