@@ -18,6 +18,7 @@
 
 package me.despical.commandframework;
 
+import com.google.common.primitives.Primitives;
 import me.despical.commandframework.utils.*;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
@@ -515,7 +516,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	}
 
 	@NotNull
-	private Object[] getParameterArray(Method method, CommandArguments commandArguments) {
+	private Object[] getParameterArray(Method method, CommandArguments commandArguments) throws Exception {
 		final Parameter[] parameters = method.getParameters();
 		final Object[] methodParameters = new Object[parameters.length];
 
@@ -537,6 +538,34 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 					}
 
 					methodParameters[i] = customParametersMap.get(value).apply(commandArguments);
+
+					if (methodParameters[i] == null) {
+						if (!parameters[i].isAnnotationPresent(Default.class)) {
+							continue outer_loop;
+						}
+
+						String defaultValue = parameters[i].getAnnotation(Default.class).value();
+
+						if (!parameters[i].getType().isInstance(String.class)) {
+							Class<?> clazz = parameters[i].getType();
+
+							if (!Primitives.isWrapperType(clazz)) {
+								try {
+									methodParameters[i] = clazz.getMethod("valueOf", String.class).invoke(null, defaultValue);
+								} catch (Exception exception) {
+									throw new CommandException("Static method {0}#valueOf(String) does not exist!", clazz.getSimpleName());
+								}
+
+								continue outer_loop;
+							}
+
+							methodParameters[i] = Primitives.wrap(clazz).getMethod("valueOf", String.class).invoke(null, defaultValue);
+							continue outer_loop;
+						}
+
+						methodParameters[i] = defaultValue;
+					}
+
 					continue outer_loop;
 				}
 			}
