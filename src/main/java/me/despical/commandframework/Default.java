@@ -18,7 +18,6 @@ public @interface Default {
 	 * The default value for the parameter annotated with
 	 * {@link Param}, if the value of parameter is null.
 	 *
-	 *
 	 * @return default value for the possible null parameter
 	 */
 	String value();
