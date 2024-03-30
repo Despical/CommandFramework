@@ -137,9 +137,9 @@ public class ExampleClass extends JavaPlugin {
 	// If parameter is not annotated by @Default then command will throw an exception on execution.
 	// See the wiki page for creating custom parameters using @Param and @Default annotations.
 	public void customParamsCommand(CommandArguments arguments,
-								@Param("secondAsInt")
-								@Default("50")
-								int secondArg) {
+					@Param("secondAsInt")
+					@Default("50")
+					int secondArg) {
 		arguments.sendMessage("Second argument as integer is " + secondArg);
 	}
 
