@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -164,6 +165,19 @@ public class CommandArguments {
 		if (message == null)
 			return;
 		commandSender.sendMessage(CommandFramework.instance.colorFormatter.apply(message));
+	}
+
+	/**
+	 * Sends message to sender without receiving command
+	 * sender with the given parameters.
+	 *
+	 * @param message   the message will be sent to sender.
+	 * @param params    the parameters to format the message.
+	 */
+	public void sendMessage(String message, Object... params) {
+		if (message == null)
+			return;
+		commandSender.sendMessage(CommandFramework.instance.colorFormatter.apply(MessageFormat.format(message, params)));
 	}
 
 	/**
