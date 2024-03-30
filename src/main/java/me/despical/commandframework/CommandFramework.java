@@ -96,7 +96,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * Function to apply messages that will be sent using CommandArguments#sendMessage method.
 	 */
 	@NotNull
-	private Function<String, String> colorFormatter = (string) -> ChatColor.translateAlternateColorCodes('&', string);
+	protected Function<String, String> colorFormatter = (string) -> ChatColor.translateAlternateColorCodes('&', string);
 	/**
 	 * Default command map of Bukkit.
 	 */
@@ -161,23 +161,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 * For instance, can be used to translate Minecraft color and Hex color codes.
 	 *
 	 * @param colorFormatter
-	 *        the function that will be applied to the strings to color
+	 *        the function that will be applied to the strings to colorize
 	 */
 	public void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
 		this.colorFormatter = colorFormatter;
-	}
-
-	@NotNull
-	public Function<String, String> getColorFormatter() {
-		return colorFormatter;
-	}
-
-	public <A, B extends A> void addCustomParameter(@NotNull Class<A> instanceClass, @NotNull Function<CommandArguments, B> function) {
-		final String simpleName = instanceClass.getSimpleName();
-
-		if (this.customParametersMap.containsKey(simpleName))
-			throw new CommandException("Object type ''{0}'' is already registered as a custom parameter!", simpleName);
-		this.customParametersMap.put(simpleName, function);
 	}
 
 	public <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
