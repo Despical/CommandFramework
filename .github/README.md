@@ -189,7 +189,7 @@ You can learn more about contributing via GitHub in [contribution guidelines](..
 * ~~Sub-commands aren't compatible with tab completions.~~
 
 ## To do list
-* Custom parameters with the same type.
+* ~~Custom parameters with the same type.~~
 * ~~Exception log handler.~~
 * ~~Message handler to change system messages.~~
 
@@ -201,4 +201,4 @@ mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 ```
 
 > [!IMPORTANT]  
-> Don't forget to install Maven before building.
+> **[Maven](https://maven.apache.org/)** must be installed to build Command Framework.
