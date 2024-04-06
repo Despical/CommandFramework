@@ -18,10 +18,7 @@
 
 package me.despical.commandframework;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Main class of the framework to create commands in easy way.
@@ -29,6 +26,7 @@ import java.lang.annotation.Target;
  * @author Despical
  * @since 1.0.0
  */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Command {

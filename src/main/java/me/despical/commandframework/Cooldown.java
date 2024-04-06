@@ -18,10 +18,7 @@
 
 package me.despical.commandframework;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Created at 1.02.2024
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Cooldown {
