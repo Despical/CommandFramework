@@ -34,7 +34,7 @@ import java.util.Optional;
 /**
  * A utility class to use command arguments without external
  * Bukkit parameters and includes some useful methods to improve
- * code performance and quality.
+ * code quality and performance.
  *
  * @author Despical
  * @since 1.0.0
@@ -67,7 +67,9 @@ public class CommandArguments {
 	}
 
 	/**
-	 * @return base command.
+	 * Retrieves the base command associated with this object.
+	 *
+	 * @return The base command.
 	 */
 	@NotNull
 	public Command getCommand() {
@@ -75,6 +77,8 @@ public class CommandArguments {
 	}
 
 	/**
+	 * Retrieves the label associated with this object.
+	 *
 	 * @return label of the command.
 	 */
 	@NotNull
@@ -83,6 +87,8 @@ public class CommandArguments {
 	}
 
 	/**
+	 * Retrieves the array of arguments associated with this object.
+	 *
 	 * @return arguments of the command.
 	 */
 	@NotNull
@@ -93,62 +99,89 @@ public class CommandArguments {
 	// SOME GETTER METHODS FOR COMMON PRIMITIVE TYPES //
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Retrieves the argument at the specified index.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return indexed element or null if index out of bounds
 	 */
 	@Nullable
-	public String getArgument(int i) {
-		return arguments.length > i && i >= 0 ? arguments[i] : null;
+	public String getArgument(int index) {
+		return arguments.length > index && index >= 0 ? arguments[index] : null;
 	}
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Returns the indexed element from the arguments array, or the {@code defaultValue}
+	 * if and only if index is out the bounds.
+	 *
+	 * @param index   the index of desired argument.
+	 * @param defaultValue    the default value to return if the index is out of bounds.
+	 * @return the argument at the specified index, or the default value if the index is out of bounds.
+	 */
+	@NotNull
+	public String getArgument(int index, String defaultValue) {
+		return arguments.length > index && index >= 0 ? arguments[index] : defaultValue;
+	}
+
+	/**
+	 * Returns the integer value of the indexed element from the arguments array.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return Integer if indexed element is primitive type of int
 	 *         or 0 if element is null.
 	 */
-	public int getArgumentAsInt(int i) {
-		return Utils.getInt(this.getArgument(i));
+	public int getArgumentAsInt(int index) {
+		return Utils.getInt(this.getArgument(index));
 	}
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Returns the double value of the indexed element from the arguments array.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return Double if indexed element is primitive type of double
 	 *         or 0 if element is null.
 	 */
-	public double getArgumentAsDouble(int i) {
-		return Utils.getDouble(this.getArgument(i));
+	public double getArgumentAsDouble(int index) {
+		return Utils.getDouble(this.getArgument(index));
 	}
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Returns the float value of the indexed element from the arguments array.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return Float if indexed element is primitive type of float
 	 *         or 0 if element is null.
 	 */
-	public float getArgumentAsFloat(int i) {
-		return Utils.getFloat(this.getArgument(i));
+	public float getArgumentAsFloat(int index) {
+		return Utils.getFloat(this.getArgument(index));
 	}
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Returns the long value of the indexed element from the arguments array.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return Long if indexed element is primitive type of long
 	 *         or 0 if element is null.
 	 */
-	public long getArgumentAsLong(int i) {
-		return Utils.getLong(this.getArgument(i));
+	public long getArgumentAsLong(int index) {
+		return Utils.getLong(this.getArgument(index));
 	}
 
 	/**
-	 * @param i   the index of desired argument.
+	 * Returns the boolean value of the indexed element from the arguments array.
+	 *
+	 * @param index   the index of desired argument.
 	 * @return Boolean if indexed element is primitive type of boolean
 	 *         or 0 if element is null.
 	 */
-	public boolean getArgumentAsBoolean(int i) {
-		return "true".equalsIgnoreCase(this.getArgument(i));
+	public boolean getArgumentAsBoolean(int index) {
+		return "true".equalsIgnoreCase(this.getArgument(index));
 	}
 
 	// ---------------------------------------------- //
 
 	/**
+	 * Returns {@code true} if the arguments array is empty, otherwise {@code false}.
+	 *
 	 * @return true if arguments are empty, otherwise false.
 	 */
 	public boolean isArgumentsEmpty() {
@@ -156,8 +189,7 @@ public class CommandArguments {
 	}
 
 	/**
-	 * Sends message to sender without receiving command
-	 * sender.
+	 * Sends message to sender without receiving the command sender.
 	 *
 	 * @param message   the message will be sent to sender.
 	 */
@@ -181,34 +213,40 @@ public class CommandArguments {
 	}
 
 	/**
-	 * Checks if command sender is console.
+	 * Returns {@code true} if, and only if, command sender is console.
 	 *
-	 * @return true if sender is console, otherwise false
+	 * @return {@code true} if, and only if, command sender is console, otherwise
+	 * {@code false}.
 	 */
 	public boolean isSenderConsole() {
 		return !isSenderPlayer();
 	}
 
 	/**
-	 * Checks if command sender is player.
+	 * Returns {@code true} if, and only if, command sender is player.
 	 *
-	 * @return true if sender is player, otherwise false
+	 * @return {@code true} if, and only if, command sender is player, otherwise
+	 *         {@code false}.
 	 */
 	public boolean isSenderPlayer() {
 		return commandSender instanceof Player;
 	}
 
 	/**
-	 * Checks if command sender has specified permission.
+	 * Returns {@code true} if the command sender has required {@code permission} or, if
+	 * {@code permission} is empty.
 	 *
 	 * @param permission   the permission to check.
-	 * @return true if sender has permission or {@code permission} is empty, otherwise false.
+	 * @return {@code true} if the command sender has required {@code permission} or, if
+	 *         {@code permission} is empty, otherwise {@code false}.
 	 */
 	public boolean hasPermission(String permission) {
 		return permission.isEmpty() || commandSender.hasPermission(permission);
 	}
 
 	/**
+	 * Returns the number of arguments passed to the command.
+	 *
 	 * @return length of the arguments array.
 	 */
 	public int getLength() {
@@ -236,7 +274,7 @@ public class CommandArguments {
 	/**
 	 * Gets player object from the server with given argument.
 	 *
-	 * @param i
+	 * @param index
 	 *        the index of desired argument.
 	 *
 	 * @return player with the given name if online, otherwise
@@ -248,8 +286,8 @@ public class CommandArguments {
 	 * @see Optional#empty()
 	 * @since 1.3.6
 	 */
-	public Optional<Player> getPlayer(int i) {
-        return this.getPlayer(this.getArgument(i));
+	public Optional<Player> getPlayer(int index) {
+        return this.getPlayer(this.getArgument(index));
     }
 
 	/**
@@ -284,12 +322,12 @@ public class CommandArguments {
 	 * Checks if the value obtained from the argument at the specified index is numeric,
 	 * i.e., if it contains only digit characters (0-9).
 	 *
-	 * @param i   The index of the argument from which the value is retrieved.
+	 * @param index   The index of the argument from which the value is retrieved.
 	 * @return {@code true} if the value at the specified argument index is numeric, {@code false} otherwise.
 	 *         Returns {@code false} for null or empty values obtained from the argument.
 	 */
-	public boolean isNumeric(int i) {
-		return this.isNumeric(this.getArgument(i));
+	public boolean isNumeric(int index) {
+		return this.isNumeric(this.getArgument(index));
 	}
 
 	/**
@@ -310,13 +348,13 @@ public class CommandArguments {
 	 * Checks if the value obtained from the argument at the specified index can be successfully
 	 * parsed into an integer using {@code Integer.parseInt}.
 	 *
-	 * @param i   The index of the argument from which the value is retrieved.
+	 * @param index   The index of the argument from which the value is retrieved.
 	 * @return {@code true} if the value at the specified argument index can be parsed into an integer,
 	 *         {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
 	 *         Also returns {@code false} for values that cannot be parsed into an integer.
 	 */
-	public boolean isInteger(int i) {
-		return this.isInteger(this.getArgument(i));
+	public boolean isInteger(int index) {
+		return this.isInteger(this.getArgument(index));
 	}
 
 	/**
@@ -339,13 +377,13 @@ public class CommandArguments {
 	 * Checks if the value obtained from the argument at the specified index can be successfully
 	 * parsed into a floating-point decimal using {@code Double.parseDouble}.
 	 *
-	 * @param i   The index of the argument from which the value is retrieved.
+	 * @param index   The index of the argument from which the value is retrieved.
 	 * @return {@code true} if the value at the specified argument index can be parsed into a floating-point decimal,
 	 *         {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
 	 *         Also returns {@code false} for values that cannot be parsed into a floating-point decimal.
 	 */
-	public boolean isFloatingDecimal(int i) {
-		return this.isFloatingDecimal(this.getArgument(i));
+	public boolean isFloatingDecimal(int index) {
+		return this.isFloatingDecimal(this.getArgument(index));
 	}
 
 	/**
