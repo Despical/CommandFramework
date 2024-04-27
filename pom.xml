@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.4.5</version>
+    <version>1.4.6</version>
 
     <name>Command Framework</name>
     <inceptionYear>2020</inceptionYear>
@@ -25,10 +25,17 @@
 
     <developers>
         <developer>
-            <name>Despical</name>
+            <id>Despical</id>
+            <name>Berke Akçen</name>
+            <email>berkeakcen@gmail.com</email>
             <url>https://www.spigotmc.org/members/615094/</url>
         </developer>
     </developers>
+
+    <issueManagement>
+        <system>GitHub Issue Tracker</system>
+        <url>https://github.com/Despical/CommandFramework/issues</url>
+    </issueManagement>
 
     <repositories>
         <repository>
