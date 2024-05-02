@@ -136,6 +136,8 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
 
 	public CommandFramework(@NotNull Plugin plugin) {
+		this.checkRelocation();
+
 		if (instance != null) {
 			throw new IllegalStateException("Instance already initialized!");
 		}
@@ -154,6 +156,22 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			} catch (ReflectiveOperationException exception) {
 				exception.printStackTrace();
 			}
+		}
+	}
+
+	private void checkRelocation() {
+		String suppressRelocation = System.getProperty("commandframework.suppressrelocation");
+
+		if ("true".equals(suppressRelocation)) return;
+
+		String defaultPackage = new String(new byte[] {'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
+			'c', 'o', 'm', 'm', 'a', 'n', 'd', 'f', 'r', 'a', 'm', 'e', 'w', 'o', 'r', 'k'});
+
+		String examplePackage = new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
+		String packageName = "me.despical.commandframework";
+
+		if (packageName.startsWith(defaultPackage) || packageName.startsWith(examplePackage)) {
+			throw new IllegalStateException("Command Framework has not been relocated correctly!");
 		}
 	}
 
