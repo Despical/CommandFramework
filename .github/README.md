@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.4.6</version>
+    <version>1.4.7</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,9 +50,12 @@ repositories {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.4.6'
+    implementation 'com.github.Despical:CommandFramework:1.4.7'
 }
 ```
+
+> [!IMPORTANT]  
+> Do not forget to relocate the Command Framework package (**me.despical.commandframework**)
 
 ## Example usage
 
