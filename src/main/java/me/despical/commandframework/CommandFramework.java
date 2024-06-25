@@ -309,7 +309,7 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 			}
 
 			this.commands.remove(command);
-			new HashMap<>(this.subCommands).keySet().stream().filter(subCmd -> subCmd.name().startsWith(name)).forEach(this.subCommands::remove); // Copy elements to new map to avoid modification exception
+			this.subCommands.entrySet().removeIf(subEntry -> subEntry.getKey().name().startsWith(name));
 		});
 	}
 
