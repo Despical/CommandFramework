@@ -18,25 +18,21 @@
 
 package me.despical.commandframework;
 
-import com.google.common.primitives.Primitives;
-import me.despical.commandframework.utils.*;
-import org.bukkit.ChatColor;
+import me.despical.commandframework.annotations.Command;
+import me.despical.commandframework.confirmations.ConfirmationManager;
+import me.despical.commandframework.cooldown.CooldownManager;
+import me.despical.commandframework.options.Option;
+import me.despical.commandframework.options.OptionManager;
 import org.bukkit.command.*;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.SimplePluginManager;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.text.MessageFormat;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.stream.Stream;
+import java.util.logging.Logger;
 
 /**
  * Main class of the framework to register commands, add tab
@@ -46,117 +42,30 @@ import java.util.stream.Stream;
  * @author Despical
  * @since 1.0.0
  */
-public class CommandFramework implements CommandExecutor, TabCompleter {
+@ApiStatus.NonExtendable
+public class CommandFramework extends CommandHandler {
 
-	/**
-	 * Instance of framework.
-	 */
 	protected static CommandFramework instance;
-	/**
-	 * Main instance of framework.
-	 */
-	@NotNull
-	private final Plugin plugin;
-	/**
-	 * The map of registered commands by framework.
-	 */
-	@NotNull
-	private final Map<Command, Map.Entry<Method, Object>> commands = new HashMap<>();
-	/**
-	 * The map of registered sub-commands by framework.
-	 */
-	@NotNull
-	private final Map<Command, Map.Entry<Method, Object>> subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
-	/**
-	 * The map of registered sub-commands' tab completions by framework.
-	 */
-	@NotNull
-	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions = new HashMap<>();
-	/**
-	 * The map of registered tab completions by framework.
-	 */
-	@NotNull
-	private final Map<Completer, Map.Entry<Method, Object>> subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
-	/**
-	 * The map of registered command cooldowns by framework.
-	 */
-	@NotNull
-	private final Map<CommandSender, Map<Command, Long>> cooldowns = new HashMap<>();
-	/**
-	 * Custom {@code HashMap} implementation with expiring keys.
-	 */
-	@NotNull
-	private final SelfExpiringMap<CommandSender, Command> confirmations = new SelfExpiringHashMap<>();
-	/**
-	 * The map of custom parameters for command methods.
-	 */
-	@NotNull
-	private final Map<String, Function<CommandArguments, ?>> customParametersMap = new HashMap<>();
-	/**
-	 * Function to apply messages that will be sent using CommandArguments#sendMessage method.
-	 */
-	@NotNull
-	protected Function<String, String> colorFormatter = (string) -> ChatColor.translateAlternateColorCodes('&', string);
-	/**
-	 * Default command map of Bukkit.
-	 */
-	@Nullable
-	protected CommandMap commandMap;
 
-	// Error Message Handler
-	private static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
-		final String usage = command.usage();
+	private Logger logger;
+	private CooldownManager cooldownManager;
+	private ConfirmationManager confirmationManager;
 
-		if (!usage.isEmpty()) {
-			arguments.sendMessage(usage);
-			return false;
-		}
-
-		return true;
-	};
-
-	public static BiFunction<Command, CommandArguments, Boolean> SHORT_ARG_SIZE = (command, arguments) -> {
-		if (!SEND_USAGE.apply(command, arguments)) return true;
-
-		arguments.sendMessage("&cRequired argument length is less than needed!");
-		return true;
-	};
-
-	public static BiFunction<Command, CommandArguments, Boolean> LONG_ARG_SIZE = (command, arguments) -> {
-		if (!SEND_USAGE.apply(command, arguments)) return true;
-
-		arguments.sendMessage("&cRequired argument length greater than needed!");
-		return true;
-	};
-
-	public static String ONLY_BY_PLAYERS         = ChatColor.RED + "This command is only executable by players!";
-	public static String ONLY_BY_CONSOLE         = ChatColor.RED + "This command is only executable by console!";
-	public static String NO_PERMISSION           = ChatColor.RED + "You don't have enough permission to execute this command!";
-	public static String MUST_HAVE_OP            = ChatColor.RED + "You must have OP to execute this command!";
-	public static String WAIT_BEFORE_USING_AGAIN = ChatColor.RED + "You have to wait {0}s before using this command again!";
+	protected final Plugin plugin;
+	private final OptionManager optionManager;
+	private final ParameterHandler parameterHandler;
+	private final CommandRegistry registry;
 
 	public CommandFramework(@NotNull Plugin plugin) {
 		this.checkRelocation();
-
-		if (instance != null) {
-			throw new IllegalStateException("Instance already initialized!");
-		}
+		this.checkIsAlreadyInitialized();
 
 		this.plugin = plugin;
-		CommandFramework.instance = this;
-
-		if (plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
-			final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
-
-			try {
-				final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-				field.setAccessible(true);
-
-				commandMap = (CommandMap) field.get(manager);
-			} catch (ReflectiveOperationException exception) {
-				exception.printStackTrace();
-			}
-		}
+		this.logger = plugin.getLogger();
+		this.optionManager = new OptionManager();
+		this.registry = new CommandRegistry(this);
+		this.parameterHandler = new ParameterHandler();
+		super.setRegistry(this);
 	}
 
 	private void checkRelocation() {
@@ -164,10 +73,10 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 
 		if ("true".equals(suppressRelocation)) return;
 
-		String defaultPackage = new String(new byte[] {'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
+		String defaultPackage = new String(new byte[]{'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
 			'c', 'o', 'm', 'm', 'a', 'n', 'd', 'f', 'r', 'a', 'm', 'e', 'w', 'o', 'r', 'k'});
 
-		String examplePackage = new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
+		String examplePackage = new String(new byte[]{'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
 		String packageName = "me.despical.commandframework";
 
 		if (packageName.startsWith(defaultPackage) || packageName.startsWith(examplePackage)) {
@@ -175,101 +84,21 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 		}
 	}
 
-	/**
-	 * For instance, can be used to translate Minecraft color and Hex color codes.
-	 *
-	 * @param colorFormatter
-	 *        the function that will be applied to the strings to colorize
-	 */
-	public void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
-		this.colorFormatter = colorFormatter;
-	}
+	private void checkIsAlreadyInitialized() {
+		String suppressRelocation = System.getProperty("commandframework.suppress_initialization");
 
-	public <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
-		if (this.customParametersMap.containsKey(value))
-			throw new CommandException("Custom parameter function called ''{0}'' is already registered!", value);
-		this.customParametersMap.put(value, function);
+		if (!"true".equals(suppressRelocation) && instance != null) {
+			throw new IllegalStateException("Instance already initialized!");
+		} else instance = this;
 	}
 
 	/**
 	 * Registers commands in given object's class.
 	 *
-	 * @param instance   the class instance of given object.
+	 * @param instance the class instance of given object.
 	 */
-	public void registerCommands(@NotNull Object instance) {
-		for (final Method method : instance.getClass().getMethods()) {
-			final Command command = method.getAnnotation(Command.class);
-
-			if (command != null) {
-				registerCommand(command, method, instance);
-
-				// Register all aliases as a plugin command. If it is a sub-command then register it as a sub-command.
-				Stream.of(command.aliases()).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
-			} else if (method.isAnnotationPresent(Completer.class)) {
-				if (!List.class.isAssignableFrom(method.getReturnType())) {
-					plugin.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
-					continue;
-				}
-
-				final Completer completer = method.getAnnotation(Completer.class);
-
-				if (completer.name().contains(".")) {
-					subCommandCompletions.put(completer, Utils.mapEntry(method, instance));
-				} else {
-					commandCompletions.put(completer, Utils.mapEntry(method, instance));
-				}
-			}
-		}
-
-		subCommands.forEach((key, value) -> {
-			final String splitName = key.name().split("\\.")[0];
-
-			// Framework is going to work properly but this should not be handled that way.
-			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
-				plugin.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", splitName);
-
-				registerCommand(Utils.createCommand(key, splitName), null, null);
-			}
-		});
-	}
-
-	/**
-	 * Registers the command with given parameters if there are any.
-	 *
-	 * @param command
-	 *        the command object of registered command method.
-	 *
-	 * @param method
-	 *        the command method which will invoked run when the
-	 *        command is executed.
-	 *
-	 * @param instance
-	 *        the class instance of the command method.
-	 */
-	private void registerCommand(Command command, Method method, Object instance) {
-		final String cmdName = command.name();
-
-		if (cmdName.contains(".")) {
-			subCommands.put(command, Utils.mapEntry(method, instance));
-		} else {
-			commands.put(command, Utils.mapEntry(method, instance));
-
-			try {
-				final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-				constructor.setAccessible(true);
-
-				final PluginCommand pluginCommand = constructor.newInstance(cmdName, plugin);
-				pluginCommand.setTabCompleter(this);
-				pluginCommand.setExecutor(this);
-				pluginCommand.setUsage(command.usage());
-				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
-				pluginCommand.setDescription(command.desc());
-
-				commandMap.register(cmdName, pluginCommand);
-			} catch (Exception exception) {
-				Utils.handleExceptions(exception);
-			}
-		}
+	public final void registerCommands(@NotNull Object instance) {
+		this.registry.registerCommands(instance);
 	}
 
 	/**
@@ -277,350 +106,66 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 *
 	 * @param commandName name of the command that's going to be removed
 	 */
-	public void unregisterCommand(@NotNull String commandName) {
-		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
-
-		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(commandName, new String[0]);
-
-		if (entry == null) {
-			plugin.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
-			return;
-		}
-
-		final Command command = entry.getKey();
-		final String name = command.name();
-		final PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
-
-		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
-			// Do not unregister if matched command is not registered from our instance plugin.
-			if (!pluginCommand.getPlugin().equals(plugin))
-				return;
-
-			try {
-				cmd.unregister(commandMap);
-
-				Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
-				field.setAccessible(true);
-
-				Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field.get(commandMap);
-				knownCommands.remove(name);
-			} catch (Exception exception) {
-				plugin.getLogger().log(Level.WARNING, "Something went wrong while trying to unregister command(name: {0}) from server!", name);
-			}
-
-			this.commands.remove(command);
-			this.subCommands.entrySet().removeIf(subEntry -> subEntry.getKey().name().startsWith(name));
-		});
+	public final void unregisterCommand(@NotNull String commandName) {
+		this.registry.unregisterCommand(commandName);
 	}
 
 	/**
-	 * Unregisters all of registered commands and tab completers created using that instance.
+	 * Unregisters all of registered commands and tab completers using that instance.
 	 */
-	public void unregisterCommands() {
-		Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
-
-		while (names.hasNext()) {
-			this.unregisterCommand(names.next());
-		}
+	public final void unregisterCommands() {
+		this.registry.unregisterCommands();
 	}
 
-	@Nullable
-	private Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
-		Command command = null;
-
-		// Search for the sub commands first
-		for (Command cmd : subCommands.keySet()) {
-			final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
-			// Checking aliases...
-			if (name.equals(cmdName)) {
-				command = cmd;
-				break;
-			}
-
-			if (name.equalsIgnoreCase(cmdName)) {
-				command = cmd;
-				break;
-			}
-		}
-
-		// If we found the sub command then return it, otherwise search the commands map
-		if (command != null) {
-			return Utils.mapEntry(command, subCommands.get(command));
-		}
-
-		// If our command is not a sub command then search for a main command
-		for (Command cmd : commands.keySet()) {
-			final String name = cmd.name();
-
-			if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-				return Utils.mapEntry(cmd, commands.get(cmd));
-			}
-		}
-
-		// Return null if the given command is not registered by Command Framework
-		return null;
-	}
-
-	private boolean hasCooldown(final CommandSender sender, final Command command, Map.Entry<Command, Map.Entry<Method, Object>> entry) {
-		final Method method = entry.getValue().getKey();
-
-		if (method == null) return false;
-		if (!method.isAnnotationPresent(Cooldown.class)) return false;
-
-		final Cooldown cooldown = method.getAnnotation(Cooldown.class);
-
-		if (cooldown.cooldown() <= 0) return false;
-
-		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
-
-		if (isConsoleSender && !cooldown.overrideConsole()) return false;
-		if (!isConsoleSender && !cooldown.bypassPerm().isEmpty() && sender.hasPermission(cooldown.bypassPerm())) return false;
-
-		final Map<Command, Long> cooldownMap = cooldowns.get(sender);
-
-		if (cooldownMap == null) {
-			cooldowns.put(sender, Utils.mapOf(command, System.currentTimeMillis()));
-			return false;
-		} else if (!cooldownMap.containsKey(command)) {
-			cooldownMap.put(command, System.currentTimeMillis());
-
-			cooldowns.replace(sender, cooldownMap);
-			return false;
-		}
-
-		final long remainingSeconds = ((System.currentTimeMillis() - cooldownMap.get(command)) / 1000) % 60;
-		final long cooldownInSeconds = cooldown.timeUnit().toSeconds(cooldown.cooldown());
-		final int timeBetween = (int) (cooldownInSeconds - remainingSeconds); // less precious more accurate
-
-		if (timeBetween > 0) {
-			sender.sendMessage(MessageFormat.format(WAIT_BEFORE_USING_AGAIN, timeBetween));
-			return true;
-		} else {
-			cooldownMap.put(command, System.currentTimeMillis());
-
-			cooldowns.replace(sender, cooldownMap);
-			return false;
-		}
-	}
-
-	private boolean checkConfirmations(final CommandSender sender, final Command command, Map.Entry<Command, Map.Entry<Method, Object>> entry) {
-		final Method method = entry.getValue().getKey();
-
-		if (method == null) return false;
-		if (!method.isAnnotationPresent(Confirmation.class)) return false;
-
-		final Confirmation confirmation = method.getAnnotation(Confirmation.class);
-
-		if (confirmation.expireAfter() <= 0) return false;
-
-		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
-
-		if (isConsoleSender && !confirmation.overrideConsole()) return false;
-		if (!isConsoleSender && !confirmation.bypassPerm().isEmpty() && sender.hasPermission(confirmation.bypassPerm())) return false;
-
-		if (confirmations.containsKey(sender)) {
-			confirmations.remove(sender);
-			return false;
-		} else {
-			confirmations.put(sender, command, confirmation.timeUnit().toMillis(confirmation.expireAfter()));
-
-			sender.sendMessage(confirmation.message());
-			return true;
-		}
-	}
-
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-		final Map.Entry<Command, Map.Entry<Method, Object>> entry = this.getAssociatedCommand(cmd.getName(), args);
-
-		if (entry == null) return false;
-
-		final Command command = entry.getKey();
-		final String permission = command.permission();
-
-		if (command.onlyOp() && !sender.isOp()) {
-			sender.sendMessage(MUST_HAVE_OP);
-			return true;
-		}
-
-		if ((!permission.isEmpty() && !sender.hasPermission(permission))) {
-			sender.sendMessage(NO_PERMISSION);
-			return true;
-		}
-
-		if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-			sender.sendMessage(ONLY_BY_PLAYERS);
-			return true;
-		}
-
-		if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-			sender.sendMessage(ONLY_BY_CONSOLE);
-			return true;
-		}
-
-		final String[] splitted = command.name().split("\\.");
-		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
-		final CommandArguments arguments = new CommandArguments(sender, cmd, label, newArgs);
-
-		if (newArgs.length < command.min()) {
-			return SHORT_ARG_SIZE.apply(command, arguments);
-		}
-
-		if (command.max() != -1 && newArgs.length > command.max()) {
-			return LONG_ARG_SIZE.apply(command, arguments);
-		}
-
-		if (this.checkConfirmations(sender, command, entry))
-			return true;
-
-		if (this.hasCooldown(sender, command, entry))
-			return true;
-
-		final Runnable invocation = () -> {
-			try {
-				final Method method = entry.getValue().getKey();
-				final Object instance = entry.getValue().getValue();
-
-				if (method == null)
-					return;
-
-				method.invoke(instance, getParameterArray(method, arguments));
-			} catch (Exception exception) {
-				Utils.handleExceptions(exception);
-			}
-		};
-
-		if (command.async()) {
-			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
-		} else {
-			invocation.run();
-		}
-
-        return true;
-    }
-
-	@Nullable
-	private Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
-		for (Completer comp : subCommandCompletions.keySet()) {
-			final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
-
-			if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(target -> target.equalsIgnoreCase(cmdName) || target.equalsIgnoreCase(commandName))) {
-				return Utils.mapEntry(comp, subCommandCompletions.get(comp));
-			}
-		}
-
-		for (Completer comp : commandCompletions.keySet()) {
-			final String name = comp.name();
-
-			if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-				return Utils.mapEntry(comp, commandCompletions.get(comp));
-			}
-		}
-
-		return null;
+	public final <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
+		this.parameterHandler.addCustomParameter(value, function);
 	}
 
 	@NotNull
-	private Object[] getParameterArray(Method method, CommandArguments commandArguments) throws Exception {
-		final Parameter[] parameters = method.getParameters();
-		final Object[] methodParameters = new Object[parameters.length];
-
-		outer_loop:
-		for (int i = 0; i < parameters.length; i++) {
-			final String simpleName = parameters[i].getType().getSimpleName();
-
-			if ("CommandArguments".equals(simpleName)) {
-				methodParameters[i] = commandArguments;
-				continue;
-			}
-
-			for (Annotation annotation : parameters[i].getAnnotations()) {
-				if (annotation instanceof Param) {
-					String value = ((Param) annotation).value();
-
-					if (!customParametersMap.containsKey(value)) {
-						throw new CommandException("Custom parameter (type: {0}, value: {1}) is requested but return function is not found!", simpleName, value);
-					}
-
-					methodParameters[i] = customParametersMap.get(value).apply(commandArguments);
-
-					if (methodParameters[i] == null) {
-						if (!parameters[i].isAnnotationPresent(Default.class)) {
-							continue outer_loop;
-						}
-
-						String defaultValue = parameters[i].getAnnotation(Default.class).value();
-
-						if (!parameters[i].getType().isInstance(String.class)) {
-							Class<?> clazz = parameters[i].getType();
-
-							if (!Primitives.isWrapperType(clazz)) {
-								try {
-									methodParameters[i] = clazz.getMethod("valueOf", String.class).invoke(null, defaultValue);
-								} catch (Exception exception) {
-									throw new CommandException("Static method {0}#valueOf(String) does not exist!", clazz.getSimpleName());
-								}
-
-								continue outer_loop;
-							}
-
-							methodParameters[i] = Primitives.wrap(clazz).getMethod("valueOf", String.class).invoke(null, defaultValue);
-							continue outer_loop;
-						}
-
-						methodParameters[i] = defaultValue;
-					}
-
-					continue outer_loop;
-				}
-			}
-
-			if (!customParametersMap.containsKey(simpleName)) {
-				throw new CommandException("Custom parameter (type: {0}) is requested but return function is not found!", simpleName);
-			}
-
-			methodParameters[i] = customParametersMap.get(simpleName).apply(commandArguments);
-		}
-
-		return methodParameters;
+	public final Logger getLogger() {
+		return logger;
 	}
 
-	@Override
-	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.getAssociatedCompleter(cmd.getName(), args);
-
-		if (entry == null)
-			return null;
-
-		final String permission = entry.getKey().permission();
-
-		if (!permission.isEmpty() && !sender.hasPermission(permission))
-			return null;
-
-		try {
-			final Method method = entry.getValue().getKey();
-			final Object instance = entry.getValue().getValue();
-			final String[] splitName = entry.getKey().name().split("\\.");
-			final String[] newArgs = Arrays.copyOfRange(args, splitName.length - 1, args.length);
-			final Object completer = method.invoke(instance, getParameterArray(method, new CommandArguments(sender, cmd, label, newArgs)));
-
-			return (List<String>) completer;
-		} catch (Exception exception) {
-			Utils.handleExceptions(exception);
-		}
-
-		return null;
+	public final void setLogger(@NotNull Logger logger) {
+		this.logger = logger;
 	}
 
-	/**
-	 * Get a copy of registered sub-commands-.
-	 *
-	 * @return list of the sub-commands.
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public List<Command> getSubCommands() {
-		return new ArrayList<>(this.subCommands.keySet());
+	public final void enableOption(Option option) {
+		this.optionManager.enableOption(option);
+	}
+
+	public final void enableOptions(Option option, Option... options) {
+		this.optionManager.enableOptions(option, options);
+	}
+
+	public final boolean isOptionEnabled(Option option) {
+		return this.optionManager.isEnabled(option);
+	}
+
+	final CooldownManager getCooldownManager() {
+		if (this.cooldownManager == null)
+			this.cooldownManager = new CooldownManager(this);
+		return cooldownManager;
+	}
+
+	final CommandRegistry getRegistry() {
+		return registry;
+	}
+
+	final ParameterHandler getParameterHandler() {
+		return parameterHandler;
+	}
+
+	final boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
+		if (!isOptionEnabled(Option.CONFIRMATIONS)) return false;
+
+		if (this.confirmationManager == null)
+			this.confirmationManager = new ConfirmationManager();
+		return confirmationManager.checkConfirmations(sender, command, method);
+	}
+
+	protected final void setCommandMap(CommandMap commandMap) {
+		this.registry.setCommandMap(commandMap);
 	}
 
 	/**
@@ -630,10 +175,21 @@ public class CommandFramework implements CommandExecutor, TabCompleter {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public List<Command> getCommands() {
-		List<Command> commands = new ArrayList<>(this.commands.keySet());
-		commands.addAll(this.subCommands.keySet());
+	public final List<Command> getCommands() {
+		List<Command> commands = new ArrayList<>(this.registry.getCommands());
+		commands.addAll(this.registry.getCommands());
 
 		return commands;
+	}
+
+	/**
+	 * Get a copy of registered sub-commands-.
+	 *
+	 * @return list of the sub-commands.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public final List<Command> getSubCommands() {
+		return new ArrayList<>(this.registry.getSubCommands());
 	}
 }

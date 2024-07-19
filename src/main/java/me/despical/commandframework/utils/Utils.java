@@ -18,7 +18,7 @@
 
 package me.despical.commandframework.utils;
 
-import me.despical.commandframework.Command;
+import me.despical.commandframework.annotations.Command;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.annotation.Annotation;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author Despical
  */
 @ApiStatus.Internal
-public class Utils {
+public final class Utils {
 
 	private Utils() {
 	}
@@ -50,7 +50,7 @@ public class Utils {
 	public static int getInt(String string) {
 		try {
 			return Integer.parseInt(string);
-		} catch (NumberFormatException | NullPointerException ignored) {
+		} catch (Exception ignored) {
 			return 0;
 		}
 	}
@@ -65,7 +65,7 @@ public class Utils {
 	public static double getDouble(String string) {
 		try {
 			return Double.parseDouble(string);
-		} catch (NumberFormatException | NullPointerException ignored) {
+		} catch (Exception ignored) {
 			return 0d;
 		}
 	}
@@ -80,7 +80,7 @@ public class Utils {
 	public static long getLong(String string) {
 		try {
 			return Long.parseLong(string);
-		} catch (NumberFormatException | NullPointerException ignored) {
+		} catch (Exception ignored) {
 			return 0L;
 		}
 	}
@@ -95,7 +95,7 @@ public class Utils {
 	public static float getFloat(String string) {
 		try {
 			return Float.parseFloat(string);
-		} catch (NumberFormatException | NullPointerException ignored) {
+		} catch (Exception ignored) {
 			return 0F;
 		}
 	}
@@ -103,8 +103,8 @@ public class Utils {
 	/**
 	 * Returns a {@link Map.Entry} containing the given key and value.
 	 *
-	 * @param a new key to be stored in this entry.
-	 * @param b new value to be stored in this entry.
+	 * @param a   new key to be stored in this entry.
+	 * @param b   new value to be stored in this entry.
 	 * @param <K> new key type to be stored in this entry.
 	 * @param <V> new value type to be stored in this entry.
 	 * @return new {@link Map.Entry} containing the given key and value.
@@ -116,8 +116,8 @@ public class Utils {
 	/**
 	 * Returns an mutable map containing one element.
 	 *
-	 * @param a key to be stored in this map.
-	 * @param b value to be stored in this map.
+	 * @param a   key to be stored in this map.
+	 * @param b   value to be stored in this map.
 	 * @param <K> key type to be stored in this map.
 	 * @param <V> value type to be stored in this map.
 	 * @return Returns an mutable map containing one element.
@@ -129,7 +129,7 @@ public class Utils {
 	/**
 	 * Returns a mutable map containing an arbitrary number of elements.
 	 *
-	 * @param a Array of given entries to be stored in this map.
+	 * @param a   Array of given entries to be stored in this map.
 	 * @param <K> key type to be stored in this map.
 	 * @param <V> value type to be stored in this map.
 	 * @return Returns a mutable map containing an arbitrary number of elements.
@@ -140,10 +140,14 @@ public class Utils {
 	}
 
 	public static void handleExceptions(Exception exception) {
-		Throwable cause = exception.getCause();
+		final Throwable cause = exception.getCause();
 
-		if (cause == null) exception.printStackTrace();
-		else cause.printStackTrace();
+		if (cause == null) {
+			exception.printStackTrace();
+			return;
+		}
+
+		cause.printStackTrace();
 	}
 
 	public static Command createCommand(final Command command, final String commandName) {

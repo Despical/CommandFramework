@@ -1,4 +1,4 @@
-package me.despical.commandframework;
+package me.despical.commandframework.annotations;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ public @interface Confirmation {
 	 * gets expired.
 	 *
 	 * @return the time required for the confirmation period
-	 *         to expire.
+	 * to expire.
 	 * @see #timeUnit()
 	 */
 	int expireAfter();

@@ -16,7 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.despical.commandframework;
+package me.despical.commandframework.exceptions;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import java.text.MessageFormat;
 
@@ -25,7 +27,8 @@ import java.text.MessageFormat;
  * <p>
  * Created at 23.01.2024
  */
-public class CommandException extends RuntimeException {
+@ApiStatus.Internal
+public final class CommandException extends RuntimeException {
 
 	public CommandException(final String message) {
 		super(message);

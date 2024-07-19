@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.despical.commandframework;
+package me.despical.commandframework.annotations;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
@@ -61,5 +61,5 @@ public @interface Cooldown {
 	 *
 	 * @return false if console overrides cooldowns, otherwise true
 	 */
-	 boolean overrideConsole() default false;
+	boolean overrideConsole() default false;
 }

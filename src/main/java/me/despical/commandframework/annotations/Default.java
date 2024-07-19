@@ -1,4 +1,4 @@
-package me.despical.commandframework;
+package me.despical.commandframework.annotations;
 
 import java.lang.annotation.*;
 
