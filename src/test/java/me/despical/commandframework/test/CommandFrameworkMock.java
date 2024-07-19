@@ -24,7 +24,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Mocked class of {@link CommandFramework}.
+ *
  * @author gamerover98
+ * @author Despical
  */
 public class CommandFrameworkMock extends CommandFramework {
 
@@ -35,6 +37,6 @@ public class CommandFrameworkMock extends CommandFramework {
 		 * There is no SimplePluginManager class in MockBukkit,
 		 * so the commandMap can be easily obtained from the ServerMock instance.
 		 */
-		this.commandMap = plugin.getServer().getCommandMap();
+		super.setCommandMap(plugin.getServer().getCommandMap());
 	}
 }

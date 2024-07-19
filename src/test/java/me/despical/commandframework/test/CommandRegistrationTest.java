@@ -23,27 +23,32 @@ import be.seeseemelk.mockbukkit.MockPlugin;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import me.despical.commandframework.*;
+import me.despical.commandframework.annotations.Command;
+import me.despical.commandframework.annotations.Completer;
+import me.despical.commandframework.annotations.Cooldown;
+import me.despical.commandframework.options.Option;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Command registration and usage test class.
  * <p>
- *     Implemented with <a href="https://github.com/MockBukkit/MockBukkit">MockBukkit</a>
+ * Implemented with <a href="https://github.com/MockBukkit/MockBukkit">MockBukkit</a>
  * </p>
+ *
  * @author gamerover98
+ * @author Despical
  */
 class CommandRegistrationTest {
-	// TODO - Fix outdated tests.
 
 	/**
 	 * The {@link org.bukkit.Server} mocked instance.
@@ -55,8 +60,14 @@ class CommandRegistrationTest {
 	 */
 	private MockPlugin plugin;
 
+	@BeforeAll
+	static void beforeAll() {
+		System.setProperty("commandframework.suppressrelocation", "true");
+		System.setProperty("commandframework.suppress_initialization", "true");
+	}
+
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		server = MockBukkit.mock();
 		plugin = MockBukkit.createMockPlugin();
 	}
@@ -67,7 +78,7 @@ class CommandRegistrationTest {
 	@Test
 	void testCommandRegistration() {
 		CommandFramework commandFramework = createCommandFramework();
-		assertEquals(3, commandFramework.getCommands().size());
+		assertEquals(12, commandFramework.getCommands().size());
 	}
 
 	/**
@@ -82,8 +93,8 @@ class CommandRegistrationTest {
 		player.setOp(true);
 
 		// no params
-//		player.performCommand("example");
-//		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
+		player.performCommand("example");
+		player.assertSaid("/example");
 
 		// one param
 		player.performCommand("example firstParam");
@@ -94,19 +105,27 @@ class CommandRegistrationTest {
 		player.assertSaid("/example");
 
 		// first alias
-//		player.performCommand("firstAlias");
-//		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
+		player.performCommand("firstAlias");
+		player.assertSaid("/example");
 
 		// second alias
-//		player.performCommand("secondAlias");
-//		player.assertSaid(CommandFramework.SHORT_ARG_SIZE);
+		player.performCommand("secondAlias");
+		player.assertSaid("/example");
 
 		// no command arguments
 		player.performCommand("nocommandargs");
+		server.getConsoleSender().assertSaid("This command is running without any parameters.");
 
 		// custom parameters
 		player.performCommand("customargs test");
-		player.assertSaid("First parameter is test");
+		player.assertSaid("First parameter is test.");
+
+		// cooldown command
+		player.performCommand("cooldown");
+		player.assertSaid("Cooldown command message.");
+
+		player.performCommand("cooldown");
+		player.assertSaid("§cYou have to wait before using this command again!");
 	}
 
 	@AfterEach
@@ -122,6 +141,7 @@ class CommandRegistrationTest {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
 		commandFramework.registerCommands(new ExampleCommand());
 		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
+		commandFramework.enableOption(Option.CUSTOM_COOLDOWN_CHECKER);
 		return commandFramework;
 	}
 
@@ -129,7 +149,7 @@ class CommandRegistrationTest {
 	 * Example command class like the
 	 * <a href="https://github.com/Despical/CommandFramework/wiki/Command-examples#example-usage">wiki one</a>
 	 */
-	public static class ExampleCommand {
+	public class ExampleCommand {
 
 		@Command(
 			name = "example",
@@ -150,7 +170,7 @@ class CommandRegistrationTest {
 			name = "nocommandargs"
 		)
 		public void noCommandArgsTest() {
-			Logger.getLogger(this.getClass().getSimpleName()).info("This command is running without any parameters.");
+			server.getConsoleSender().sendMessage("This command is running without any parameters.");
 		}
 
 		@Command(
@@ -158,17 +178,25 @@ class CommandRegistrationTest {
 			min = 1
 		)
 		public void customParamCommand(String firstParameter, CommandArguments arguments) {
-			CommandSender sender = arguments.getSender();
-			// Check if arguments are empty; otherwise, firstParameter will return null.
-			// CommandArguments parameter can be added to anywhere in method as a parameter.
-			sender.sendMessage("First parameter is " + firstParameter);
+			arguments.sendMessage("First parameter is " + firstParameter + ".");
+		}
+
+		@Command(
+			name = "cooldown"
+		)
+		@Cooldown(
+			cooldown = 5
+		)
+		public void cooldownTest(CommandArguments arguments) {
+			arguments.checkCooldown();
+			arguments.sendMessage("Cooldown command message.");
 		}
 
 		@Completer(
 			name = "example",
 			aliases = {"firstAlias", "secondAlias"}
 		)
-		public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
+		public List<String> exampleCommandCompletion() {
 			return Arrays.asList("first", "second", "third");
 		}
 	}
