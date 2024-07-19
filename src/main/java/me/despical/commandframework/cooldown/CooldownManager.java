@@ -16,9 +16,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class handles the command cooldowns.
+ *
+ * <p>This is an internal class and should not be instantiated by any
+ * external class.
+ *
  * @author Despical
+ * @since 1.4.8
  * <p>
  * Created at 18.07.2024
+ *
+ * @see Option#CUSTOM_COOLDOWN_CHECKER
+ * @see Cooldown
  */
 @ApiStatus.Internal
 public final class CooldownManager {

@@ -5,12 +5,20 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.*;
 
 /**
+ * This class handles the options related Command Framework.
+ *
+ * <p>This is an internal class and should not be instantiated by any
+ * external class.
+ *
  * @author Despical
+ * @since 1.4.8
  * <p>
  * Created at 18.07.2024
+ *
+ * @see Option
  */
-@ApiStatus.Obsolete
-public class OptionManager {
+@ApiStatus.Internal
+public final class OptionManager {
 
 	private final Set<Option> options;
 

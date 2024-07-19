@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -18,16 +19,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class handles the command executions and tab completes.
+ *
+ * <p>This is an internal class and should not be instantiated or extended by
+ * any subclasses.
+ *
  * @author Despical
+ * @since 1.4.8
  * <p>
- * Created at 18.07.2024
+ * Created on 18.07.2024
  */
+@ApiStatus.Internal
+@ApiStatus.NonExtendable
 public abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
 	private CommandRegistry registry;
 	private CommandFramework commandFramework;
 
-	public void setRegistry(CommandFramework commandFramework) {
+	void setRegistry(CommandFramework commandFramework) {
 		this.commandFramework = commandFramework;
 		this.registry = commandFramework.getRegistry();
 	}
@@ -49,7 +58,7 @@ public abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if ((!permission.isEmpty() && !sender.hasPermission(permission))) {
+		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
 			arguments.sendMessage(Message.NO_PERMISSION);
 			return true;
 		}

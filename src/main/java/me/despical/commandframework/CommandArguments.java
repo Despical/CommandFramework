@@ -229,6 +229,12 @@ public final class CommandArguments {
 		commandSender.sendMessage(Message.applyColorFormatter(MessageFormat.format(message, params)));
 	}
 
+	/**
+	 * Sends the specified {@link Message} to command sender associated with this object.
+	 *
+	 * @param  message the {@link Message} object to be sent.
+	 * @see    #getSender()
+	 */
 	public boolean sendMessage(Message message) {
 		return message.sendMessage(command, this);
 	}
@@ -310,7 +316,7 @@ public final class CommandArguments {
 	 * @return all arguments as a single String object.
 	 * @since 1.3.8
 	 */
-	public String concatenateArguments() {
+	public String concatArguments() {
 		return String.join(" ", arguments);
 	}
 
@@ -327,7 +333,7 @@ public final class CommandArguments {
 	 *                                        or {@code from} is greater than {@code to}.
 	 * @since 1.3.8
 	 */
-	public String concatenateRangeOf(int from, int to) {
+	public String concatRangeOf(int from, int to) {
 		return String.join(" ", Arrays.copyOfRange(arguments, from, to));
 	}
 
@@ -381,7 +387,7 @@ public final class CommandArguments {
 		try {
 			Integer.parseInt(string);
 			return true;
-		} catch (NumberFormatException | NullPointerException exception) {
+		} catch (Exception exception) {
 			return false;
 		}
 	}
@@ -411,11 +417,33 @@ public final class CommandArguments {
 		try {
 			Double.parseDouble(string);
 			return true;
-		} catch (NumberFormatException | NullPointerException exception) {
+		} catch (Exception exception) {
 			return false;
 		}
 	}
 
+	/**
+	 * This method checks if the current command sender has a cooldown on the command that
+	 * is associated with current {@link CommandArguments} object.
+	 *
+	 * <blockquote>For example,
+	 * <pre>{@code
+	 *     @Command(name = "test")
+	 *     @Cooldown(cooldown = 5)
+	 *     public void testCommand(CommandArguments args) {
+	 *         if (args.getLength() != 1) {
+	 *           	// if sender has cooldown, execution will be end here
+	 *           	args.checkCooldown();
+	 *         }
+	 *
+	 *         args.sendMessage("Test command successfully executed.");
+	 *     }
+	 * }</pre></blockquote>
+	 *
+	 * Note that execution will be stopped if this method returns {@code true}.
+	 *
+	 * @return {@code true} if the sender has a cooldown on this command
+	 */
 	public boolean checkCooldown() {
 		return CommandFramework.instance.getCooldownManager().hasCooldown(this);
 	}

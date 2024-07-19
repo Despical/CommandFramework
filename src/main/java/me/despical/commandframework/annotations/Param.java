@@ -12,5 +12,15 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Param {
 
+	/**
+	 * The unique id of the parameter.
+	 * <p>
+	 * If a {@link Class} name is used as an id then no need for
+	 * this annotation to be used. The parameters can directly be
+	 * used from method's parameter list.
+	 * </p>
+	 *
+	 * @return the unique id to call annotated parameter
+	 */
 	String value();
 }

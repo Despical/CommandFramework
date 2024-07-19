@@ -2,6 +2,7 @@ package me.despical.commandframework;
 
 import me.despical.commandframework.annotations.Command;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -52,15 +53,22 @@ public enum Message {
 		Message.colorFormatter = colorFormatter;
 	}
 
-	public static String applyColorFormatter(final @NotNull String string) {
-		return colorFormatter.apply(string);
-	}
-
+	/**
+	 * Set a custom error message.
+	 *
+	 * @param message the custom error message.
+	 */
 	public void setMessage(final BiFunction<Command, CommandArguments, Boolean> message) {
 		this.message = message;
 	}
 
-	public boolean sendMessage(final Command command, final CommandArguments arguments) {
+	@ApiStatus.Internal
+	static String applyColorFormatter(final @NotNull String string) {
+		return colorFormatter.apply(string);
+	}
+
+	@ApiStatus.Internal
+	boolean sendMessage(final Command command, final CommandArguments arguments) {
 		return this.message.apply(command, arguments);
 	}
 

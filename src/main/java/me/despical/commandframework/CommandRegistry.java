@@ -21,9 +21,17 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
+ * This class manages the registry of commands, sub-commands and tab completers
+ * associated with those commands. It also provides helper methods for matching
+ * commands and their corresponding tab completers.
+ *
+ * <p>This is an internal class and should not be instantiated or extended by
+ * any subclasses.
+ *
  * @author Despical
+ * @since 1.4.8
  * <p>
- * Created at 18.07.2024
+ * Created on 18.07.2024
  */
 @ApiStatus.Internal
 public class CommandRegistry {
@@ -60,21 +68,31 @@ public class CommandRegistry {
 				final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
 				field.setAccessible(true);
 
-				commandMap = (CommandMap) field.get(manager);
+				this.commandMap = (CommandMap) field.get(manager);
 			} catch (ReflectiveOperationException exception) {
 				exception.printStackTrace();
 			}
 		}
 	}
 
-	public void setCommandMap(@Nullable CommandMap commandMap) {
+	/**
+	 * Sets the {@link CommandMap} for this instance.
+	 *
+	 * @param commandMap the {@link CommandMap} to be set. Must be non-null.
+	 */
+	public void setCommandMap(@NotNull CommandMap commandMap) {
 		this.commandMap = commandMap;
 	}
 
 	/**
-	 * Registers commands in given object's class.
+	 * Registers commands from the specified instance's class.
+	 * <p>
+	 * This method scans the class of the provided instance and registers all commands
+	 * defined within that class. The class should contain methods annotated to be recognized
+	 * as commands.
+	 * </p>
 	 *
-	 * @param instance the class instance of given object.
+	 * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
 	 */
 	protected void registerCommands(@NotNull Object instance) {
 		for (final Method method : instance.getClass().getMethods()) {
@@ -114,12 +132,12 @@ public class CommandRegistry {
 	}
 
 	/**
-	 * Registers the command with given parameters if there are any.
+	 * This method registers a command along with its associated method and instance.
+	 * When the command is executed, the specified method will be invoked.
 	 *
-	 * @param command  the command object of registered command method.
-	 * @param method   the command method which will invoked run when the
-	 *                 command is executed.
-	 * @param instance the class instance of the command method.
+	 * @param command  the {@link Command} object representing the command to be registered.
+	 * @param method   the {@link Method} object representing the method to be invoked when the command is executed.
+	 * @param instance the instance of the class that contains the command method.
 	 */
 	protected void registerCommand(Command command, Method method, Object instance) {
 		final String cmdName = command.name();
@@ -148,9 +166,10 @@ public class CommandRegistry {
 	}
 
 	/**
-	 * Unregisters command and tab completer if there is with the given name.
+	 * Unregisters a command and its associated tab completer if they are registered with the specified name.
 	 *
-	 * @param commandName name of the command that's going to be removed
+	 * @param commandName the name of the command to be unregistered. Must not be {@code null} or empty.
+	 * @throws IllegalArgumentException if {@code commandName} is {@code null} or an empty string.
 	 */
 	protected void unregisterCommand(@NotNull String commandName) {
 		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
@@ -189,7 +208,7 @@ public class CommandRegistry {
 	}
 
 	/**
-	 * Unregisters all of registered commands and tab completers created using that instance.
+	 * Unregisters all commands and tab completers that were registered using the instance of this object.
 	 */
 	protected void unregisterCommands() {
 		Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
@@ -214,6 +233,9 @@ public class CommandRegistry {
 		return this.commandMatcher;
 	}
 
+	/**
+	 * A helper class that contains methods for matching commands and their corresponding tab completers.
+	 */
 	protected final class CommandMatcher {
 
 		@Nullable

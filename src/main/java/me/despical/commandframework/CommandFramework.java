@@ -117,45 +117,100 @@ public class CommandFramework extends CommandHandler {
 		this.registry.unregisterCommands();
 	}
 
+	/**
+	 * Adds a custom parameter to the parameter handler.
+	 *
+	 * <p>This method allows the addition of a custom parameter to the parameter handler by specifying
+	 * a value and a function that converts {@link CommandArguments} to an instance of a type that
+	 * extends {@link A}.
+	 *
+	 * @param <A>      the type of the parent class that the custom parameter's type extends
+	 * @param <B>      the type of the custom parameter, which extends {@link A}
+	 * @param value    the value to call custom parameter using {@linkplain me.despical.commandframework.annotations.Param @Param}, must not be null,
+	 *                 can be a class name
+	 * @param function a function that takes {@link CommandArguments} and returns an instance of {@link B},
+	 *                 must not be null
+	 *
+	 * @throws NullPointerException if {@code value} is already added as a custom parameter
+	 */
 	public final <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
 		this.parameterHandler.addCustomParameter(value, function);
 	}
 
+	/**
+	 * Returns the logger instance of Command Framework. By default, logger is {@code plugin}'s logger.
+	 *
+	 * @return the current logger instance.
+	 * @since 1.4.8
+	 */
 	@NotNull
 	public final Logger getLogger() {
 		return logger;
 	}
 
+	/**
+	 * Changes default logger
+	 *
+	 * @param logger the non-null new logger instance
+	 * @since 1.4.8
+	 */
 	public final void setLogger(@NotNull Logger logger) {
 		this.logger = logger;
 	}
 
+	/**
+	 * Enables the specified option.
+	 *
+	 * @param  option the {@link Option} to be enabled. Must not be {@code null}.
+	 * @throws IllegalArgumentException if the {@code option} is {@code null}.
+	 * @since 1.4.8
+	 */
 	public final void enableOption(Option option) {
 		this.optionManager.enableOption(option);
 	}
 
+	/**
+	 * Enables the specified options.
+	 *
+	 * @param option  the {@link Option} to be enabled. Must not be {@code null}.
+	 * @param options the array of {@link Option} to be enabled. Must not be {@code null}.
+	 * @throws IllegalArgumentException if the {@code option} or {@code options} are {@code null}.
+	 * @since 1.4.8
+	 */
 	public final void enableOptions(Option option, Option... options) {
 		this.optionManager.enableOptions(option, options);
 	}
 
+	/**
+	 * Checks whether the specified {@link Option} is enabled.
+	 *
+	 * @param option the {@link Option} to check.
+	 * @return {@code true} if the option is enabled; {@code false} otherwise.
+	 * @throws IllegalArgumentException if {@code option} is {@code null}.
+	 * @since 1.4.8
+	 */
 	public final boolean isOptionEnabled(Option option) {
 		return this.optionManager.isEnabled(option);
 	}
 
+	@ApiStatus.Internal
 	final CooldownManager getCooldownManager() {
 		if (this.cooldownManager == null)
 			this.cooldownManager = new CooldownManager(this);
 		return cooldownManager;
 	}
 
+	@ApiStatus.Internal
 	final CommandRegistry getRegistry() {
 		return registry;
 	}
 
+	@ApiStatus.Internal
 	final ParameterHandler getParameterHandler() {
 		return parameterHandler;
 	}
 
+	@ApiStatus.Internal
 	final boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
 		if (!isOptionEnabled(Option.CONFIRMATIONS)) return false;
 

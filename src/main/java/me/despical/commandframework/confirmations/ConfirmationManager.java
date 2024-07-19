@@ -11,9 +11,18 @@ import org.jetbrains.annotations.ApiStatus;
 import java.lang.reflect.Method;
 
 /**
+ * This class handles the confirmations for commands and subcommands.
+ *
+ * <p>This is an internal class and should not be instantiated by any
+ * external class.
+ *
  * @author Despical
+ * @since 1.4.8
  * <p>
  * Created at 18.07.2024
+ *
+ * @see me.despical.commandframework.options.Option#CONFIRMATIONS
+ * @see Confirmation
  */
 @ApiStatus.Internal
 public final class ConfirmationManager {
