@@ -28,12 +28,12 @@ public enum Message {
 		this(message, true);
 	}
 
-	Message(String message, boolean noUsage) {
+	Message(String message, boolean sendUsage) {
 		this.message = (command, arguments) -> {
-			if (noUsage && !MessageHelper.SEND_USAGE.apply(command, arguments)) return true;
+			if (sendUsage && !MessageHelper.SEND_USAGE.apply(command, arguments)) return true;
 
 			arguments.sendMessage(message);
-			return noUsage;
+			return true;
 		};
 	}
 
