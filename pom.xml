@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.8</version>
 
     <name>Command Framework</name>
     <inceptionYear>2020</inceptionYear>
-    <url>https://www.spigotmc.org/resources/89933</url>
+    <url>https://www.spigotmc.org/resources/89933/</url>
     <packaging>jar</packaging>
 
     <properties>
@@ -34,7 +34,7 @@
 
     <issueManagement>
         <system>GitHub Issue Tracker</system>
-        <url>https://github.com/Despical/CommandFramework/issues</url>
+        <url>https://github.com/Despical/CommandFramework/issues/</url>
     </issueManagement>
 
     <repositories>
@@ -127,11 +127,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
