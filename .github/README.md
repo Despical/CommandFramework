@@ -37,7 +37,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.8</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ repositories {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.4.7'
+    implementation 'com.github.Despical:CommandFramework:1.4.8'
 }
 ```
 
@@ -61,6 +61,7 @@ dependencies {
 
 ```java
 import me.despical.commandframework.*;
+import me.despical.commandframework.annotations.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -139,9 +140,9 @@ public class ExampleClass extends JavaPlugin {
 	// If parameter is not annotated by @Default then command will throw an exception on execution.
 	// See the wiki page for creating custom parameters using @Param and @Default annotations.
 	public void customParamsCommand(CommandArguments arguments,
-					@Param("secondAsInt")
-					@Default("50")
-					int secondArg) {
+		@Param("secondAsInt")
+		@Default("50")
+		int secondArg) {
 		arguments.sendMessage("Second argument as integer is " + secondArg);
 	}
 
