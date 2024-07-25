@@ -54,7 +54,7 @@ public final class ParameterHandler {
 					String value = ((Param) annotation).value();
 
 					if (!customParametersMap.containsKey(value)) {
-						throw new me.despical.commandframework.exceptions.CommandException("Custom parameter (type: {0}, value: {1}) is requested but return function is not found!", simpleName, value);
+						throw new CommandException("Custom parameter (type: {0}, value: {1}) is requested but return function is not found!", simpleName, value);
 					}
 
 					methodParameters[i] = customParametersMap.get(value).apply(commandArguments);
@@ -73,7 +73,7 @@ public final class ParameterHandler {
 								try {
 									methodParameters[i] = clazz.getMethod("valueOf", String.class).invoke(null, defaultValue);
 								} catch (Exception exception) {
-									throw new me.despical.commandframework.exceptions.CommandException("Static method {0}#valueOf(String) does not exist!", clazz.getSimpleName());
+									throw new CommandException("Static method {0}#valueOf(String) does not exist!", clazz.getSimpleName());
 								}
 
 								continue outer_loop;
