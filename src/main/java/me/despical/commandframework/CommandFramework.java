@@ -73,10 +73,10 @@ public class CommandFramework extends CommandHandler {
 
 		if ("true".equals(suppressRelocation)) return;
 
-		String defaultPackage = new String(new byte[]{'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
+		String defaultPackage = new String(new byte[] {'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
 			'c', 'o', 'm', 'm', 'a', 'n', 'd', 'f', 'r', 'a', 'm', 'e', 'w', 'o', 'r', 'k'});
 
-		String examplePackage = new String(new byte[]{'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
+		String examplePackage = new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
 		String packageName = "me.despical.commandframework";
 
 		if (packageName.startsWith(defaultPackage) || packageName.startsWith(examplePackage)) {
