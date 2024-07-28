@@ -26,7 +26,7 @@ public enum Message {
 	private BiFunction<Command, CommandArguments, Boolean> message;
 
 	Message(String message) {
-		this(message, true);
+		this(message, false);
 	}
 
 	Message(String message, boolean sendUsage) {
