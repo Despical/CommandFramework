@@ -26,7 +26,6 @@ import me.despical.commandframework.options.OptionManager;
 import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.*;
@@ -224,17 +223,13 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	/**
-	 * Get a copy of registered commands and sub-commands.
+	 * Get a copy of registered commands.
 	 *
-	 * @return list of the commands and sub-commands.
+	 * @return list of the commands.
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public final List<Command> getCommands() {
-		List<Command> commands = new ArrayList<>(this.registry.getCommands());
-		commands.addAll(this.registry.getSubCommands());
-
-		return commands;
+		return new ArrayList<>(this.registry.getCommands());
 	}
 
 	/**
@@ -243,8 +238,20 @@ public class CommandFramework extends CommandHandler {
 	 * @return list of the sub-commands.
 	 */
 	@NotNull
-	@Contract(pure = true)
 	public final List<Command> getSubCommands() {
 		return new ArrayList<>(this.registry.getSubCommands());
+	}
+
+	/**
+	 * Get a copy of registered commands and sub-commands.
+	 *
+	 * @return list of the commands and sub-commands.
+	 */
+	@NotNull
+	public final List<Command> getAllCommands() {
+		final List<Command> commands = new ArrayList<>(this.registry.getCommands());
+		commands.addAll(this.registry.getSubCommands());
+
+		return commands;
 	}
 }
