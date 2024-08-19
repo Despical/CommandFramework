@@ -232,7 +232,7 @@ public class CommandFramework extends CommandHandler {
 	@Contract(pure = true)
 	public final List<Command> getCommands() {
 		List<Command> commands = new ArrayList<>(this.registry.getCommands());
-		commands.addAll(this.registry.getCommands());
+		commands.addAll(this.registry.getSubCommands());
 
 		return commands;
 	}
