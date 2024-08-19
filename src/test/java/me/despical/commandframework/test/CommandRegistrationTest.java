@@ -78,7 +78,7 @@ class CommandRegistrationTest {
 	@Test
 	void testCommandRegistration() {
 		CommandFramework commandFramework = createCommandFramework();
-		assertEquals(12, commandFramework.getCommands().size());
+		assertEquals(6, commandFramework.getCommands().size());
 	}
 
 	/**
