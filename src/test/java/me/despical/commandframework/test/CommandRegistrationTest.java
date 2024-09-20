@@ -22,7 +22,8 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.MockPlugin;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import me.despical.commandframework.*;
+import me.despical.commandframework.CommandArguments;
+import me.despical.commandframework.CommandFramework;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.annotations.Cooldown;
@@ -141,7 +142,7 @@ class CommandRegistrationTest {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
 		commandFramework.registerCommands(new ExampleCommand());
 		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
-		commandFramework.enableOption(Option.CUSTOM_COOLDOWN_CHECKER);
+		commandFramework.options().enableOption(Option.CUSTOM_COOLDOWN_CHECKER);
 		return commandFramework;
 	}
 

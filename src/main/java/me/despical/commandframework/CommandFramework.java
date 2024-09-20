@@ -21,15 +21,18 @@ package me.despical.commandframework;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.confirmations.ConfirmationManager;
 import me.despical.commandframework.cooldown.CooldownManager;
+import me.despical.commandframework.debug.DebugLogger;
 import me.despical.commandframework.options.Option;
 import me.despical.commandframework.options.OptionManager;
-import org.bukkit.command.*;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -60,14 +63,16 @@ public class CommandFramework extends CommandHandler {
 		this.checkIsAlreadyInitialized();
 
 		this.plugin = plugin;
-		this.logger = plugin.getLogger();
 		this.optionManager = new OptionManager();
-		this.registry = new CommandRegistry(this);
+		this.registry = new CommandRegistry();
 		this.parameterHandler = new ParameterHandler();
+		this.initializeLogger();
 		super.setRegistry(this);
 	}
 
 	private void checkRelocation() {
+		if (this.isOptionEnabled(Option.DEBUG)) return;
+
 		String suppressRelocation = System.getProperty("commandframework.suppressrelocation");
 
 		if ("true".equals(suppressRelocation)) return;
@@ -89,6 +94,15 @@ public class CommandFramework extends CommandHandler {
 		if (!"true".equals(suppressRelocation) && instance != null) {
 			throw new IllegalStateException("Instance already initialized!");
 		} else instance = this;
+	}
+
+	private void initializeLogger() {
+		if (this.isOptionEnabled(Option.DEBUG)) {
+			this.logger = new DebugLogger();
+			return;
+		}
+
+		this.logger = plugin.getLogger();
 	}
 
 	/**
@@ -137,7 +151,7 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	/**
-	 * Returns the logger instance of Command Framework. By default, logger is {@code plugin}'s logger.
+	 * Returns the logger instance of Command Framework. By default, logger is {@link #plugin} 's logger.
 	 *
 	 * @return the current logger instance.
 	 * @since 1.4.8
@@ -158,26 +172,13 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	/**
-	 * Enables the specified option.
+	 * Returns the option manager.
 	 *
-	 * @param  option the {@link Option} to be enabled. Must not be {@code null}.
-	 * @throws IllegalArgumentException if the {@code option} is {@code null}.
+	 * @return the option manager.
 	 * @since 1.4.8
 	 */
-	public final void enableOption(Option option) {
-		this.optionManager.enableOption(option);
-	}
-
-	/**
-	 * Enables the specified options.
-	 *
-	 * @param option  the {@link Option} to be enabled. Must not be {@code null}.
-	 * @param options the array of {@link Option} to be enabled. Must not be {@code null}.
-	 * @throws IllegalArgumentException if the {@code option} or {@code options} are {@code null}.
-	 * @since 1.4.8
-	 */
-	public final void enableOptions(Option option, Option... options) {
-		this.optionManager.enableOptions(option, options);
+	public final OptionManager options() {
+		return this.optionManager;
 	}
 
 	/**
@@ -253,5 +254,9 @@ public class CommandFramework extends CommandHandler {
 		commands.addAll(this.registry.getSubCommands());
 
 		return commands;
+	}
+
+	public static CommandFramework getInstance() {
+		return instance;
 	}
 }

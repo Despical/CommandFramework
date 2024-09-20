@@ -2,7 +2,9 @@ package me.despical.commandframework.options;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * This class handles the options related Command Framework.
@@ -30,10 +32,8 @@ public final class OptionManager {
 		this.options.add(option);
 	}
 
-	public void enableOptions(Option option, Option... options) {
-		this.options.add(option);
-
-		Collections.addAll(this.options, options);
+	public void enableOptions(Option... options) {
+		this.options.addAll(Arrays.asList(options));
 	}
 
 	public boolean isEnabled(Option option) {

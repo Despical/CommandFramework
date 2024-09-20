@@ -2,7 +2,10 @@ package me.despical.commandframework;
 
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
+import me.despical.commandframework.debug.Debug;
+import me.despical.commandframework.options.Option;
 import me.despical.commandframework.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
@@ -16,7 +19,15 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -40,9 +51,6 @@ public class CommandRegistry {
 	private CommandMap commandMap;
 
 	@NotNull
-	private final CommandFramework commandFramework;
-
-	@NotNull
 	private final CommandMatcher commandMatcher;
 
 	@NotNull
@@ -51,15 +59,14 @@ public class CommandRegistry {
 	@NotNull
 	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions, subCommandCompletions;
 
-	CommandRegistry(CommandFramework commandFramework) {
-		this.commandFramework = commandFramework;
+	CommandRegistry() {
 		this.commandMatcher = new CommandMatcher();
 		this.commands = new HashMap<>();
 		this.commandCompletions = new HashMap<>();
 		this.subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
 		this.subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
 
-		final PluginManager pluginManager = commandFramework.plugin.getServer().getPluginManager();
+		final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
 		if (pluginManager instanceof SimplePluginManager) {
 			final SimplePluginManager manager = (SimplePluginManager) pluginManager;
@@ -95,7 +102,14 @@ public class CommandRegistry {
 	 * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
 	 */
 	protected void registerCommands(@NotNull Object instance) {
+		final CommandFramework commandFramework = CommandFramework.getInstance();
+		final boolean notDebug = !commandFramework.isOptionEnabled(Option.DEBUG);
+
 		for (final Method method : instance.getClass().getMethods()) {
+			if (notDebug && method.isAnnotationPresent(Debug.class)) {
+				continue;
+			}
+
 			final Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
@@ -140,6 +154,7 @@ public class CommandRegistry {
 	 * @param instance the instance of the class that contains the command method.
 	 */
 	protected void registerCommand(Command command, Method method, Object instance) {
+		final CommandFramework commandFramework = CommandFramework.getInstance();
 		final String cmdName = command.name();
 
 		if (cmdName.contains(".")) {
@@ -155,7 +170,7 @@ public class CommandRegistry {
 				pluginCommand.setTabCompleter(commandFramework);
 				pluginCommand.setExecutor(commandFramework);
 				pluginCommand.setUsage(command.usage());
-				pluginCommand.setPermission(!command.permission().isEmpty() ? null : command.permission());
+				pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
 
 				commandMap.register(cmdName, pluginCommand);
@@ -175,6 +190,7 @@ public class CommandRegistry {
 		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
 
 		final Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
+		final CommandFramework commandFramework = CommandFramework.getInstance();
 
 		if (entry == null) {
 			commandFramework.plugin.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);

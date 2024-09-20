@@ -1,6 +1,8 @@
 package me.despical.commandframework.cooldown;
 
-import me.despical.commandframework.*;
+import me.despical.commandframework.CommandArguments;
+import me.despical.commandframework.CommandFramework;
+import me.despical.commandframework.Message;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.annotations.Cooldown;
