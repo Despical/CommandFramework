@@ -9,6 +9,7 @@ import me.despical.commandframework.CommandArguments;
  *
  * @see Option#CUSTOM_COOLDOWN_CHECKER
  * @see Option#CONFIRMATIONS
+ * @see Option#DEBUG
  */
 public enum Option {
 
@@ -20,5 +21,10 @@ public enum Option {
 	/**
 	 * This option allows users to check for command confirmations.
 	 */
-	CONFIRMATIONS
+	CONFIRMATIONS,
+
+	/**
+	 * This option enables the debug mode for this framework.
+	 */
+	DEBUG
 }
