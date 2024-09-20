@@ -1,9 +1,10 @@
 package me.despical.commandframework;
 
+import me.despical.commandframework.annotations.Option;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.exceptions.CooldownException;
-import me.despical.commandframework.options.Option;
+import me.despical.commandframework.parser.OptionParser;
 import me.despical.commandframework.utils.Utils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,14 +32,14 @@ import java.util.Map;
  */
 @ApiStatus.Internal
 @ApiStatus.NonExtendable
-public abstract class CommandHandler implements CommandExecutor, TabCompleter {
+abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
 	private CommandRegistry registry;
-	private CommandFramework commandFramework;
+	protected ParameterHandler parameterHandler;
 
 	void setRegistry(CommandFramework commandFramework) {
-		this.commandFramework = commandFramework;
 		this.registry = commandFramework.getRegistry();
+		this.parameterHandler = new ParameterHandler();
 	}
 
 	@Override
@@ -82,20 +83,28 @@ public abstract class CommandHandler implements CommandExecutor, TabCompleter {
 		}
 
 		final Method method = entry.getValue().getKey();
+		final CommandFramework commandFramework = CommandFramework.getInstance();
 
 		if (commandFramework.checkConfirmation(sender, command, method)) {
 			return true;
 		}
 
-		if (!this.commandFramework.isOptionEnabled(Option.CUSTOM_COOLDOWN_CHECKER) && commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
+		if (commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
 			return true;
+		}
+
+		if (method.getAnnotationsByType(Option.class).length > 0) {
+			OptionParser optionParser = new OptionParser(newArgs, method);
+
+			arguments.setParsedArguments(optionParser.parseOptions());
+			arguments.setParsedFlags(optionParser.parseFlags());
 		}
 
 		final Runnable invocation = () -> {
 			try {
 				final Object instance = entry.getValue().getValue();
 
-				method.invoke(instance, commandFramework.getParameterHandler().getParameterArray(method, arguments));
+				method.invoke(instance, parameterHandler.getParameterArray(method, arguments));
 			} catch (Exception exception) {
 				if (exception.getCause() instanceof CooldownException) {
 					return;
@@ -133,7 +142,7 @@ public abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			final Object instance = entry.getValue().getValue();
 			final String[] splitName = entry.getKey().name().split("\\.");
 			final String[] newArgs = Arrays.copyOfRange(args, splitName.length - 1, args.length);
-			final Object completer = method.invoke(instance, commandFramework.getParameterHandler().getParameterArray(method, new CommandArguments(sender, cmd, null, label, newArgs)));
+			final Object completer = method.invoke(instance, parameterHandler.getParameterArray(method, new CommandArguments(sender, cmd, null, label, newArgs)));
 
 			return (List<String>) completer;
 		} catch (Exception exception) {

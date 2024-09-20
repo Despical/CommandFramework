@@ -61,6 +61,7 @@ public final class CooldownManager {
 	}
 
 	public boolean hasCooldown(final CommandArguments arguments, final Command command, final Method method) {
+		if (commandFramework.isOptionEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) return false;
 		if (method == null) return false;
 		if (!method.isAnnotationPresent(Cooldown.class)) return false;
 

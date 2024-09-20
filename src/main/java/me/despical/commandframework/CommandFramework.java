@@ -55,7 +55,6 @@ public class CommandFramework extends CommandHandler {
 
 	protected final Plugin plugin;
 	private final OptionManager optionManager;
-	private final ParameterHandler parameterHandler;
 	private final CommandRegistry registry;
 
 	public CommandFramework(@NotNull Plugin plugin) {
@@ -63,16 +62,13 @@ public class CommandFramework extends CommandHandler {
 		this.checkIsAlreadyInitialized();
 
 		this.plugin = plugin;
-		this.optionManager = new OptionManager();
 		this.registry = new CommandRegistry();
-		this.parameterHandler = new ParameterHandler();
+		this.optionManager = new OptionManager();
 		this.initializeLogger();
 		super.setRegistry(this);
 	}
 
 	private void checkRelocation() {
-		if (this.isOptionEnabled(Option.DEBUG)) return;
-
 		String suppressRelocation = System.getProperty("commandframework.suppressrelocation");
 
 		if ("true".equals(suppressRelocation)) return;
@@ -203,11 +199,6 @@ public class CommandFramework extends CommandHandler {
 	@ApiStatus.Internal
 	final CommandRegistry getRegistry() {
 		return registry;
-	}
-
-	@ApiStatus.Internal
-	final ParameterHandler getParameterHandler() {
-		return parameterHandler;
 	}
 
 	@ApiStatus.Internal

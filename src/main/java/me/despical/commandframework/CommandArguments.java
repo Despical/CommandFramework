@@ -29,7 +29,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A utility class to use command arguments without external
@@ -41,10 +44,14 @@ import java.util.Optional;
  */
 public final class CommandArguments {
 
-	final me.despical.commandframework.annotations.Command command;
+	private Set<String> parsedFlags;
+	private Map<String, List<String>> parsedArguments;
+
+	private final me.despical.commandframework.annotations.Command command;
 	private final CommandSender commandSender;
 	private final Command bukkitCommand;
-	private final String label, arguments[];
+	private final String label;
+	private final String [] arguments;
 
 	CommandArguments(CommandSender commandSender,
 					 Command bukkitCommand,
@@ -446,5 +453,26 @@ public final class CommandArguments {
 	 */
 	public boolean checkCooldown() {
 		return CommandFramework.instance.getCooldownManager().hasCooldown(this);
+	}
+
+	void setParsedArguments(Map<String, List<String>> parsedArguments) {
+		this.parsedArguments = parsedArguments;
+	}
+
+	@Nullable
+	public List<String> getOption(final @NotNull String option) {
+		return this.parsedArguments.get(option);
+	}
+
+	public Optional<List<String>> findOption(final @NotNull String option) {
+		return Optional.ofNullable(this.getOption(option));
+	}
+
+	void setParsedFlags(Set<String> parsedFlags) {
+		this.parsedFlags = parsedFlags;
+	}
+
+	public boolean isFlagPresent(final @NotNull String flag) {
+		return this.parsedFlags != null && this.parsedFlags.contains(flag);
 	}
 }

@@ -28,7 +28,11 @@ import java.text.MessageFormat;
  * Created at 23.01.2024
  */
 @ApiStatus.Internal
-public final class CommandException extends RuntimeException {
+public class CommandException extends RuntimeException {
+
+	public CommandException() {
+		super();
+	}
 
 	public CommandException(final String message) {
 		super(message);
