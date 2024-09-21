@@ -2,10 +2,11 @@
 
 <div align="center">
 
-[![](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
+[![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
+[![](https://img.shields.io/github/v/release/Despical/CommandFramework)](https://github.com/Despical/CommandFramework/releases/latest)
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
 [![](https://img.shields.io/badge/JavaDocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-[![](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-lime.svg?logo=BuyMeACoffee)](https://www.buymeacoffee.com/despical)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
