@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Repeatable(Option.OptionContainer.class)
 public @interface Option {
 
-	String name();
+	String value();
 
 	String prefix() default "--";
 

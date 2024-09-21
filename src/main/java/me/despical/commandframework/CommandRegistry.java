@@ -103,7 +103,7 @@ public class CommandRegistry {
 	 */
 	protected void registerCommands(@NotNull Object instance) {
 		final CommandFramework commandFramework = CommandFramework.getInstance();
-		final boolean notDebug = !commandFramework.isOptionEnabled(Option.DEBUG);
+		final boolean notDebug = !commandFramework.options().isEnabled(Option.DEBUG);
 
 		for (final Method method : instance.getClass().getMethods()) {
 			if (notDebug && method.isAnnotationPresent(Debug.class)) {

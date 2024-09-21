@@ -45,7 +45,7 @@ import java.util.Set;
 public final class CommandArguments {
 
 	private Set<String> parsedFlags;
-	private Map<String, List<String>> parsedArguments;
+	private Map<String, List<String>> parsedOptions;
 
 	private final me.despical.commandframework.annotations.Command command;
 	private final CommandSender commandSender;
@@ -452,16 +452,16 @@ public final class CommandArguments {
 	 * @return {@code true} if the sender has a cooldown on this command
 	 */
 	public boolean checkCooldown() {
-		return CommandFramework.instance.getCooldownManager().hasCooldown(this);
+		return CommandFramework.getInstance().getCooldownManager().hasCooldown(this);
 	}
 
-	void setParsedArguments(Map<String, List<String>> parsedArguments) {
-		this.parsedArguments = parsedArguments;
+	void setParsedOptions(Map<String, List<String>> parsedOptions) {
+		this.parsedOptions = parsedOptions;
 	}
 
 	@Nullable
 	public List<String> getOption(final @NotNull String option) {
-		return this.parsedArguments.get(option);
+		return this.parsedOptions.get(option);
 	}
 
 	public Optional<List<String>> findOption(final @NotNull String option) {
@@ -473,6 +473,6 @@ public final class CommandArguments {
 	}
 
 	public boolean isFlagPresent(final @NotNull String flag) {
-		return this.parsedFlags != null && this.parsedFlags.contains(flag);
+		return this.parsedFlags.contains(flag);
 	}
 }

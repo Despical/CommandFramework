@@ -39,9 +39,9 @@ public @interface Cooldown {
 	 * The time between using command again.
 	 * Use 0 (zero) or a negative value for no cooldown.
 	 *
-	 * @return value of time to use command again.
+	 * @return value of the time to use the command again.
 	 */
-	long cooldown();
+	long value();
 
 	/**
 	 * The time unit of command cooldown.

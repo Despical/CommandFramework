@@ -93,7 +93,7 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	private void initializeLogger() {
-		if (this.isOptionEnabled(Option.DEBUG)) {
+		if (this.optionManager.isEnabled(Option.DEBUG)) {
 			this.logger = new DebugLogger();
 			return;
 		}
@@ -177,33 +177,23 @@ public class CommandFramework extends CommandHandler {
 		return this.optionManager;
 	}
 
-	/**
-	 * Checks whether the specified {@link Option} is enabled.
-	 *
-	 * @param option the {@link Option} to check.
-	 * @return {@code true} if the option is enabled; {@code false} otherwise.
-	 * @throws IllegalArgumentException if {@code option} is {@code null}.
-	 * @since 1.4.8
-	 */
-	public final boolean isOptionEnabled(Option option) {
-		return this.optionManager.isEnabled(option);
-	}
-
 	@ApiStatus.Internal
-	final CooldownManager getCooldownManager() {
+	CooldownManager getCooldownManager() {
 		if (this.cooldownManager == null)
 			this.cooldownManager = new CooldownManager(this);
 		return cooldownManager;
 	}
 
 	@ApiStatus.Internal
-	final CommandRegistry getRegistry() {
+	CommandRegistry getRegistry() {
 		return registry;
 	}
 
 	@ApiStatus.Internal
-	final boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
-		if (!isOptionEnabled(Option.CONFIRMATIONS)) return false;
+	boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
+		if (!this.optionManager.isEnabled(Option.CONFIRMATIONS)) {
+			return false;
+		}
 
 		if (this.confirmationManager == null)
 			this.confirmationManager = new ConfirmationManager();

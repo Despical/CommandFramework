@@ -43,7 +43,7 @@ public final class CooldownManager {
 	}
 
 	public boolean hasCooldown(CommandArguments arguments) {
-		if (!this.commandFramework.isOptionEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
+		if (!this.commandFramework.options().isEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
 			throw new CommandException("Custom cooldown checker option must be enabled to use CommandArguments#hasCooldown method!");
 		}
 
@@ -61,13 +61,12 @@ public final class CooldownManager {
 	}
 
 	public boolean hasCooldown(final CommandArguments arguments, final Command command, final Method method) {
-		if (commandFramework.isOptionEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) return false;
 		if (method == null) return false;
 		if (!method.isAnnotationPresent(Cooldown.class)) return false;
 
 		final Cooldown cooldown = method.getAnnotation(Cooldown.class);
 
-		if (cooldown.cooldown() <= 0) return false;
+		if (cooldown.value() <= 0) return false;
 
 		final boolean isConsoleSender = arguments.isSenderConsole();
 		final CommandSender sender = arguments.getSender();
@@ -89,7 +88,7 @@ public final class CooldownManager {
 		}
 
 		final long remainingSeconds = ((System.currentTimeMillis() - cooldownMap.get(command)) / 1000) % 60;
-		final long cooldownInSeconds = cooldown.timeUnit().toSeconds(cooldown.cooldown());
+		final long cooldownInSeconds = cooldown.timeUnit().toSeconds(cooldown.value());
 		final int timeBetween = (int) (cooldownInSeconds - remainingSeconds);
 
 		if (timeBetween > 0) {
@@ -104,7 +103,7 @@ public final class CooldownManager {
 	}
 
 	private boolean handleCooldowns() {
-		if (!this.commandFramework.isOptionEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
+		if (!this.commandFramework.options().isEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
 			return true;
 		}
 
