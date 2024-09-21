@@ -5,8 +5,8 @@
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build-commandframework.yml)
 [![](https://img.shields.io/github/v/release/Despical/CommandFramework)](https://github.com/Despical/CommandFramework/releases/latest)
 [![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
-[![](https://img.shields.io/badge/JavaDocs-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
+[![](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
+[![](https://img.shields.io/badge/javadoc-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
 
 This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
 add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
@@ -17,10 +17,6 @@ and maximum argument length through the code and adds a bunch of new methods to 
 ## Documentation
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [JavaDocs](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-
-## Donations
-- [Patreon](https://www.patreon.com/despical)
-- [Buy Me A Coffee](https://www.buymeacoffee.com/despical)
 
 ## Using Command Framework
 The project isn't in the Central Repository yet, so specifying a repository is needed.<br>
@@ -193,11 +189,6 @@ public class ExampleClass extends JavaPlugin {
 }
 ```
 
-## License
-This code is under [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html)
-
-See the [LICENSE](https://github.com/Despical/CommandFramework/blob/main/LICENSE) file for required notices and attributions.
-
 ## Contributing
 
 I accept Pull Requests via GitHub. There are some guidelines which will make applying PRs easier for me:
@@ -207,6 +198,11 @@ I accept Pull Requests via GitHub. There are some guidelines which will make app
 + Create minimal diffs - disable on save actions like reformat source code or organize imports. If you feel the source code should be reformatted create a separate PR for this change.
 
 You can learn more about contributing via GitHub in [contribution guidelines](../CONTRIBUTING.md).
+
+## License
+This code is under the [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html).
+
+See the [LICENSE](../LICENSE) file for required notices and attributions.
 
 ## Known issues
 * ~~Cooldowns are not working command based.~~
