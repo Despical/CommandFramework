@@ -27,6 +27,7 @@ import me.despical.commandframework.CommandFramework;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.annotations.Cooldown;
+import me.despical.commandframework.annotations.Flag;
 import me.despical.commandframework.options.Option;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +80,7 @@ class CommandRegistrationTest {
 	@Test
 	void testCommandRegistration() {
 		CommandFramework commandFramework = createCommandFramework();
-		assertEquals(6, commandFramework.getCommands().size());
+		assertEquals(8, commandFramework.getCommands().size());
 	}
 
 	/**
@@ -127,6 +128,15 @@ class CommandRegistrationTest {
 
 		player.performCommand("cooldown");
 		player.assertSaid("§cYou have to wait before using this command again!");
+
+		player.performCommand("flag");
+		player.assertSaid("Flag Present: false");
+
+		player.performCommand("flag --test");
+		player.assertSaid("Flag Present: true");
+
+		player.performCommand("option --players=mrdespi,Despical");
+		player.assertSaid("Parsed Options: mrdespi, Despical");
 	}
 
 	@AfterEach
@@ -140,9 +150,9 @@ class CommandRegistrationTest {
 	@NotNull
 	private CommandFramework createCommandFramework() {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
-		commandFramework.registerCommands(new ExampleCommand());
 		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
 		commandFramework.options().enableOption(Option.CUSTOM_COOLDOWN_CHECKER);
+		commandFramework.registerCommands(new ExampleCommand());
 		return commandFramework;
 	}
 
@@ -186,11 +196,33 @@ class CommandRegistrationTest {
 			name = "cooldown"
 		)
 		@Cooldown(
-			cooldown = 5
+			value = 5
 		)
 		public void cooldownTest(CommandArguments arguments) {
 			arguments.checkCooldown();
 			arguments.sendMessage("Cooldown command message.");
+		}
+
+		@Flag(
+			value = "test",
+			prefix = "--"
+		)
+		@Command(
+			name = "flag"
+		)
+		public void flagTest(CommandArguments arguments) {
+			arguments.sendMessage("Flag Present: " + arguments.isFlagPresent("test"));
+		}
+
+		@me.despical.commandframework.annotations.Option(
+			value = "players",
+			prefix = "--"
+		)
+		@Command(
+			name = "option"
+		)
+		public void optionTest(CommandArguments arguments) {
+			arguments.sendMessage("Parsed Options: " + String.join(", ", arguments.getOption("players")));
 		}
 
 		@Completer(
