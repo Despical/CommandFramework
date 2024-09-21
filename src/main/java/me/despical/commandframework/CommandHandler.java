@@ -1,5 +1,6 @@
 package me.despical.commandframework;
 
+import me.despical.commandframework.annotations.Flag;
 import me.despical.commandframework.annotations.Option;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
@@ -89,14 +90,16 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
+		if (!commandFramework.options().isEnabled(me.despical.commandframework.options.Option.CUSTOM_COOLDOWN_CHECKER) && commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
 			return true;
 		}
 
-		if (method.getAnnotationsByType(Option.class).length > 0) {
+		final boolean parseOptions = method.getAnnotationsByType(Option.class).length + method.getAnnotationsByType(Flag.class).length > 0;
+
+		if (parseOptions) {
 			OptionParser optionParser = new OptionParser(newArgs, method);
 
-			arguments.setParsedArguments(optionParser.parseOptions());
+			arguments.setParsedOptions(optionParser.parseOptions());
 			arguments.setParsedFlags(optionParser.parseFlags());
 		}
 
