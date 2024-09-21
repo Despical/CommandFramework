@@ -57,22 +57,26 @@ public class OptionParser {
 				continue;
 			}
 
-			if (option.allowSeparating() && !argument.contains(keySeparator)) {
+			if (option.allowSeparating() && !argument.contains(option.keySeparator())) {
 				continue;
 			}
 
 			String[] options = argument.substring(prefix.length()).split(keySeparator);
 
 			if (!option.allowSeparating()) {
-				String value = options.length <= 1 ? "" : options[1];
-				this.parsedOptions.put(option.name(), Collections.singletonList(value));
+				if (options.length < 2) {
+					continue;
+				}
+
+				String value = options[1];
+				this.parsedOptions.put(option.value(), Collections.singletonList(value));
 
 				iterator.remove();
 				continue;
 			}
 
 			String[] values = options[1].split(valueSeparator);
-			this.parsedOptions.put(option.name(), Arrays.asList(values));
+			this.parsedOptions.put(option.value(), Arrays.asList(values));
 
 			iterator.remove();
 		}
