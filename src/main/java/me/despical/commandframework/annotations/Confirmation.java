@@ -50,7 +50,7 @@ public @interface Confirmation {
 	TimeUnit timeUnit() default TimeUnit.SECONDS;
 
 	/**
-	 * If option is true, console will be affected by
+	 * If option is {@code true}, console will be affected by
 	 * confirmations; otherwise, it will override the
 	 * confirmation period to use the command again.
 	 *

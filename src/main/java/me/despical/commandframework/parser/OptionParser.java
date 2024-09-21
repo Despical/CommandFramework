@@ -2,6 +2,7 @@ package me.despical.commandframework.parser;
 
 import me.despical.commandframework.annotations.Flag;
 import me.despical.commandframework.annotations.Option;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
  * <p>
  * Created at 20.09.2024
  */
+@ApiStatus.Internal
 public class OptionParser {
 
 	private final Flag[] flags;
