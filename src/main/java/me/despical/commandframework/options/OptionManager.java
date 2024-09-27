@@ -1,7 +1,5 @@
 package me.despical.commandframework.options;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
@@ -19,7 +17,6 @@ import java.util.Set;
  *
  * @see Option
  */
-@ApiStatus.Internal
 public final class OptionManager {
 
 	private final Set<Option> options;
