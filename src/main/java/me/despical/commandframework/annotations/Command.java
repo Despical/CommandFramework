@@ -110,7 +110,6 @@ public @interface Command {
 	 *
 	 * @return asynchronous execution of command.
 	 */
-	@Deprecated
 	boolean async() default false;
 
 	/**
