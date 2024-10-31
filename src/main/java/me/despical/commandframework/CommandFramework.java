@@ -69,9 +69,7 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	private void checkRelocation() {
-		String suppressRelocation = System.getProperty("commandframework.suppressrelocation");
-
-		if ("true".equals(suppressRelocation)) return;
+		if (Boolean.getBoolean("commandframework.suppressrelocation")) return;
 
 		String defaultPackage = new String(new byte[] {'m', 'e', '.', 'd', 'e', 's', 'p', 'i', 'c', 'a', 'l', '.',
 			'c', 'o', 'm', 'm', 'a', 'n', 'd', 'f', 'r', 'a', 'm', 'e', 'w', 'o', 'r', 'k'});
@@ -85,9 +83,7 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	private void checkIsAlreadyInitialized() {
-		String suppressRelocation = System.getProperty("commandframework.suppress_initialization");
-
-		if (!"true".equals(suppressRelocation) && instance != null) {
+		if (!Boolean.getBoolean("commandframework.suppress_initialization") && instance != null) {
 			throw new IllegalStateException("Instance already initialized!");
 		} else instance = this;
 	}
