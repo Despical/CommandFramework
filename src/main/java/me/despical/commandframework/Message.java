@@ -58,17 +58,17 @@ public enum Message {
 	 *
 	 * @param message the custom error message.
 	 */
-	public void setMessage(final BiFunction<Command, CommandArguments, Boolean> message) {
+	public void setMessage(BiFunction<Command, CommandArguments, Boolean> message) {
 		this.message = message;
 	}
 
 	@ApiStatus.Internal
-	static String applyColorFormatter(final @NotNull String string) {
+	static String applyColorFormatter(@NotNull String string) {
 		return colorFormatter.apply(string);
 	}
 
 	@ApiStatus.Internal
-	boolean sendMessage(final Command command, final CommandArguments arguments) {
+	boolean sendMessage(Command command, CommandArguments arguments) {
 		return this.message.apply(command, arguments);
 	}
 

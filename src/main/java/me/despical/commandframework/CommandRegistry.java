@@ -102,15 +102,15 @@ public class CommandRegistry {
 	 * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
 	 */
 	protected void registerCommands(@NotNull Object instance) {
-		final CommandFramework commandFramework = CommandFramework.getInstance();
-		final boolean notDebug = !commandFramework.options().isEnabled(Option.DEBUG);
+		CommandFramework commandFramework = CommandFramework.getInstance();
+		boolean notDebug = !commandFramework.options().isEnabled(Option.DEBUG);
 
-		for (final Method method : instance.getClass().getMethods()) {
+		for (Method method : instance.getClass().getMethods()) {
 			if (notDebug && method.isAnnotationPresent(Debug.class)) {
 				continue;
 			}
 
-			final Command command = method.getAnnotation(Command.class);
+			Command command = method.getAnnotation(Command.class);
 
 			if (command != null) {
 				registerCommand(command, method, instance);
@@ -123,7 +123,7 @@ public class CommandRegistry {
 					continue;
 				}
 
-				final Completer completer = method.getAnnotation(Completer.class);
+				Completer completer = method.getAnnotation(Completer.class);
 
 				if (completer.name().contains(".")) {
 					subCommandCompletions.put(completer, Utils.mapEntry(method, instance));
@@ -134,11 +134,11 @@ public class CommandRegistry {
 		}
 
 		subCommands.forEach((key, value) -> {
-			final String splitName = key.name().split("\\.")[0];
+			String splitName = key.name().split("\\.")[0];
 
 			// Framework is going to work properly but this should not be handled that way.
 			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
-				commandFramework.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", splitName);
+				commandFramework.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", key.name());
 
 				registerCommand(Utils.createCommand(key, splitName), null, null);
 			}
@@ -154,8 +154,8 @@ public class CommandRegistry {
 	 * @param instance the instance of the class that contains the command method.
 	 */
 	protected void registerCommand(Command command, Method method, Object instance) {
-		final CommandFramework commandFramework = CommandFramework.getInstance();
-		final String cmdName = command.name();
+		CommandFramework commandFramework = CommandFramework.getInstance();
+		String cmdName = command.name();
 
 		if (cmdName.contains(".")) {
 			subCommands.put(command, Utils.mapEntry(method, instance));
@@ -163,10 +163,10 @@ public class CommandRegistry {
 			commands.put(command, Utils.mapEntry(method, instance));
 
 			try {
-				final Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+				Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
 				constructor.setAccessible(true);
 
-				final PluginCommand pluginCommand = constructor.newInstance(cmdName, commandFramework.plugin);
+				PluginCommand pluginCommand = constructor.newInstance(cmdName, commandFramework.plugin);
 				pluginCommand.setTabCompleter(commandFramework);
 				pluginCommand.setExecutor(commandFramework);
 				pluginCommand.setUsage(command.usage());
@@ -189,17 +189,17 @@ public class CommandRegistry {
 	protected void unregisterCommand(@NotNull String commandName) {
 		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
 
-		final Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
-		final CommandFramework commandFramework = CommandFramework.getInstance();
+		Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
+		CommandFramework commandFramework = CommandFramework.getInstance();
 
 		if (entry == null) {
 			commandFramework.plugin.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
 			return;
 		}
 
-		final Command command = entry.getKey();
-		final String name = command.name();
-		final PluginCommand pluginCommand = commandFramework.plugin.getServer().getPluginCommand(name);
+		Command command = entry.getKey();
+		String name = command.name();
+		PluginCommand pluginCommand = commandFramework.plugin.getServer().getPluginCommand(name);
 
 		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
 			// Do not unregister if matched command is not registered from our instance plugin.

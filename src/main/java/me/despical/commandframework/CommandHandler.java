@@ -45,15 +45,21 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-		final Map.Entry<Command, Map.Entry<Method, Object>> entry = registry.getCommandMatcher().getAssociatedCommand(cmd.getName(), args);
+		Map.Entry<Command, Map.Entry<Method, Object>> entry = registry.getCommandMatcher().getAssociatedCommand(cmd.getName(), args);
 
 		if (entry == null) return false;
 
-		final Command command = entry.getKey();
-		final String permission = command.permission();
-		final String[] splitted = command.name().split("\\.");
-		final String[] newArgs = Arrays.copyOfRange(args, splitted.length - 1, args.length);
-		final CommandArguments arguments = new CommandArguments(sender, cmd, command, label, newArgs);
+		Method method = entry.getValue().getKey();
+
+		if (method == null) {
+			return false;
+		}
+
+		Command command = entry.getKey();
+		String permission = command.permission();
+		String[] split = command.name().split("\\.");
+		String[] newArgs = Arrays.copyOfRange(args, split.length - 1, args.length);
+		CommandArguments arguments = new CommandArguments(sender, cmd, command, label, newArgs);
 
 		if (command.onlyOp() && !sender.isOp()) {
 			arguments.sendMessage(Message.MUST_HAVE_OP);
@@ -83,8 +89,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			return arguments.sendMessage(Message.LONG_ARG_SIZE);
 		}
 
-		final Method method = entry.getValue().getKey();
-		final CommandFramework commandFramework = CommandFramework.getInstance();
+		CommandFramework commandFramework = CommandFramework.getInstance();
 
 		if (commandFramework.checkConfirmation(sender, command, method)) {
 			return true;
@@ -94,7 +99,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		final boolean parseOptions = method.getAnnotationsByType(Option.class).length + method.getAnnotationsByType(Flag.class).length > 0;
+		boolean parseOptions = method.getAnnotationsByType(Option.class).length + method.getAnnotationsByType(Flag.class).length > 0;
 
 		if (parseOptions) {
 			OptionParser optionParser = new OptionParser(newArgs, method);
@@ -103,9 +108,9 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			arguments.setParsedFlags(optionParser.parseFlags());
 		}
 
-		final Runnable invocation = () -> {
+		Runnable invocation = () -> {
 			try {
-				final Object instance = entry.getValue().getValue();
+				Object instance = entry.getValue().getValue();
 
 				method.invoke(instance, parameterHandler.getParameterArray(method, arguments));
 			} catch (Exception exception) {
@@ -118,7 +123,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 		};
 
 		if (command.async()) {
-			final Plugin plugin = commandFramework.plugin;
+			Plugin plugin = commandFramework.plugin;
 
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
 		} else {
@@ -130,22 +135,22 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
-		final Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.registry.getCommandMatcher().getAssociatedCompleter(cmd.getName(), args);
+		Map.Entry<Completer, Map.Entry<Method, Object>> entry = this.registry.getCommandMatcher().getAssociatedCompleter(cmd.getName(), args);
 
 		if (entry == null)
 			return null;
 
-		final String permission = entry.getKey().permission();
+		String permission = entry.getKey().permission();
 
 		if (!permission.isEmpty() && !sender.hasPermission(permission))
 			return null;
 
 		try {
-			final Method method = entry.getValue().getKey();
-			final Object instance = entry.getValue().getValue();
-			final String[] splitName = entry.getKey().name().split("\\.");
-			final String[] newArgs = Arrays.copyOfRange(args, splitName.length - 1, args.length);
-			final Object completer = method.invoke(instance, parameterHandler.getParameterArray(method, new CommandArguments(sender, cmd, null, label, newArgs)));
+			Method method = entry.getValue().getKey();
+			Object instance = entry.getValue().getValue();
+			String[] splitName = entry.getKey().name().split("\\.");
+			String[] newArgs = Arrays.copyOfRange(args, splitName.length - 1, args.length);
+			Object completer = method.invoke(instance, parameterHandler.getParameterArray(method, new CommandArguments(sender, cmd, null, label, newArgs)));
 
 			return (List<String>) completer;
 		} catch (Exception exception) {
