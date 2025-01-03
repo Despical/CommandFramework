@@ -45,10 +45,12 @@ public @interface Command {
 	String name();
 
 	/**
+     * By default, using the plugin's name as a fallback prefix.
+     *
 	 * @return a prefix which is prepended to the command with a ':'
 	 * one or more times to make the command unique.
 	 */
-	String fallBackPrefix() default "";
+	String fallbackPrefix() default "";
 
 	/**
 	 * The permission that sender has to have to execute command.

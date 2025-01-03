@@ -86,7 +86,7 @@ public class ExampleClass extends JavaPlugin {
     // CommandArguments parameter and also @Command annotation
     @Command(
         name = "example",
-        fallBackPrefix = "prefix",
+        fallbackPrefix = "prefix",
         aliases = {"firstAlias", "secondAlias"},
         permission = "example.permission",
         desc = "Sends an example message to sender",

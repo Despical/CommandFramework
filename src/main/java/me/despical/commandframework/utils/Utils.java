@@ -159,8 +159,8 @@ public final class Utils {
 			}
 
 			@Override
-			public String fallBackPrefix() {
-				return command.fallBackPrefix();
+			public String fallbackPrefix() {
+				return command.fallbackPrefix();
 			}
 
 			@Override
