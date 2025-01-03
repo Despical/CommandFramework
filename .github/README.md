@@ -34,7 +34,7 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.5.12</version>
+    <version>1.5.13</version>
 </dependency>
 ```
 
@@ -46,7 +46,7 @@ repositories {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.5.12'
+    implementation 'com.github.Despical:CommandFramework:1.5.13'
 }
 ```
 
@@ -67,125 +67,126 @@ import java.util.concurrent.TimeUnit;
 
 public class ExampleClass extends JavaPlugin {
 
-	@Override
-	public void onEnable() {
-		// Initialize the framework before using
-		// Don't forget to shade framework in to your project
-		CommandFramework commandFramework = new CommandFramework(this);
-		// Adding custom parameters without @Param and @Default annotations.
-		// Now all String type objects will return first argument.
-		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
-		// Adding custom parameters to use with @Param and optionally with @Default annotations.
-		commandFramework.addCustomParameter("secondAsInt", arguments -> arguments.getLength() > 1 ? arguments.getArgumentAsInt(1) : null);
-		// Then this will register all the @Command methods as a command
-		// so there is no necessity to add command to your plugin.yml
-		commandFramework.registerCommands(this);
-	}
+    @Override
+    public void onEnable() {
+        // Initialize the framework before using
+        // Don't forget to shade framework in to your project
+        CommandFramework commandFramework = new CommandFramework(this);
+        // Adding custom parameters without @Param and @Default annotations.
+        // Now all String type objects will return first argument.
+        commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
+        // Adding custom parameters to use with @Param and optionally with @Default annotations.
+        commandFramework.addCustomParameter("secondAsInt", arguments -> arguments.getLength() > 1 ? arguments.getArgumentAsInt(1) : null);
+        // Then this will register all the @Command methods as a command
+        // so there is no necessity to add command to your plugin.yml
+        commandFramework.registerCommands(this);
+    }
 
-	// Before creating command the method must only have
-	// CommandArguments parameter and also @Command annotation
-	@Command(
-			name = "example",
-			aliases = {"firstAlias", "secondAlias"},
-			permission = "example.permission",
-			desc = "Sends an example message to sender",
-			usage = "/example",
-			min = 1,
-			max = 5,
-			onlyOp = false, // this option will ignore permission if it is set
-			// be careful if you are using non-thread safe operations
-			// and if you want to enable option below
-			async = false,
-			senderType = Command.SenderType.CONSOLE
-	)
-	@Cooldown(
-			value = 10,
-			timeUnit = TimeUnit.SECONDS,
-			bypassPerm = "command.cooldownBypass",
-			overrideConsole = true // console will now be affected by cooldown
-	)
-	public void exampleCommand(CommandArguments arguments) {
-		// CommandArguments class contains basic things related Bukkit commands
-		// And here it's all done, you've created command with properties above!
-		arguments.sendMessage("This is how you can create a example command using framework.");
-	}
+    // Before creating command the method must only have
+    // CommandArguments parameter and also @Command annotation
+    @Command(
+        name = "example",
+        fallBackPrefix = "prefix",
+        aliases = {"firstAlias", "secondAlias"},
+        permission = "example.permission",
+        desc = "Sends an example message to sender",
+        usage = "/example",
+        min = 1,
+        max = 5,
+        onlyOp = false, // this option will ignore permission if it is set
+        // be careful if you are using non-thread safe operations
+        // and if you want to enable option below
+        async = false,
+        senderType = Command.SenderType.CONSOLE
+    )
+    @Cooldown(
+        value = 10,
+        timeUnit = TimeUnit.SECONDS,
+        bypassPerm = "command.cooldownBypass",
+        overrideConsole = true // console will now be affected by cooldown
+    )
+    public void exampleCommand(CommandArguments arguments) {
+        // CommandArguments class contains basic things related Bukkit commands
+        // And here it's all done, you've created command with properties above!
+        arguments.sendMessage("This is how you can create a example command using framework.");
+    }
 
-	@Command(
-			name = "noParams"
-	)
-	public void commandWithoutParameters() {
-		Bukkit.getConsoleSender().sendMessage("This command is running without any parameters.");
-	}
+    @Command(
+        name = "noParams"
+    )
+    public void commandWithoutParameters() {
+        Bukkit.getConsoleSender().sendMessage("This command is running without any parameters.");
+    }
 
-	@Command(
-			name = "customParamWithoutAnnotations",
-			min = 1
-	)
-	// See CommandFramework#addCustomParameter method above.
-	public void customParamCommand(String firstParameter, CommandArguments arguments) {
-		// CommandArguments parameter can be added to anywhere in method as a parameter.
-		arguments.sendMessage("First parameter is " + firstParameter);
-	}
+    @Command(
+        name = "customParamWithoutAnnotations",
+        min = 1
+    )
+    // See CommandFramework#addCustomParameter method above.
+    public void customParamCommand(String firstParameter, CommandArguments arguments) {
+        // CommandArguments parameter can be added to anywhere in method as a parameter.
+        arguments.sendMessage("First parameter is " + firstParameter);
+    }
 
-	@Command(
-			name = "customParams",
-			min = 1
-	)
-	// If command is executed with only one argument then the default value will be accepted.
-	// Otherwise, the given argument will be converted to specified type, in this case an int.
-	// If parameter is not annotated by @Default then command will throw an exception on execution.
-	// See the wiki page for creating custom parameters using @Param and @Default annotations.
-	public void customParamsCommand(CommandArguments arguments,
-									@Param("secondAsInt")
-									@Default("50")
-									int secondArg) {
-		arguments.sendMessage("Second argument as integer is " + secondArg);
-	}
+    @Command(
+        name = "customParams",
+        min = 1
+    )
+    // If command is executed with only one argument then the default value will be accepted.
+    // Otherwise, the given argument will be converted to specified type, in this case an int.
+    // If parameter is not annotated by @Default then command will throw an exception on execution.
+    // See the wiki page for creating custom parameters using @Param and @Default annotations.
+    public void customParamsCommand(CommandArguments arguments,
+                                    @Param("secondAsInt")
+                                    @Default("50")
+                                    int secondArg) {
+        arguments.sendMessage("Second argument as integer is " + secondArg);
+    }
 
-	@Command(
-			name = "confirmationTest"
-	)
-	@Confirmation(
-			message = "Are you sure, if so, please execute command again to confirm.",
-			expireAfter = 10,
-			bypassPerm = "confirmation.bypass",
-			timeUnit = TimeUnit.SECONDS,
-			overrideConsole = true
-	)
-	public void confirmationCommand(CommandArguments arguments) {
-		arguments.sendMessage("Confirmation successful.");
-	}
+    @Command(
+        name = "confirmationTest"
+    )
+    @Confirmation(
+        message = "Are you sure, if so, please execute command again to confirm.",
+        expireAfter = 10,
+        bypassPerm = "confirmation.bypass",
+        timeUnit = TimeUnit.SECONDS,
+        overrideConsole = true
+    )
+    public void confirmationCommand(CommandArguments arguments) {
+        arguments.sendMessage("Confirmation successful.");
+    }
 
-	@Flag(
-			value = "test",
-			prefix = "--"
-	)
-	@Command(
-			name = "flag"
-	)
-	public void flagTest(CommandArguments arguments) {
-		arguments.sendMessage("Flag Present: " + arguments.isFlagPresent("test"));
-	}
+    @Flag(
+        value = "test",
+        prefix = "--"
+    )
+    @Command(
+        name = "flag"
+    )
+    public void flagTest(CommandArguments arguments) {
+        arguments.sendMessage("Flag Present: " + arguments.isFlagPresent("test"));
+    }
 
-	@me.despical.commandframework.annotations.Option(
-			value = "players",
-			prefix = "--"
-	)
-	@Command(
-		name = "option"
-	)
-	public void optionTest(CommandArguments arguments) {
-		arguments.sendMessage("Parsed Options: " + String.join(", ", arguments.getOption("players")));
-	}
-	
-	// Aliases don't need to be same with the command above
-	@Completer(
-			name = "example",
-			aliases = {"firstAlias", "secondAlias"}
-	)
-	public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
-		return Arrays.asList("first", "second", "third");
-	}
+    @me.despical.commandframework.annotations.Option(
+        value = "players",
+        prefix = "--"
+    )
+    @Command(
+        name = "option"
+    )
+    public void optionTest(CommandArguments arguments) {
+        arguments.sendMessage("Parsed Options: " + String.join(", ", arguments.getOption("players")));
+    }
+
+    // Aliases don't need to be same with the command above
+    @Completer(
+        name = "example",
+        aliases = {"firstAlias", "secondAlias"}
+    )
+    public List<String> exampleCommandCompletion(/*CommandArguments arguments*/ /*no need to use in this case which is also supported*/) {
+        return Arrays.asList("first", "second", "third");
+    }
 }
 ```
 

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.5.12</version>
+    <version>1.5.13</version>
 
     <name>Command Framework</name>
     <inceptionYear>2020</inceptionYear>
