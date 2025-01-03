@@ -8,7 +8,7 @@ import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.annotations.Cooldown;
 import me.despical.commandframework.exceptions.CommandException;
 import me.despical.commandframework.exceptions.CooldownException;
-import me.despical.commandframework.options.Option;
+import me.despical.commandframework.options.FrameworkOption;
 import me.despical.commandframework.utils.Utils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
@@ -28,7 +28,7 @@ import java.util.Map;
  * <p>
  * Created at 18.07.2024
  *
- * @see Option#CUSTOM_COOLDOWN_CHECKER
+ * @see FrameworkOption#CUSTOM_COOLDOWN_CHECKER
  * @see Cooldown
  */
 @ApiStatus.Internal
@@ -43,7 +43,7 @@ public final class CooldownManager {
 	}
 
 	public boolean hasCooldown(CommandArguments arguments) {
-		if (!this.commandFramework.options().isEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
+		if (!this.commandFramework.options().isEnabled(FrameworkOption.CUSTOM_COOLDOWN_CHECKER)) {
 			throw new CommandException("Custom cooldown checker option must be enabled to use CommandArguments#hasCooldown method!");
 		}
 
@@ -103,7 +103,7 @@ public final class CooldownManager {
 	}
 
 	private boolean handleCooldowns() {
-		if (!this.commandFramework.options().isEnabled(Option.CUSTOM_COOLDOWN_CHECKER)) {
+		if (!this.commandFramework.options().isEnabled(FrameworkOption.CUSTOM_COOLDOWN_CHECKER)) {
 			return true;
 		}
 

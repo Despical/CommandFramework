@@ -2,6 +2,7 @@ package me.despical.commandframework.confirmations;
 
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Confirmation;
+import me.despical.commandframework.options.FrameworkOption;
 import me.despical.commandframework.utils.SelfExpiringHashMap;
 import me.despical.commandframework.utils.SelfExpiringMap;
 import org.bukkit.command.CommandSender;
@@ -21,7 +22,7 @@ import java.lang.reflect.Method;
  * <p>
  * Created at 18.07.2024
  *
- * @see me.despical.commandframework.options.Option#CONFIRMATIONS
+ * @see FrameworkOption#CONFIRMATIONS
  * @see Confirmation
  */
 @ApiStatus.Internal

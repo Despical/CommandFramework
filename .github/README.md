@@ -168,7 +168,7 @@ public class ExampleClass extends JavaPlugin {
         arguments.sendMessage("Flag Present: " + arguments.isFlagPresent("test"));
     }
 
-    @me.despical.commandframework.annotations.Option(
+    @Option(
         value = "players",
         prefix = "--"
     )

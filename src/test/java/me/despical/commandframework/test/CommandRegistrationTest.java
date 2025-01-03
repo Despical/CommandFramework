@@ -24,11 +24,8 @@ import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import me.despical.commandframework.CommandArguments;
 import me.despical.commandframework.CommandFramework;
-import me.despical.commandframework.annotations.Command;
-import me.despical.commandframework.annotations.Completer;
-import me.despical.commandframework.annotations.Cooldown;
-import me.despical.commandframework.annotations.Flag;
-import me.despical.commandframework.options.Option;
+import me.despical.commandframework.annotations.*;
+import me.despical.commandframework.options.FrameworkOption;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -151,7 +148,7 @@ class CommandRegistrationTest {
 	private CommandFramework createCommandFramework() {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
 		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
-		commandFramework.options().enableOption(Option.CUSTOM_COOLDOWN_CHECKER);
+		commandFramework.options().enableOption(FrameworkOption.CUSTOM_COOLDOWN_CHECKER);
 		commandFramework.registerCommands(new ExampleCommand());
 		return commandFramework;
 	}
@@ -214,7 +211,7 @@ class CommandRegistrationTest {
 			arguments.sendMessage("Flag Present: " + arguments.isFlagPresent("test"));
 		}
 
-		@me.despical.commandframework.annotations.Option(
+		@Option(
 			value = "players",
 			prefix = "--"
 		)

@@ -15,25 +15,25 @@ import java.util.Set;
  * <p>
  * Created at 18.07.2024
  *
- * @see Option
+ * @see FrameworkOption
  */
 public final class OptionManager {
 
-	private final Set<Option> options;
+	private final Set<FrameworkOption> frameworkOptions;
 
 	public OptionManager() {
-		this.options = EnumSet.noneOf(Option.class);
+		this.frameworkOptions = EnumSet.noneOf(FrameworkOption.class);
 	}
 
-	public void enableOption(Option option) {
-		this.options.add(option);
+	public void enableOption(FrameworkOption frameworkOption) {
+		this.frameworkOptions.add(frameworkOption);
 	}
 
-	public void enableOptions(Option... options) {
-		this.options.addAll(Arrays.asList(options));
+	public void enableOptions(FrameworkOption... frameworkOptions) {
+		this.frameworkOptions.addAll(Arrays.asList(frameworkOptions));
 	}
 
-	public boolean isEnabled(Option option) {
-		return this.options.contains(option);
+	public boolean isEnabled(FrameworkOption frameworkOption) {
+		return this.frameworkOptions.contains(frameworkOption);
 	}
 }

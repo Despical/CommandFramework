@@ -22,7 +22,7 @@ import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.confirmations.ConfirmationManager;
 import me.despical.commandframework.cooldown.CooldownManager;
 import me.despical.commandframework.debug.DebugLogger;
-import me.despical.commandframework.options.Option;
+import me.despical.commandframework.options.FrameworkOption;
 import me.despical.commandframework.options.OptionManager;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -89,7 +89,7 @@ public class CommandFramework extends CommandHandler {
 	}
 
 	private void initializeLogger() {
-		if (this.optionManager.isEnabled(Option.DEBUG)) {
+		if (this.optionManager.isEnabled(FrameworkOption.DEBUG)) {
 			this.logger = new DebugLogger();
 			return;
 		}
@@ -187,7 +187,7 @@ public class CommandFramework extends CommandHandler {
 
 	@ApiStatus.Internal
 	boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
-		if (!this.optionManager.isEnabled(Option.CONFIRMATIONS)) {
+		if (!this.optionManager.isEnabled(FrameworkOption.CONFIRMATIONS)) {
 			return false;
 		}
 

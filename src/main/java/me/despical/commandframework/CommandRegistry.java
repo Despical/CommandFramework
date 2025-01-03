@@ -3,7 +3,7 @@ package me.despical.commandframework;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.debug.Debug;
-import me.despical.commandframework.options.Option;
+import me.despical.commandframework.options.FrameworkOption;
 import me.despical.commandframework.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -103,7 +103,7 @@ public class CommandRegistry {
 	 */
 	protected void registerCommands(@NotNull Object instance) {
 		CommandFramework commandFramework = CommandFramework.getInstance();
-		boolean notDebug = !commandFramework.options().isEnabled(Option.DEBUG);
+		boolean notDebug = !commandFramework.options().isEnabled(FrameworkOption.DEBUG);
 
 		for (Method method : instance.getClass().getMethods()) {
 			if (notDebug && method.isAnnotationPresent(Debug.class)) {

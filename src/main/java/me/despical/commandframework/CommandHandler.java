@@ -5,6 +5,7 @@ import me.despical.commandframework.annotations.Option;
 import me.despical.commandframework.annotations.Command;
 import me.despical.commandframework.annotations.Completer;
 import me.despical.commandframework.exceptions.CooldownException;
+import me.despical.commandframework.options.FrameworkOption;
 import me.despical.commandframework.parser.OptionParser;
 import me.despical.commandframework.utils.Utils;
 import org.bukkit.command.CommandExecutor;
@@ -95,7 +96,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 			return true;
 		}
 
-		if (!commandFramework.options().isEnabled(me.despical.commandframework.options.Option.CUSTOM_COOLDOWN_CHECKER) && commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
+		if (!commandFramework.options().isEnabled(FrameworkOption.CUSTOM_COOLDOWN_CHECKER) && commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
 			return true;
 		}
 

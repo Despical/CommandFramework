@@ -7,11 +7,11 @@ import me.despical.commandframework.CommandArguments;
  * <p>
  * Created at 18.07.2024
  *
- * @see Option#CUSTOM_COOLDOWN_CHECKER
- * @see Option#CONFIRMATIONS
- * @see Option#DEBUG
+ * @see FrameworkOption#CUSTOM_COOLDOWN_CHECKER
+ * @see FrameworkOption#CONFIRMATIONS
+ * @see FrameworkOption#DEBUG
  */
-public enum Option {
+public enum FrameworkOption {
 
 	/**
 	 * This option allows user to call {@link CommandArguments#checkCooldown()} method.
