@@ -159,6 +159,11 @@ public final class Utils {
 			}
 
 			@Override
+			public String fallBackPrefix() {
+				return command.fallBackPrefix();
+			}
+
+			@Override
 			public String permission() {
 				return command.permission();
 			}

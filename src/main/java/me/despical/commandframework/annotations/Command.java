@@ -45,6 +45,12 @@ public @interface Command {
 	String name();
 
 	/**
+	 * @return a prefix which is prepended to the command with a ':'
+	 * one or more times to make the command unique.
+	 */
+	String fallBackPrefix() default "";
+
+	/**
 	 * The permission that sender has to have to execute command.
 	 *
 	 * @return name of the permission

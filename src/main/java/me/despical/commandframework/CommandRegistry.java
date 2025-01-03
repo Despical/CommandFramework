@@ -173,7 +173,9 @@ public class CommandRegistry {
 				pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
 
-				commandMap.register(cmdName, pluginCommand);
+				String fallBackPrefix = command.fallBackPrefix().isEmpty() ? commandFramework.plugin.getName() : command.fallBackPrefix();
+
+				commandMap.register(fallBackPrefix, pluginCommand);
 			} catch (Exception exception) {
 				Utils.handleExceptions(exception);
 			}
