@@ -19,6 +19,7 @@
 package me.despical.commandframework;
 
 import me.despical.commandframework.utils.Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -245,6 +246,15 @@ public final class CommandArguments {
 	public boolean sendMessage(Message message) {
 		return message.sendMessage(command, this);
 	}
+
+    /**
+     * Sends the specified {@link Component} to command sender associated with this object.
+     *
+     * @param  component the {@link Component} object to be sent.
+     */
+    public void sendMessage(Component component) {
+        commandSender.sendMessage(component);
+    }
 
 	/**
 	 * Returns {@code true} if, and only if, command sender is console.
