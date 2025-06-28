@@ -185,7 +185,6 @@ public class CommandRegistry {
 				constructor.setAccessible(true);
 
 				PluginCommand pluginCommand = constructor.newInstance(cmdName, commandFramework.plugin);
-				pluginCommand.setTabCompleter(commandFramework);
 				pluginCommand.setExecutor(commandFramework);
 				pluginCommand.setUsage(command.usage());
 				pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
