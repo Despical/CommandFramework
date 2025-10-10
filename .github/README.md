@@ -3,50 +3,38 @@
 <div align="center">
 
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
-[![](https://img.shields.io/github/v/release/Despical/CommandFramework)](https://github.com/Despical/CommandFramework/releases/latest)
-[![](https://jitpack.io/v/Despical/CommandFramework.svg)](https://jitpack.io/#Despical/CommandFramework)
+[![](https://img.shields.io/maven-central/v/com.github.despical/command-framework.svg?label=Maven%20Central)](https://search.maven.org/artifact/com.github.despical/command-framework)
 [![](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
 [![](https://img.shields.io/badge/javadoc-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
 
-This framework is very lightweight annotation based command system that works similar to Bukkit's event system. It removes the necessity to
-add commands to your plugin.yml but will still allow you to set command usage, description, permission, aliases, sender type, cooldown, minimum
-and maximum argument length through the code and adds a bunch of new methods to improve your code.
+A lightweight, annotation-based command framework inspired by Bukkit’s event system. It eliminates the need to register commands in plugin.yml
+while still allowing you to define usage, description, permissions, aliases, sender types, cooldowns, and argument limits directly in code.
+Includes extra helper methods to streamline command handling and improve code readability.
 
 </div>
 
 ## Documentation
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [JavaDocs](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
+- [Maven Central](https://repo1.maven.org/maven2/com/github/despical/command-framework/)
+- [Sonatype Central](https://central.sonatype.com/artifact/com.github.despical/command-framework)
 
 ## Using Command Framework
-The project isn't in the Central Repository yet, so specifying a repository is needed.<br>
 To add this project as a dependency to your project, add the following to your pom.xml:
 
 ### Maven dependency
-
-```xml
-<repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</repository>
-```
 ```xml
 <dependency>
     <groupId>com.github.Despical</groupId>
     <artifactId>CommandFramework</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
 </dependency>
 ```
 
 ### Gradle dependency
 ```groovy
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-```
-```groovy
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.5.2'
+    implementation 'com.github.Despical:CommandFramework:1.5.3'
 }
 ```
 
@@ -56,15 +44,6 @@ dependencies {
 ## Example usage
 
 ```java
-import me.despical.commandframework.*;
-import me.despical.commandframework.annotations.*;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 public class ExampleClass extends JavaPlugin {
 
     @Override
