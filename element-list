@@ -1,0 +1,9 @@
+me.despical.commandframework
+me.despical.commandframework.annotations
+me.despical.commandframework.confirmations
+me.despical.commandframework.cooldown
+me.despical.commandframework.debug
+me.despical.commandframework.exceptions
+me.despical.commandframework.options
+me.despical.commandframework.parser
+me.despical.commandframework.utils
