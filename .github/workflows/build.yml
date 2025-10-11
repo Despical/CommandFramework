@@ -26,14 +26,10 @@ jobs:
             - name: Run Tests
               run: mvn -B test --file pom.xml
 
-            - name: Generate Javadoc
-              if: success()
-              run: mvn javadoc:javadoc
-
-            - name: Deploy Javadoc to GitHub Pages
-              if: success()
-              uses: peaceiris/actions-gh-pages@v3
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./target/site/apidocs
-                  publish_branch: javadoc
+            -   uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+                with:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    javadoc-branch: javadoc
+                    java-version: 21
+                    target-folder: javadoc
+                    project: maven
