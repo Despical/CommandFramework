@@ -169,13 +169,14 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <source>${java.version}</source>
+                            <doctitle>CommandFramework API</doctitle>
                             <failOnError>false</failOnError>
                             <failOnWarnings>false</failOnWarnings>
                             <additionalOptions>-Xdoclint:none</additionalOptions>
                             <outputDirectory>${project.build.directory}/site/apidocs</outputDirectory>
                         </configuration>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
