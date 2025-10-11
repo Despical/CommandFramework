@@ -3,9 +3,9 @@
 <div align="center">
 
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
-[![](https://img.shields.io/maven-central/v/com.github.despical/command-framework.svg?label=Maven%20Central)](https://search.maven.org/artifact/com.github.despical/command-framework)
+[![](https://img.shields.io/maven-central/v/com.github.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/com/github/despical/command-framework)
 [![](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
-[![](https://img.shields.io/badge/javadoc-latest-lime.svg)](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
+[![](https://img.shields.io/badge/javadoc-latest-blue.svg)](https://despical.github.io/CommandFramework)
 
 A lightweight, annotation-based command framework inspired by Bukkit’s event system. It eliminates the need to register commands in plugin.yml
 while still allowing you to define usage, description, permissions, aliases, sender types, cooldowns, and argument limits directly in code.
@@ -15,8 +15,8 @@ Includes extra helper methods to streamline command handling and improve code re
 
 ## Documentation
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
-- [JavaDocs](https://javadoc.jitpack.io/com/github/Despical/CommandFramework/latest/javadoc/index.html)
-- [Maven Central](https://repo1.maven.org/maven2/com/github/despical/command-framework/)
+- [Javadocs](https://despical.github.io/CommandFramework)
+- [Maven Central](https://repo1.maven.org/maven2/com/github/despical/command-framework)
 - [Sonatype Central](https://central.sonatype.com/artifact/com.github.despical/command-framework)
 
 ## Using Command Framework
@@ -25,8 +25,8 @@ To add this project as a dependency to your project, add the following to your p
 ### Maven dependency
 ```xml
 <dependency>
-    <groupId>com.github.Despical</groupId>
-    <artifactId>CommandFramework</artifactId>
+    <groupId>com.github.despical</groupId>
+    <artifactId>command-framework</artifactId>
     <version>1.5.3</version>
 </dependency>
 ```
@@ -34,7 +34,7 @@ To add this project as a dependency to your project, add the following to your p
 ### Gradle dependency
 ```groovy
 dependencies {
-    implementation 'com.github.Despical:CommandFramework:1.5.3'
+    implementation 'com.github.despical:command-framework:1.5.3'
 }
 ```
 
