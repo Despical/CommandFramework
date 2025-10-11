@@ -13,17 +13,21 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Set up JDK 21
+            - name: Set up JDK
               uses: actions/setup-java@v4
               with:
                   java-version: '21'
                   distribution: 'temurin'
                   cache: maven
 
-            - name: Build and Test with Maven
-              run: mvn -B verify --file pom.xml
+            - name: Build
+              run: mvn -B compile --file pom.xml
+
+            - name: Run Tests
+              run: mvn -B test --file pom.xml
 
             - name: Generate Javadoc
+              if: success()
               run: mvn javadoc:javadoc
 
             - name: Deploy Javadoc to GitHub Pages
@@ -32,3 +36,4 @@ jobs:
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./target/site/apidocs
+                  publish_branch: javadoc
