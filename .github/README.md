@@ -39,7 +39,7 @@ dependencies {
 ```
 
 > [!IMPORTANT]  
-> Do not forget to relocate the Command Framework package (**me.despical.commandframework**)
+> Remember to relocate the Command Framework package to avoid conflicts (**me.despical.commandframework**).
 
 ## Example usage
 
