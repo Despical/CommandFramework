@@ -1,35 +1,35 @@
 name: Java CI
 
 on:
-    push:
-        branches: [ "main" ]
-    pull_request:
-        branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up JDK
-              uses: actions/setup-java@v4
-              with:
-                  java-version: '21'
-                  distribution: 'temurin'
-                  cache: maven
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
-            - name: Build
-              run: mvn -B compile --file pom.xml
+      - name: Build
+        run: mvn -B compile --file pom.xml
 
-            - name: Run Tests
-              run: mvn -B test --file pom.xml
+      - name: Run Tests
+        run: mvn -B test --file pom.xml
 
-            -   uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
-                with:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    javadoc-branch: javadoc
-                    java-version: 21
-                    target-folder: javadoc
-                    project: maven
+      - name: Deploy Javadoc to GitHub Pages
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          javadoc-branch: javadoc
+          java-version: 21
+          project: maven
