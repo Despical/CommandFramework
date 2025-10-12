@@ -18,9 +18,15 @@
 
 package me.despical.commandframework.debug;
 
+import me.despical.commandframework.annotations.Command;
+import me.despical.commandframework.options.FrameworkOption;
+
 import java.lang.annotation.*;
 
 /**
+ * Marks a {@link Command} to be registered only if
+ * {@link FrameworkOption#DEBUG} mode is enabled.
+ *
  * @author Despical
  * <p>
  * Created at 8.09.2024
