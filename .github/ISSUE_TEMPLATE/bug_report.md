@@ -1,29 +1,27 @@
 ---
-name: Bug report
-about: Help us with issues related Command Framework
-title: "[Category] Short description"
-labels: ''
+name: Bug Report
+about: Report bugs for the Command Framework.
+title: "[Bug] Short description"
+labels: 'bug'
 assignees: ''
-
 ---
 
-## Description of Issue
-<!-- Please provide as much detail as possible. -->
+## Description
+<!-- Provide a clear and detailed description of the bug. -->
 
 ## Steps to Reproduce
-1. What do you do...
-2. ...to find this bug?
+1. What you did...
+2. What happened...
+3. What you expected to happen...
 
 ## Command Framework Version
-<!-- Self-explanatory. -->
+<!-- e.g., 1.5.3 -->
 
 ## Server Version
-<!-- Self-explanatory. -->
+<!-- e.g., Paper 1.21.10 -->
 
-## Stack Trace/Log Files/Crash Reports
-<!-- Any relevant log files. Drag and drop text files here to upload to GitHub directly, OR upload the complete contents to Pastebin. https://pastebin.com/ -->
-
-<!-- **DO NOT directly copy and paste log contents OR stack trace here on GitHub.** -->
+## Stack Trace / Log Files
+<!-- Attach relevant logs or crash reports. If too long, use Pastebin. -->
 
 ## Additional Information
-<!-- Here goes any final remarks and everything else that might not fit in the previous sections. -->
+<!-- Any other details (plugins, configs, environment, etc.) that might help fix the bug. -->
