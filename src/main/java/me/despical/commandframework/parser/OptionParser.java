@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Created at 20.09.2024
  */
 @ApiStatus.Internal
-public class OptionParser {
+public final class OptionParser {
 
 	private final Flag[] flags;
 	private final Option[] options;
