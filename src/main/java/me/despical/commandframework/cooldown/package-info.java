@@ -17,6 +17,13 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Provides an internal class responsible for handling command cooldowns.
+ * <p>
+ * This class is not intended to be instantiated or used directly
+ * outside the Command Framework.
+ *
+ * @see me.despical.commandframework.cooldown.CooldownManager
+ * @see me.despical.commandframework.annotations.Cooldown
+ * @see me.despical.commandframework.options.FrameworkOption#CUSTOM_COOLDOWN_CHECKER
  */
-package me.despical.commandframework.exceptions;
+package me.despical.commandframework.cooldown;

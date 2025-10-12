@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Contains classes that define and handle framework options.
  */
-package me.despical.commandframework.exceptions;
+package me.despical.commandframework.options;

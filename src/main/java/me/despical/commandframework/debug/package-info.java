@@ -17,6 +17,8 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Contains the {@link me.despical.commandframework.debug.Debug} annotation and
+ * {@link me.despical.commandframework.debug.DebugLogger}, used exclusively for
+ * debugging purposes.
  */
-package me.despical.commandframework.exceptions;
+package me.despical.commandframework.debug;

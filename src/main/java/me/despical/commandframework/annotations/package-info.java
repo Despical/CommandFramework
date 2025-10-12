@@ -17,6 +17,9 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Contains all annotations provided by the Command Framework.
+ * <p>
+ * These annotations are used to define and configure commands,
+ * subcommands, and other framework-related behaviors.
  */
-package me.despical.commandframework.exceptions;
+package me.despical.commandframework.annotations;

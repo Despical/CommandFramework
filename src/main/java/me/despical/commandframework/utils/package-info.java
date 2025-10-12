@@ -17,9 +17,8 @@
  */
 
 /**
- * This package is an internal utility package for the framework.
+ * Provides internal utility classes and helpers for the Command Framework.
  *
- * @author Despical
  * @since 1.2.7
  */
 @ApiStatus.Internal

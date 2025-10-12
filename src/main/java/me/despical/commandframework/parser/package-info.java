@@ -17,6 +17,10 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Internal package containing the option parser.
+ * Not intended for external use.
  */
-package me.despical.commandframework.exceptions;
+@ApiStatus.Internal
+package me.despical.commandframework.parser;
+
+import org.jetbrains.annotations.ApiStatus;

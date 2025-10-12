@@ -17,10 +17,9 @@
  */
 
 /**
- * Main package of the Command Framework that contains all the
- * classes related to this framework.
+ * The main package of the Command Framework containing all
+ * core classes and components related to the framework.
  *
- * @author Despical
  * @since 1.0.0
  */
 package me.despical.commandframework;

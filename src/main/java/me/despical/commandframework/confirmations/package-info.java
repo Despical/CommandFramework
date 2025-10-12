@@ -17,6 +17,13 @@
  */
 
 /**
- * Provides custom exception classes used by the Command Framework.
+ * Provides an internal class responsible for handling command and subcommand confirmations.
+ * <p>
+ * This class is intended for internal use only and should not be accessed
+ * or instantiated outside the Command Framework.
+ *
+ * @see me.despical.commandframework.confirmations.ConfirmationManager
+ * @see me.despical.commandframework.annotations.Confirmation
+ * @see me.despical.commandframework.options.FrameworkOption#CONFIRMATIONS
  */
-package me.despical.commandframework.exceptions;
+package me.despical.commandframework.confirmations;
