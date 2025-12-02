@@ -25,6 +25,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +77,7 @@ public final class CommandArguments {
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
+    @Contract(pure = true)
 	public <T extends CommandSender> T getSender() {
 		return (T) commandSender;
 	}
@@ -87,6 +89,7 @@ public final class CommandArguments {
 	 * @since 1.4.8
 	 */
 	@Nullable
+    @Contract(pure = true)
 	public me.despical.commandframework.annotations.Command getCommand() {
 		return this.command;
 	}
@@ -97,6 +100,7 @@ public final class CommandArguments {
 	 * @return the base command as a Bukkit command.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public Command getBukkitCommand() {
 		return bukkitCommand;
 	}
@@ -107,6 +111,7 @@ public final class CommandArguments {
 	 * @return label of the command.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public String getLabel() {
 		return label;
 	}
@@ -117,6 +122,7 @@ public final class CommandArguments {
 	 * @return arguments of the command.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public String[] getArguments() {
 		return arguments;
 	}
@@ -130,6 +136,7 @@ public final class CommandArguments {
 	 * @return indexed element or null if index out of bounds
 	 */
 	@Nullable
+    @Contract(pure = true)
 	public String getArgument(int index) {
 		return arguments.length > index && index >= 0 ? arguments[index] : null;
 	}
@@ -143,6 +150,7 @@ public final class CommandArguments {
 	 * @return the argument at the specified index, or the default value if the index is out of bounds.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public String getArgument(int index, String defaultValue) {
 		return arguments.length > index && index >= 0 ? arguments[index] : defaultValue;
 	}
@@ -154,6 +162,7 @@ public final class CommandArguments {
 	 * @return Integer if indexed element is primitive type of int
 	 * or 0 if element is null.
 	 */
+    @Contract(pure = true)
 	public int getArgumentAsInt(int index) {
 		return Utils.getInt(this.getArgument(index));
 	}
@@ -165,6 +174,7 @@ public final class CommandArguments {
 	 * @return Double if indexed element is primitive type of double
 	 * or 0 if element is null.
 	 */
+    @Contract(pure = true)
 	public double getArgumentAsDouble(int index) {
 		return Utils.getDouble(this.getArgument(index));
 	}
@@ -176,6 +186,7 @@ public final class CommandArguments {
 	 * @return Float if indexed element is primitive type of float
 	 * or 0 if element is null.
 	 */
+    @Contract(pure = true)
 	public float getArgumentAsFloat(int index) {
 		return Utils.getFloat(this.getArgument(index));
 	}
@@ -187,6 +198,7 @@ public final class CommandArguments {
 	 * @return Long if indexed element is primitive type of long
 	 * or 0 if element is null.
 	 */
+    @Contract(pure = true)
 	public long getArgumentAsLong(int index) {
 		return Utils.getLong(this.getArgument(index));
 	}
@@ -198,6 +210,7 @@ public final class CommandArguments {
 	 * @return Boolean if indexed element is primitive type of boolean
 	 * or 0 if element is null.
 	 */
+    @Contract(pure = true)
 	public boolean getArgumentAsBoolean(int index) {
 		return "true".equalsIgnoreCase(this.getArgument(index));
 	}
@@ -209,6 +222,7 @@ public final class CommandArguments {
 	 *
 	 * @return true if arguments are empty, otherwise false.
 	 */
+    @Contract(pure = true)
 	public boolean isArgumentsEmpty() {
 		return arguments.length == 0;
 	}
@@ -262,6 +276,7 @@ public final class CommandArguments {
 	 * @return {@code true} if, and only if, command sender is console, otherwise
 	 * {@code false}.
 	 */
+    @Contract(pure = true)
 	public boolean isSenderConsole() {
 		return !isSenderPlayer();
 	}
@@ -272,6 +287,7 @@ public final class CommandArguments {
 	 * @return {@code true} if, and only if, command sender is player, otherwise
 	 * {@code false}.
 	 */
+    @Contract(pure = true)
 	public boolean isSenderPlayer() {
 		return commandSender instanceof Player;
 	}
@@ -284,6 +300,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the command sender has required {@code permission} or, if
 	 * {@code permission} is empty, otherwise {@code false}.
 	 */
+    @Contract(pure = true)
 	public boolean hasPermission(String permission) {
 		return permission.isEmpty() || commandSender.hasPermission(permission);
 	}
@@ -293,6 +310,7 @@ public final class CommandArguments {
 	 *
 	 * @return length of the arguments array.
 	 */
+    @Contract(pure = true)
 	public int getLength() {
 		return arguments.length;
 	}
@@ -307,6 +325,7 @@ public final class CommandArguments {
 	 * @see Optional#empty()
 	 * @since 1.3.6
 	 */
+    @Contract(pure = true)
 	public Optional<Player> getPlayer(String name) {
 		return Optional.ofNullable(Bukkit.getPlayer(name));
 	}
@@ -322,6 +341,7 @@ public final class CommandArguments {
 	 * @see Optional#empty()
 	 * @since 1.3.6
 	 */
+    @Contract(pure = true)
 	public Optional<Player> getPlayer(int index) {
 		return this.getPlayer(this.getArgument(index));
 	}
@@ -333,6 +353,7 @@ public final class CommandArguments {
 	 * @return all arguments as a single String object.
 	 * @since 1.3.8
 	 */
+    @Contract(pure = true)
 	public String concatArguments() {
 		return String.join(" ", arguments);
 	}
@@ -350,6 +371,7 @@ public final class CommandArguments {
 	 *                                        or {@code from} is greater than {@code to}.
 	 * @since 1.3.8
 	 */
+    @Contract(pure = true)
 	public String concatRangeOf(int from, int to) {
 		return String.join(" ", Arrays.copyOfRange(arguments, from, to));
 	}
@@ -362,6 +384,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the value at the specified argument index is numeric, {@code false} otherwise.
 	 * Returns {@code false} for null or empty values obtained from the argument.
 	 */
+    @Contract(pure = true)
 	public boolean isNumeric(int index) {
 		return this.isNumeric(this.getArgument(index));
 	}
@@ -373,6 +396,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the input string is numeric, {@code false} otherwise.
 	 * Returns {@code false} for null or empty strings.
 	 */
+    @Contract(pure = true)
 	public boolean isNumeric(String string) {
 		if (string == null || string.isEmpty())
 			return false;
@@ -389,6 +413,7 @@ public final class CommandArguments {
 	 * {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
 	 * Also returns {@code false} for values that cannot be parsed into an integer.
 	 */
+    @Contract(pure = true)
 	public boolean isInteger(int index) {
 		return this.isInteger(this.getArgument(index));
 	}
@@ -400,6 +425,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the string can be parsed into an integer, {@code false} otherwise.
 	 * Returns {@code false} for null strings or strings that cannot be parsed into an integer.
 	 */
+    @Contract(pure = true)
 	public boolean isInteger(String string) {
 		try {
 			Integer.parseInt(string);
@@ -418,6 +444,7 @@ public final class CommandArguments {
 	 * {@code false} otherwise. Returns {@code false} for null or empty values obtained from the argument.
 	 * Also returns {@code false} for values that cannot be parsed into a floating-point decimal.
 	 */
+    @Contract(pure = true)
 	public boolean isFloatingDecimal(int index) {
 		return this.isFloatingDecimal(this.getArgument(index));
 	}
@@ -430,6 +457,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the string can be parsed into a decimal, {@code false} otherwise.
 	 * Returns {@code false} for null strings or strings that cannot be parsed into a decimal.
 	 */
+    @Contract(pure = true)
 	public boolean isFloatingDecimal(String string) {
 		try {
 			Double.parseDouble(string);
@@ -470,10 +498,12 @@ public final class CommandArguments {
 	}
 
 	@Nullable
+    @Contract(pure = true)
 	public List<String> getOption(final @NotNull String option) {
 		return this.parsedOptions.get(option);
 	}
 
+    @Contract(pure = true)
 	public Optional<List<String>> findOption(final @NotNull String option) {
 		return Optional.ofNullable(this.getOption(option));
 	}
@@ -482,6 +512,7 @@ public final class CommandArguments {
 		this.parsedFlags = parsedFlags;
 	}
 
+    @Contract(pure = true)
 	public boolean isFlagPresent(final @NotNull String flag) {
 		return this.parsedFlags.contains(flag);
 	}
