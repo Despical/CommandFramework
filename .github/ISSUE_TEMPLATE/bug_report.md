@@ -15,10 +15,10 @@ assignees: ''
 3. What you expected to happen...
 
 ## Command Framework Version
-<!-- e.g., 1.5.3 -->
+<!-- e.g., 1.5.4 -->
 
 ## Server Version
-<!-- e.g., Paper 1.21.10 -->
+<!-- e.g., Paper 1.21.11 -->
 
 ## Stack Trace / Log Files
 <!-- Attach relevant logs or crash reports. If too long, use Pastebin. -->
