@@ -66,6 +66,21 @@ public final class CompleterHelper {
     }
 
     /**
+     * Returns an empty, immutable list of strings.
+     * <p>
+     * This method is commonly used to terminate tab completion suggestions,
+     * indicating that no matches or further arguments are available for the
+     * current context.
+     *
+     * @return An empty, immutable list. Never returns null.
+     */
+    @NotNull
+    @Contract(pure = true)
+    public List<String> empty() {
+        return List.of();
+    }
+
+    /**
      * Filters a collection of strings based on the argument at the specified index.
      * <p>
      * This is a convenience overload that creates a new {@link ArrayList} to store results.
