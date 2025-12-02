@@ -142,6 +142,26 @@ public class CommandFramework extends CommandHandler {
 		this.parameterHandler.addCustomParameter(value, function);
 	}
 
+    /**
+     * Adds a custom parameter to the parameter handler using a class type.
+     *
+     * <p>This method allows the addition of a custom parameter to the parameter handler by specifying
+     * a class and a function that converts {@link CommandArguments} to an instance of {@link T}.
+     * <p>
+     * The parameter will be registered using the {@link Class#getSimpleName()} as the key.
+     *
+     * @param <T>      the type of the custom parameter
+     * @param clazz    the class of the custom parameter, used to derive the key using {@link Class#getSimpleName()},
+     * must not be null
+     * @param function a function that takes {@link CommandArguments} and returns an instance of {@link T},
+     * must not be null
+     *
+     * @throws me.despical.commandframework.exceptions.CommandException if a custom parameter with the same class name is already registered
+     */
+    public final <T> void addCustomParameter(@NotNull Class<T> clazz, @NotNull Function<CommandArguments, T> function) {
+        this.parameterHandler.addCustomParameter(clazz, function);
+    }
+
 	/**
 	 * Returns the logger instance of Command Framework. By default, logger is {@link #plugin} 's logger.
 	 *
