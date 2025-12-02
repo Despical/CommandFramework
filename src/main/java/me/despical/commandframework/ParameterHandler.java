@@ -22,10 +22,10 @@ import com.google.common.primitives.Primitives;
 import me.despical.commandframework.annotations.Default;
 import me.despical.commandframework.annotations.Param;
 import me.despical.commandframework.exceptions.CommandException;
+import me.despical.commandframework.utils.CompleterHelper;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
@@ -40,81 +40,97 @@ import java.util.function.Function;
 @ApiStatus.Internal
 public final class ParameterHandler {
 
-	@NotNull
-	private final Map<String, Function<CommandArguments, ?>> customParametersMap;
+    @NotNull
+    private final Map<String, Function<CommandArguments, ?>> customParametersMap;
 
-	public ParameterHandler() {
-		this.customParametersMap = new HashMap<>();
-	}
+    public ParameterHandler() {
+        this.customParametersMap = new HashMap<>();
+        this.customParametersMap.put(CompleterHelper.class.getSimpleName(), CompleterHelper::new);
+    }
 
-	public <A, B extends A> void addCustomParameter(@NotNull String value, @NotNull Function<CommandArguments, B> function) {
-		if (this.customParametersMap.containsKey(value))
-			throw new CommandException("Custom parameter function called ''{0}'' is already registered!", value);
-		this.customParametersMap.put(value, function);
-	}
+    public <A, B extends A> void addCustomParameter(@NotNull String key, @NotNull Function<CommandArguments, B> function) {
+        if (this.customParametersMap.containsKey(key)) {
+            throw new CommandException("Cannot register custom parameter provider for ''{0}'' because it is already registered!", key);
+        }
 
-	@NotNull
-	public Object[] getParameterArray(Method method, CommandArguments commandArguments) throws Exception {
-		final Parameter[] parameters = method.getParameters();
-		final Object[] methodParameters = new Object[parameters.length];
+        this.customParametersMap.put(key, function);
+    }
 
-		outer_loop:
-		for (int i = 0; i < parameters.length; i++) {
-			final String simpleName = parameters[i].getType().getSimpleName();
+    public <T> void addCustomParameter(@NotNull Class<T> clazz, @NotNull Function<CommandArguments, T> function) {
+        this.addCustomParameter(clazz.getSimpleName(), function);
+    }
 
-			if ("CommandArguments".equals(simpleName)) {
-				methodParameters[i] = commandArguments;
-				continue;
-			}
+    @NotNull
+    public Object[] getParameterArray(Method method, CommandArguments commandArguments) throws Exception {
+        final Parameter[] parameters = method.getParameters();
+        final Object[] methodParameters = new Object[parameters.length];
 
-			for (Annotation annotation : parameters[i].getAnnotations()) {
-				if (annotation instanceof Param) {
-					String value = ((Param) annotation).value();
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter param = parameters[i];
+            Class<?> paramType = param.getType();
 
-					if (!customParametersMap.containsKey(value)) {
-						throw new CommandException("Custom parameter (type: {0}, value: {1}) is requested but return function is not found!", simpleName, value);
-					}
+            if (CommandArguments.class.isAssignableFrom(paramType)) {
+                methodParameters[i] = commandArguments;
+                continue;
+            }
 
-					methodParameters[i] = customParametersMap.get(value).apply(commandArguments);
+            Param paramAnnotation = param.getAnnotation(Param.class);
 
-					if (methodParameters[i] == null) {
-						if (!parameters[i].isAnnotationPresent(Default.class)) {
-							continue outer_loop;
-						}
+            String simpleName = paramType.getSimpleName();
+            String key = getKey(method, paramAnnotation, simpleName);
 
-						String defaultValue = parameters[i].getAnnotation(Default.class).value();
+            Object value = customParametersMap.get(key).apply(commandArguments);
 
-						if (!parameters[i].getType().isInstance(String.class)) {
-							Class<?> clazz = parameters[i].getType();
+            if (value == null && param.isAnnotationPresent(Default.class)) {
+                String defaultValue = param.getAnnotation(Default.class).value();
+                value = parseDefaultValue(paramType, defaultValue);
+            }
 
-							if (!Primitives.isWrapperType(clazz)) {
-								try {
-									methodParameters[i] = clazz.getMethod("valueOf", String.class).invoke(null, defaultValue);
-								} catch (Exception exception) {
-									throw new CommandException("Static method {0}#valueOf(String) does not exist!", clazz.getSimpleName());
-								}
+            if (value == null && paramType.isPrimitive()) {
+                throw new CommandException(
+                    "Primitive parameter ''{0}'' (type: {1}) in method ''{2}'' cannot be null! usage: Use a wrapper class (e.g. Integer) or ensure the provider returns a value.",
+                    key, simpleName, method.getName()
+                );
+            }
 
-								continue outer_loop;
-							}
+            methodParameters[i] = value;
+        }
 
-							methodParameters[i] = Primitives.wrap(clazz).getMethod("valueOf", String.class).invoke(null, defaultValue);
-							continue outer_loop;
-						}
+        return methodParameters;
+    }
 
-						methodParameters[i] = defaultValue;
-					}
+    private String getKey(Method method, Param paramAnnotation, String simpleName) {
+        String key = (paramAnnotation != null) ? paramAnnotation.value() : simpleName;
 
-					continue outer_loop;
-				}
-			}
+        if (!customParametersMap.containsKey(key)) {
+            String methodName = "%s#%s".formatted(method.getDeclaringClass().getSimpleName(), method.getName());
 
-			if (!customParametersMap.containsKey(simpleName)) {
-				throw new CommandException("Custom parameter (type: {0}) is requested but return function is not found!", simpleName);
-			}
+            if (paramAnnotation != null) {
+                throw new CommandException(
+                    "No parameter provider found for @Param(''{0}'') in method ''{1}''. Requested Type: {2}. Did you forget to register it?",
+                    key, methodName, simpleName
+                );
+            }
 
-			methodParameters[i] = customParametersMap.get(simpleName).apply(commandArguments);
-		}
+            throw new CommandException(
+                "No parameter provider found for type ''{0}'' in method ''{1}''. Did you forget to register it using CommandFramework#addCustomParameter?",
+                simpleName, methodName
+            );
+        }
+        return key;
+    }
 
-		return methodParameters;
-	}
+    private Object parseDefaultValue(Class<?> type, String value) throws Exception {
+        if (type == String.class) {
+            return value;
+        }
+
+        Class<?> actualType = Primitives.isWrapperType(type) ? type : Primitives.wrap(type);
+
+        try {
+            return actualType.getMethod("valueOf", String.class).invoke(null, value);
+        } catch (NoSuchMethodException exception) {
+            throw new CommandException("Type ''{0}'' does not support default values (missing static valueOf(String) method).", type.getSimpleName());
+        }
+    }
 }
