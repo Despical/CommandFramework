@@ -22,7 +22,6 @@ import com.google.common.primitives.Primitives;
 import me.despical.commandframework.annotations.Default;
 import me.despical.commandframework.annotations.Param;
 import me.despical.commandframework.exceptions.CommandException;
-import me.despical.commandframework.utils.CompleterHelper;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
