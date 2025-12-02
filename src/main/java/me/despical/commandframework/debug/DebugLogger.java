@@ -18,6 +18,8 @@
 
 package me.despical.commandframework.debug;
 
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
@@ -27,7 +29,15 @@ import java.util.logging.Logger;
  */
 public class DebugLogger extends Logger {
 
-	public DebugLogger() {
-		super("CF Debugger", null);
-	}
+    public DebugLogger(Logger parent) {
+        super("CF Debug", null);
+        this.setParent(parent);
+        this.setLevel(Level.ALL);
+    }
+
+    @Override
+    public void log(LogRecord record) {
+        record.setMessage("[CF Debug] " + record.getMessage());
+        super.log(record);
+    }
 }

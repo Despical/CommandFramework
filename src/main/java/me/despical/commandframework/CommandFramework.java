@@ -90,7 +90,7 @@ public class CommandFramework extends CommandHandler {
 
 	private void initializeLogger() {
 		if (this.optionManager.isEnabled(FrameworkOption.DEBUG)) {
-			this.logger = new DebugLogger();
+			this.logger = new DebugLogger(plugin.getLogger());
 			return;
 		}
 
