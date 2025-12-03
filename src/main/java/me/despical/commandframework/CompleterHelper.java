@@ -81,6 +81,49 @@ public final class CompleterHelper {
     }
 
     /**
+     * Checks if the given input string matches any of the provided candidate strings.
+     * <p>
+     * This method performs a <b>case-sensitive</b> comparison.
+     * If the input is {@code null}, it returns {@code false} immediately.
+     * </p>
+     *
+     * @param input   The string to check.
+     * @param matches The potential matching strings.
+     * @return {@code true} if the input equals any of the matches; {@code false} otherwise.
+     */
+    @Contract(pure = true)
+    public boolean equalsAny(String input, String... matches) {
+        if (input == null) {
+            return false;
+        }
+
+        for (String match : matches) {
+            if (input.equals(match)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the argument at the specified index matches any of the provided candidate strings.
+     * <p>
+     * This method retrieves the argument from the internal arguments list at the given index
+     * and delegates the comparison to {@link #equalsAny(String, String...)}.
+     * </p>
+     *
+     * @param index   The index of the argument to check.
+     * @param matches The potential matching strings.
+     * @return {@code true} if the argument at the specified index matches any of the candidates.
+     */
+    @Contract(pure = true)
+    public boolean equalsAny(int index, String... matches) {
+        String input = arguments.getArgument(index);
+        return equalsAny(input, matches);
+    }
+
+    /**
      * Filters a collection of strings based on the argument at the specified index.
      * <p>
      * This is a convenience overload that creates a new {@link ArrayList} to store results.
