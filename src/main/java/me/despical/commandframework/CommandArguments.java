@@ -141,6 +141,28 @@ public final class CommandArguments {
 		return arguments.length > index && index >= 0 ? arguments[index] : null;
 	}
 
+    /**
+     * Gets the first argument.
+     *
+     * @return The first argument, or {@code null} if no arguments exist.
+     */
+    @Nullable
+    @Contract(pure = true)
+    public String getFirst() {
+        return this.getArgument(0);
+    }
+
+    /**
+     * Gets the last argument.
+     *
+     * @return The last argument, or {@code null} if no arguments exist.
+     */
+    @Nullable
+    @Contract(pure = true)
+    public String getLast() {
+        return this.getArgument(arguments.length - 1);
+    }
+
 	/**
 	 * Returns the indexed element from the arguments array, or the {@code defaultValue}
 	 * if and only if index is out the bounds.
