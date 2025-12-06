@@ -3,7 +3,7 @@
 <div align="center">
 
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
-[![](https://img.shields.io/maven-central/v/com.github.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/com/github/despical/command-framework)
+[![](https://img.shields.io/maven-central/v/dev.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/dev/despical/command-framework)
 [![](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
 [![](https://img.shields.io/badge/Javadoc-latest-blue.svg)](https://despical.github.io/CommandFramework)
 
@@ -17,7 +17,7 @@ Includes extra helper methods to streamline command handling and improve code re
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [Javadocs](https://despical.github.io/CommandFramework)
 - [Maven Central](https://repo1.maven.org/maven2/com/github/despical/command-framework)
-- [Sonatype Central](https://central.sonatype.com/artifact/com.github.despical/command-framework)
+- [Sonatype Central](https://central.sonatype.com/artifact/dev.despical/command-framework)
 
 ## Using Command Framework
 To add this project as a dependency to your project, add the following to your pom.xml:
@@ -25,7 +25,7 @@ To add this project as a dependency to your project, add the following to your p
 ### Maven dependency
 ```xml
 <dependency>
-    <groupId>com.github.despical</groupId>
+    <groupId>dev.despical</groupId>
     <artifactId>command-framework</artifactId>
     <version>1.5.5</version>
 </dependency>
@@ -34,12 +34,12 @@ To add this project as a dependency to your project, add the following to your p
 ### Gradle dependency
 ```groovy
 dependencies {
-    implementation 'com.github.despical:command-framework:1.5.5'
+    implementation 'dev.despical:command-framework:1.5.5'
 }
 ```
 
 > [!IMPORTANT]  
-> Remember to relocate the Command Framework package to avoid conflicts (**me.despical.commandframework**).
+> Remember to relocate the Command Framework package to avoid conflicts (**dev.despical.commandframework**).
 
 ## Example usage
 
