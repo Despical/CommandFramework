@@ -16,7 +16,7 @@ Includes extra helper methods to streamline command handling and improve code re
 ## Documentation
 - [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [Javadocs](https://despical.github.io/CommandFramework)
-- [Maven Central](https://repo1.maven.org/maven2/com/github/despical/command-framework)
+- [Maven Central](https://repo1.maven.org/maven2/dev/despical/command-framework)
 - [Sonatype Central](https://central.sonatype.com/artifact/dev.despical/command-framework)
 
 ## Using Command Framework
