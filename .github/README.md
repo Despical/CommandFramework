@@ -27,14 +27,14 @@ To add this project as a dependency to your project, add the following to your p
 <dependency>
     <groupId>com.github.despical</groupId>
     <artifactId>command-framework</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
 </dependency>
 ```
 
 ### Gradle dependency
 ```groovy
 dependencies {
-    implementation 'com.github.despical:command-framework:1.5.4'
+    implementation 'com.github.despical:command-framework:1.5.5'
 }
 ```
 
