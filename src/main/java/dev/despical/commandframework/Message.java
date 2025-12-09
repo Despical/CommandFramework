@@ -19,7 +19,7 @@
 package dev.despical.commandframework;
 
 import dev.despical.commandframework.annotations.Command;
-import org.bukkit.ChatColor;
+import dev.despical.commandframework.internal.MessageHelper;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +49,9 @@ public enum Message {
 
 	Message(String message, boolean sendUsage) {
 		this.message = (command, arguments) -> {
-			if (sendUsage && !MessageHelper.SEND_USAGE.apply(command, arguments)) return true;
+            if (sendUsage && !MessageHelper.SEND_USAGE.apply(command, arguments)) {
+                return true;
+            }
 
 			arguments.sendMessage(message);
 			return true;
@@ -57,18 +59,12 @@ public enum Message {
 	}
 
 	/**
-	 * Function to apply messages that will be sent using CommandArguments#sendMessage method.
-	 */
-	@NotNull
-	private static Function<String, String> colorFormatter = (string) -> ChatColor.translateAlternateColorCodes('&', string);
-
-	/**
 	 * For instance, can be used to translate Minecraft color and Hex color codes.
 	 *
 	 * @param colorFormatter the function that will be applied to the strings to colorize
 	 */
 	public static void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
-		Message.colorFormatter = colorFormatter;
+		MessageHelper.setColorFormatter(colorFormatter);
 	}
 
 	/**
@@ -81,26 +77,7 @@ public enum Message {
 	}
 
 	@ApiStatus.Internal
-	static String applyColorFormatter(@NotNull String string) {
-		return colorFormatter.apply(string);
-	}
-
-	@ApiStatus.Internal
 	boolean sendMessage(Command command, CommandArguments arguments) {
 		return this.message.apply(command, arguments);
-	}
-
-	private static class MessageHelper {
-
-		private static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
-			final String usage = command.usage();
-
-			if (!usage.isEmpty()) {
-				arguments.sendMessage(usage);
-				return false;
-			}
-
-			return true;
-		};
 	}
 }

@@ -20,6 +20,7 @@ package dev.despical.commandframework.confirmations;
 
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Confirmation;
+import dev.despical.commandframework.internal.MessageHelper;
 import dev.despical.commandframework.options.FrameworkOption;
 import dev.despical.commandframework.utils.SelfExpiringHashMap;
 import dev.despical.commandframework.utils.SelfExpiringMap;
@@ -63,7 +64,10 @@ public final class ConfirmationManager {
 		final boolean isConsoleSender = sender instanceof ConsoleCommandSender;
 
 		if (isConsoleSender && !confirmation.overrideConsole()) return false;
-		if (!isConsoleSender && !confirmation.bypassPerm().isEmpty() && sender.hasPermission(confirmation.bypassPerm()))
+
+        final String bypassPerm = confirmation.bypassPerm();
+
+		if (!isConsoleSender && !bypassPerm.isEmpty() && sender.hasPermission(bypassPerm))
 			return false;
 
 		if (confirmations.containsKey(sender)) {
@@ -73,7 +77,7 @@ public final class ConfirmationManager {
 
 		confirmations.put(sender, command, confirmation.timeUnit().toMillis(confirmation.expireAfter()));
 
-		sender.sendMessage(confirmation.message());
+		sender.sendMessage(MessageHelper.applyColorFormatter(confirmation.message()));
 		return true;
 	}
 }
