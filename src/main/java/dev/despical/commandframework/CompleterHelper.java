@@ -35,10 +35,10 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * This helper provides methods to easily filter lists of strings (like player names or
  * command sub-arguments) based on the user's current input.
+ *
+ * @author Despical
  * <p>
- *  * @author Despical
- *  * <p>
- *  * Created at 2.12.2025
+ * Created at 2.12.2025
  */
 public final class CompleterHelper {
 
