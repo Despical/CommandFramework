@@ -33,7 +33,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -147,7 +146,7 @@ class CommandRegistrationTest {
 	@NotNull
 	private CommandFramework createCommandFramework() {
 		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
-		commandFramework.addCustomParameter("String", arguments -> arguments.getArgument(0));
+		commandFramework.addCustomParameter(String.class, arguments -> arguments.getArgument(0));
 		commandFramework.options().enableOption(FrameworkOption.CUSTOM_COOLDOWN_CHECKER);
 		commandFramework.registerCommands(new ExampleCommand());
 		return commandFramework;
@@ -227,7 +226,7 @@ class CommandRegistrationTest {
 			aliases = {"firstAlias", "secondAlias"}
 		)
 		public List<String> exampleCommandCompletion() {
-			return Arrays.asList("first", "second", "third");
+			return List.of("first", "second", "third");
 		}
 	}
 }
