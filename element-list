@@ -1,9 +1,6 @@
+module:dev.despical.commandframework
 dev.despical.commandframework
 dev.despical.commandframework.annotations
-dev.despical.commandframework.confirmations
-dev.despical.commandframework.cooldown
 dev.despical.commandframework.debug
 dev.despical.commandframework.exceptions
 dev.despical.commandframework.options
-dev.despical.commandframework.parser
-dev.despical.commandframework.utils
