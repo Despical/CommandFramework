@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.despical.commandframework;
+package dev.despical.commandframework.internal;
 
 import com.google.common.primitives.Primitives;
+import dev.despical.commandframework.CommandArguments;
+import dev.despical.commandframework.CompleterHelper;
 import dev.despical.commandframework.annotations.Default;
 import dev.despical.commandframework.annotations.Param;
 import dev.despical.commandframework.exceptions.CommandException;

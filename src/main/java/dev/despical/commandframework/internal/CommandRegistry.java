@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.despical.commandframework;
+package dev.despical.commandframework.internal;
 
+import dev.despical.commandframework.CommandFramework;
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Completer;
 import dev.despical.commandframework.debug.Debug;
@@ -63,7 +64,7 @@ import java.util.stream.Stream;
  * Created on 18.07.2024
  */
 @ApiStatus.Internal
-public class CommandRegistry {
+public final class CommandRegistry {
 
 	@Nullable
 	private CommandMap commandMap;
@@ -77,7 +78,7 @@ public class CommandRegistry {
 	@NotNull
 	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions, subCommandCompletions;
 
-	CommandRegistry() {
+	public CommandRegistry() {
 		this.commandMatcher = new CommandMatcher();
 		this.commands = new HashMap<>();
 		this.commandCompletions = new HashMap<>();
@@ -86,9 +87,7 @@ public class CommandRegistry {
 
 		final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
-		if (pluginManager instanceof SimplePluginManager) {
-			final SimplePluginManager manager = (SimplePluginManager) pluginManager;
-
+		if (pluginManager instanceof SimplePluginManager manager) {
 			try {
 				final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
 				field.setAccessible(true);
@@ -119,7 +118,7 @@ public class CommandRegistry {
 	 *
 	 * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
 	 */
-	protected void registerCommands(@NotNull Object instance) {
+	public void registerCommands(@NotNull Object instance) {
 		CommandFramework commandFramework = CommandFramework.getInstance();
 		boolean notDebug = !commandFramework.options().isEnabled(FrameworkOption.DEBUG);
 
@@ -171,7 +170,7 @@ public class CommandRegistry {
 	 * @param method   the {@link Method} object representing the method to be invoked when the command is executed.
 	 * @param instance the instance of the class that contains the command method.
 	 */
-	protected void registerCommand(Command command, Method method, Object instance) {
+	public void registerCommand(Command command, Method method, Object instance) {
 		CommandFramework commandFramework = CommandFramework.getInstance();
 		String cmdName = command.name();
 
@@ -184,13 +183,14 @@ public class CommandRegistry {
 				Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
 				constructor.setAccessible(true);
 
-				PluginCommand pluginCommand = constructor.newInstance(cmdName, commandFramework.plugin);
+                Plugin plugin = commandFramework.getPlugin();
+				PluginCommand pluginCommand = constructor.newInstance(cmdName, plugin);
 				pluginCommand.setExecutor(commandFramework);
 				pluginCommand.setUsage(command.usage());
 				pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
 				pluginCommand.setDescription(command.desc());
 
-				String fallbackPrefix = command.fallbackPrefix().isEmpty() ? commandFramework.plugin.getName() : command.fallbackPrefix();
+				String fallbackPrefix = command.fallbackPrefix().isEmpty() ? plugin.getName() : command.fallbackPrefix();
 
 				commandMap.register(fallbackPrefix, pluginCommand);
 			} catch (Exception exception) {
@@ -205,24 +205,26 @@ public class CommandRegistry {
 	 * @param commandName the name of the command to be unregistered. Must not be {@code null} or empty.
 	 * @throws IllegalArgumentException if {@code commandName} is {@code null} or an empty string.
 	 */
-	protected void unregisterCommand(@NotNull String commandName) {
+	public void unregisterCommand(@NotNull String commandName) {
 		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
 
 		Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
 		CommandFramework commandFramework = CommandFramework.getInstance();
 
 		if (entry == null) {
-			commandFramework.plugin.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
+			commandFramework.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
 			return;
 		}
 
 		Command command = entry.getKey();
 		String name = command.name();
-		PluginCommand pluginCommand = commandFramework.plugin.getServer().getPluginCommand(name);
+
+        Plugin plugin = commandFramework.getPlugin();
+		PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
 
 		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
 			// Do not unregister if matched command is not registered from our instance plugin.
-			if (!pluginCommand.getPlugin().equals(commandFramework.plugin))
+			if (!pluginCommand.getPlugin().equals(plugin))
 				return;
 
 			try {
@@ -245,7 +247,7 @@ public class CommandRegistry {
 	/**
 	 * Unregisters all commands and tab completers that were registered using the instance of this object.
 	 */
-	protected void unregisterCommands() {
+	public void unregisterCommands() {
 		Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
 
 		while (names.hasNext()) {
@@ -254,24 +256,24 @@ public class CommandRegistry {
 	}
 
 	@NotNull
-	protected Set<Command> getCommands() {
+	public Set<Command> getCommands() {
 		return this.commands.keySet();
 	}
 
 	@NotNull
-	protected Set<Command> getSubCommands() {
+	public Set<Command> getSubCommands() {
 		return this.subCommands.keySet();
 	}
 
 	@NotNull
-	protected CommandMatcher getCommandMatcher() {
+	public CommandMatcher getCommandMatcher() {
 		return this.commandMatcher;
 	}
 
 	/**
 	 * A helper class that contains methods for matching commands and their corresponding tab completers.
 	 */
-	protected final class CommandMatcher {
+	public final class CommandMatcher {
 
 		@Nullable
 		public Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {

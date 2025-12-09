@@ -20,19 +20,16 @@ package dev.despical.commandframework;
 
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Param;
-import dev.despical.commandframework.confirmations.ConfirmationManager;
 import dev.despical.commandframework.exceptions.CommandException;
-import dev.despical.commandframework.cooldown.CooldownManager;
 import dev.despical.commandframework.debug.DebugLogger;
 import dev.despical.commandframework.options.FrameworkOption;
 import dev.despical.commandframework.options.OptionManager;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -52,22 +49,16 @@ public class CommandFramework extends CommandHandler {
 	protected static CommandFramework instance;
 
 	private Logger logger;
-	private CooldownManager cooldownManager;
-	private ConfirmationManager confirmationManager;
-
-	protected final Plugin plugin;
-	private final OptionManager optionManager;
-	private final CommandRegistry registry;
+	private final Plugin plugin;
+    private final OptionManager optionManager;
 
 	public CommandFramework(@NotNull Plugin plugin) {
 		this.checkRelocation();
 		this.checkIsAlreadyInitialized();
 
 		this.plugin = plugin;
-		this.registry = new CommandRegistry();
-		this.optionManager = new OptionManager();
+        this.optionManager = new OptionManager();
 		this.initializeLogger();
-		super.setRegistry(this);
 	}
 
 	private void checkRelocation() {
@@ -114,14 +105,14 @@ public class CommandFramework extends CommandHandler {
 	 * @param commandName name of the command that's going to be removed
 	 */
 	public final void unregisterCommand(@NotNull String commandName) {
-		this.registry.unregisterCommand(commandName);
+        this.registry.unregisterCommand(commandName);
 	}
 
 	/**
 	 * Unregisters all of registered commands and tab completers using that instance.
 	 */
 	public final void unregisterCommands() {
-		this.registry.unregisterCommands();
+        this.registry.unregisterCommands();
 	}
 
 	/**
@@ -171,6 +162,7 @@ public class CommandFramework extends CommandHandler {
 	 * @since 1.4.8
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public final Logger getLogger() {
 		return logger;
 	}
@@ -195,31 +187,8 @@ public class CommandFramework extends CommandHandler {
 		return this.optionManager;
 	}
 
-	@ApiStatus.Internal
-	CooldownManager getCooldownManager() {
-		if (this.cooldownManager == null)
-			this.cooldownManager = new CooldownManager(this);
-		return cooldownManager;
-	}
-
-	@ApiStatus.Internal
-	CommandRegistry getRegistry() {
-		return registry;
-	}
-
-	@ApiStatus.Internal
-	boolean checkConfirmation(CommandSender sender, final Command command, final Method method) {
-		if (!this.optionManager.isEnabled(FrameworkOption.CONFIRMATIONS)) {
-			return false;
-		}
-
-		if (this.confirmationManager == null)
-			this.confirmationManager = new ConfirmationManager();
-		return confirmationManager.checkConfirmations(sender, command, method);
-	}
-
 	protected final void setCommandMap(CommandMap commandMap) {
-		this.registry.setCommandMap(commandMap);
+        this.registry.setCommandMap(commandMap);
 	}
 
 	/**
@@ -228,6 +197,7 @@ public class CommandFramework extends CommandHandler {
 	 * @return list of the commands.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public final List<Command> getCommands() {
 		return new ArrayList<>(this.registry.getCommands());
 	}
@@ -238,6 +208,7 @@ public class CommandFramework extends CommandHandler {
 	 * @return list of the sub-commands.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public final List<Command> getSubCommands() {
 		return new ArrayList<>(this.registry.getSubCommands());
 	}
@@ -248,14 +219,21 @@ public class CommandFramework extends CommandHandler {
 	 * @return list of the commands and sub-commands.
 	 */
 	@NotNull
+    @Contract(pure = true)
 	public final List<Command> getAllCommands() {
-		final List<Command> commands = new ArrayList<>(this.registry.getCommands());
-		commands.addAll(this.registry.getSubCommands());
+		final List<Command> commands = new ArrayList<>(registry.getCommands());
+		commands.addAll(registry.getSubCommands());
 
 		return commands;
 	}
 
-	public static CommandFramework getInstance() {
+    @NotNull
+    @Contract(pure = true)
+    public final Plugin getPlugin() {
+        return plugin;
+    }
+
+    public static CommandFramework getInstance() {
 		return instance;
 	}
 }

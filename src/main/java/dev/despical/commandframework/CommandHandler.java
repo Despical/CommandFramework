@@ -23,6 +23,9 @@ import dev.despical.commandframework.annotations.Option;
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Completer;
 import dev.despical.commandframework.exceptions.CooldownException;
+import dev.despical.commandframework.internal.CommandRegistry;
+import dev.despical.commandframework.internal.FrameworkContext;
+import dev.despical.commandframework.internal.ParameterHandler;
 import dev.despical.commandframework.options.FrameworkOption;
 import dev.despical.commandframework.parser.OptionParser;
 import dev.despical.commandframework.utils.Utils;
@@ -54,15 +57,15 @@ import java.util.Map;
 @ApiStatus.NonExtendable
 abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
-	private CommandRegistry registry;
-	protected ParameterHandler parameterHandler;
+	protected final CommandRegistry registry;
+	protected final ParameterHandler parameterHandler;
 
-	void setRegistry(CommandFramework commandFramework) {
-		this.registry = commandFramework.getRegistry();
-		this.parameterHandler = new ParameterHandler();
-	}
+    public CommandHandler() {
+        this.registry = FrameworkContext.getInstance().getRegistry();
+        this.parameterHandler = new ParameterHandler();
+    }
 
-	@Override
+    @Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
 		Map.Entry<Command, Map.Entry<Method, Object>> entry = registry.getCommandMatcher().getAssociatedCommand(cmd.getName(), args);
 
@@ -109,12 +112,13 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 		}
 
 		CommandFramework commandFramework = CommandFramework.getInstance();
+        FrameworkContext context = FrameworkContext.getInstance();
 
-		if (commandFramework.checkConfirmation(sender, command, method)) {
+        if (context.checkConfirmation(sender, command, method)) {
 			return true;
 		}
 
-		if (!commandFramework.options().isEnabled(FrameworkOption.CUSTOM_COOLDOWN_CHECKER) && commandFramework.getCooldownManager().hasCooldown(arguments, command, method)) {
+		if (!commandFramework.options().isEnabled(FrameworkOption.CUSTOM_COOLDOWN_CHECKER) && context.getCooldownManager().hasCooldown(arguments, command, method)) {
 			return true;
 		}
 
@@ -142,8 +146,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 		};
 
 		if (command.async()) {
-			Plugin plugin = commandFramework.plugin;
-
+			Plugin plugin = commandFramework.getPlugin();
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, invocation);
 		} else {
 			invocation.run();

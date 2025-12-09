@@ -18,6 +18,8 @@
 
 package dev.despical.commandframework;
 
+import dev.despical.commandframework.internal.FrameworkContext;
+import dev.despical.commandframework.internal.MessageHelper;
 import dev.despical.commandframework.utils.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -55,11 +57,13 @@ public final class CommandArguments {
 	private final String label;
 	private final String [] arguments;
 
-	CommandArguments(CommandSender commandSender,
-					 Command bukkitCommand,
-					 dev.despical.commandframework.annotations.Command command,
-					 String label,
-					 String... arguments) {
+	CommandArguments(
+        CommandSender commandSender,
+		Command bukkitCommand,
+		dev.despical.commandframework.annotations.Command command,
+		String label,
+		String... arguments
+    ) {
 		this.commandSender = commandSender;
 		this.bukkitCommand = bukkitCommand;
 		this.command = command;
@@ -257,7 +261,7 @@ public final class CommandArguments {
 	public void sendMessage(String message) {
 		if (message == null)
 			return;
-		commandSender.sendMessage(Message.applyColorFormatter(message));
+		commandSender.sendMessage(MessageHelper.applyColorFormatter(message));
 	}
 
 	/**
@@ -270,7 +274,7 @@ public final class CommandArguments {
 	public void sendMessage(String message, Object... params) {
 		if (message == null)
 			return;
-		commandSender.sendMessage(Message.applyColorFormatter(MessageFormat.format(message, params)));
+		commandSender.sendMessage(MessageHelper.applyColorFormatter(MessageFormat.format(message, params)));
 	}
 
 	/**
@@ -512,7 +516,7 @@ public final class CommandArguments {
 	 * @return {@code true} if the sender has a cooldown on this command
 	 */
 	public boolean checkCooldown() {
-		return CommandFramework.getInstance().getCooldownManager().hasCooldown(this);
+		return FrameworkContext.getInstance().getCooldownManager().hasCooldown(this);
 	}
 
 	void setParsedOptions(Map<String, List<String>> parsedOptions) {
