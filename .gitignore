@@ -3,7 +3,8 @@ target
 .classpath
 .project
 /bin/
-/.idea/
+/.idea/*
+!/.idea/icon.svg
 /out/
 /generated/
 *.iml
