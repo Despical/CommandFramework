@@ -90,27 +90,48 @@ public class CommandFramework extends CommandHandler {
 		this.logger = plugin.getLogger();
 	}
 
-	/**
-	 * Registers commands in given object's class.
-	 *
-	 * @param instance the class instance of given object.
-	 */
+    /**
+     * Registers commands from the specified instance's class.
+     * <p>
+     * This method scans the class of the provided instance and registers all commands
+     * defined within that class. The class should contain methods annotated to be recognized
+     * as commands.
+     * </p>
+     *
+     * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
+     */
 	public final void registerCommands(@NotNull Object instance) {
 		this.registry.registerCommands(instance);
 	}
 
-	/**
-	 * Unregisters command and tab completer if there is with the given name.
-	 *
-	 * @param commandName name of the command that's going to be removed
-	 */
+    /**
+     * Scans all classes within the specified package, creates instances of them,
+     * and registers them as commands.
+     * <p>
+     * Note: Scanned classes must have a public no-args constructor.
+     * Interfaces and abstract classes are automatically skipped.
+     * </p>
+     *
+     * @param packageName The full path of the package to scan (e.g., "com.example.project.commands")
+     * @see #registerCommands(Object)
+     */
+    public final void registerAllInPackage(@NotNull String packageName) {
+        this.registry.registerAllInPackage(packageName);
+    }
+
+    /**
+     * Unregisters a command and its associated tab completer if they are registered with the specified name.
+     *
+     * @param commandName the name of the command to be unregistered. Must not be {@code null} or empty.
+     * @throws IllegalArgumentException if {@code commandName} is {@code null} or an empty string.
+     */
 	public final void unregisterCommand(@NotNull String commandName) {
         this.registry.unregisterCommand(commandName);
 	}
 
-	/**
-	 * Unregisters all of registered commands and tab completers using that instance.
-	 */
+    /**
+     * Unregisters all commands and tab completers that were registered using the instance of this object.
+     */
 	public final void unregisterCommands() {
         this.registry.unregisterCommands();
 	}
@@ -156,7 +177,7 @@ public class CommandFramework extends CommandHandler {
     }
 
 	/**
-	 * Returns the logger instance of Command Framework. By default, logger is {@link #plugin} 's logger.
+	 * Returns the logger instance of Command Framework. By default, logger is {@link #plugin}'s logger.
 	 *
 	 * @return the current logger instance.
 	 * @since 1.4.8
@@ -187,34 +208,30 @@ public class CommandFramework extends CommandHandler {
 		return this.optionManager;
 	}
 
-	protected final void setCommandMap(CommandMap commandMap) {
-        this.registry.setCommandMap(commandMap);
-	}
-
 	/**
-	 * Get a copy of registered commands.
+	 * Get an unmodifiable copy of registered commands.
 	 *
 	 * @return list of the commands.
 	 */
 	@NotNull
     @Contract(pure = true)
 	public final List<Command> getCommands() {
-		return new ArrayList<>(this.registry.getCommands());
+		return List.copyOf(registry.getCommands());
 	}
 
 	/**
-	 * Get a copy of registered sub-commands-.
+	 * Get an unmodifiable copy of registered sub-commands-.
 	 *
 	 * @return list of the sub-commands.
 	 */
 	@NotNull
     @Contract(pure = true)
 	public final List<Command> getSubCommands() {
-		return new ArrayList<>(this.registry.getSubCommands());
+		return List.copyOf(registry.getSubCommands());
 	}
 
 	/**
-	 * Get a copy of registered commands and sub-commands.
+	 * Get an unmodifiable copy of registered commands and sub-commands.
 	 *
 	 * @return list of the commands and sub-commands.
 	 */
@@ -224,13 +241,17 @@ public class CommandFramework extends CommandHandler {
 		final List<Command> commands = new ArrayList<>(registry.getCommands());
 		commands.addAll(registry.getSubCommands());
 
-		return commands;
+		return List.copyOf(commands);
 	}
 
     @NotNull
     @Contract(pure = true)
     public final Plugin getPlugin() {
         return plugin;
+    }
+
+    protected final void setCommandMap(CommandMap commandMap) {
+        this.registry.setCommandMap(commandMap);
     }
 
     public static CommandFramework getInstance() {

@@ -18,6 +18,7 @@
 
 package dev.despical.commandframework.internal;
 
+import com.google.common.reflect.ClassPath;
 import dev.despical.commandframework.CommandFramework;
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Completer;
@@ -35,18 +36,12 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -78,259 +73,327 @@ public final class CommandRegistry {
 	@NotNull
 	private final Map<Completer, Map.Entry<Method, Object>> commandCompletions, subCommandCompletions;
 
-	public CommandRegistry() {
-		this.commandMatcher = new CommandMatcher();
-		this.commands = new HashMap<>();
-		this.commandCompletions = new HashMap<>();
-		this.subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
-		this.subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
+    public CommandRegistry() {
+        this.commandMatcher = new CommandMatcher();
+        this.commands = new HashMap<>();
+        this.commandCompletions = new HashMap<>();
+        this.subCommands = new TreeMap<>(Comparator.comparing(Command::name).reversed());
+        this.subCommandCompletions = new TreeMap<>(Comparator.comparing(Completer::name).reversed());
 
-		final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+        final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
-		if (pluginManager instanceof SimplePluginManager manager) {
-			try {
-				final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-				field.setAccessible(true);
+        if (pluginManager instanceof SimplePluginManager manager) {
+            try {
+                final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
+                field.setAccessible(true);
 
-				this.commandMap = (CommandMap) field.get(manager);
-			} catch (ReflectiveOperationException exception) {
-				exception.printStackTrace();
-			}
-		}
-	}
+                this.commandMap = (CommandMap) field.get(manager);
+            } catch (ReflectiveOperationException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
 
-	/**
-	 * Sets the {@link CommandMap} for this instance.
-	 *
-	 * @param commandMap the {@link CommandMap} to be set. Must be non-null.
-	 */
-	public void setCommandMap(@NotNull CommandMap commandMap) {
-		this.commandMap = commandMap;
-	}
+    /**
+     * Sets the {@link CommandMap} for this instance.
+     *
+     * @param commandMap the {@link CommandMap} to be set. Must be non-null.
+     */
+    public void setCommandMap(@NotNull CommandMap commandMap) {
+        this.commandMap = commandMap;
+    }
 
-	/**
-	 * Registers commands from the specified instance's class.
-	 * <p>
-	 * This method scans the class of the provided instance and registers all commands
-	 * defined within that class. The class should contain methods annotated to be recognized
-	 * as commands.
-	 * </p>
-	 *
-	 * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
-	 */
-	public void registerCommands(@NotNull Object instance) {
-		CommandFramework commandFramework = CommandFramework.getInstance();
-		boolean notDebug = !commandFramework.options().isEnabled(FrameworkOption.DEBUG);
+    /**
+     * Registers commands from the specified instance's class.
+     * <p>
+     * This method scans the class of the provided instance and registers all commands
+     * defined within that class. The class should contain methods annotated to be recognized
+     * as commands.
+     * </p>
+     *
+     * @param instance the instance of the class from which commands will be registered. Must not be {@code null}.
+     */
+    public void registerCommands(@NotNull Object instance) {
+        CommandFramework commandFramework = CommandFramework.getInstance();
+        boolean notDebug = !commandFramework.options().isEnabled(FrameworkOption.DEBUG);
 
-		for (Method method : instance.getClass().getMethods()) {
-			if (notDebug && method.isAnnotationPresent(Debug.class)) {
-				continue;
-			}
+        for (Method method : instance.getClass().getMethods()) {
+            if (notDebug && method.isAnnotationPresent(Debug.class)) {
+                continue;
+            }
 
-			Command command = method.getAnnotation(Command.class);
+            Command command = method.getAnnotation(Command.class);
 
-			if (command != null) {
-				registerCommand(command, method, instance);
+            if (command != null) {
+                registerCommand(command, method, instance);
 
-				// Register all aliases as a plugin command. If it is a sub-command then register it as a sub-command.
-				Stream.of(command.aliases()).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
-			} else if (method.isAnnotationPresent(Completer.class)) {
-				if (!List.class.isAssignableFrom(method.getReturnType())) {
-					commandFramework.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
-					continue;
-				}
+                // Register all aliases as a plugin command. If it is a sub-command then register it as a sub-command.
+                Stream.of(command.aliases()).forEach(alias -> registerCommand(Utils.createCommand(command, alias), method, instance));
+            } else if (method.isAnnotationPresent(Completer.class)) {
+                if (!List.class.isAssignableFrom(method.getReturnType())) {
+                    commandFramework.getLogger().log(Level.WARNING, "Skipped registration of ''{0}'' because it is not returning java.util.List type.", method.getName());
+                    continue;
+                }
 
-				Completer completer = method.getAnnotation(Completer.class);
+                Completer completer = method.getAnnotation(Completer.class);
 
-				if (completer.name().contains(".")) {
-					subCommandCompletions.put(completer, Utils.mapEntry(method, instance));
-				} else {
-					commandCompletions.put(completer, Utils.mapEntry(method, instance));
-				}
-			}
-		}
+                if (completer.name().contains(".")) {
+                    subCommandCompletions.put(completer, Utils.mapEntry(method, instance));
+                } else {
+                    commandCompletions.put(completer, Utils.mapEntry(method, instance));
+                }
+            }
+        }
 
-		subCommands.forEach((key, value) -> {
-			String splitName = key.name().split("\\.")[0];
+        subCommands.forEach((key, value) -> {
+            String splitName = key.name().split("\\.")[0];
 
-			// Framework is going to work properly but this should not be handled that way.
-			if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
-				commandFramework.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", key.name());
+            // Framework is going to work properly but this should not be handled that way.
+            if (commands.keySet().stream().noneMatch(cmd -> cmd.name().equals(splitName))) {
+                commandFramework.getLogger().log(Level.WARNING, "A sub-command (name: ''{0}'') is directly registered without a main command.", key.name());
 
-				registerCommand(Utils.createCommand(key, splitName), null, null);
-			}
-		});
-	}
+                registerCommand(Utils.createCommand(key, splitName), null, null);
+            }
+        });
+    }
 
-	/**
-	 * This method registers a command along with its associated method and instance.
-	 * When the command is executed, the specified method will be invoked.
-	 *
-	 * @param command  the {@link Command} object representing the command to be registered.
-	 * @param method   the {@link Method} object representing the method to be invoked when the command is executed.
-	 * @param instance the instance of the class that contains the command method.
-	 */
-	public void registerCommand(Command command, Method method, Object instance) {
-		CommandFramework commandFramework = CommandFramework.getInstance();
-		String cmdName = command.name();
+    /**
+     * Scans all classes within the specified package, creates instances of them,
+     * and registers them as commands.
+     * <p>
+     * Note: Scanned classes must have a public no-args constructor.
+     * Interfaces and abstract classes are automatically skipped.
+     * </p>
+     *
+     * @param packageName The full path of the package to scan (e.g., "com.example.project.commands")
+     * @see #registerCommands(Object)
+     */
+    public void registerAllInPackage(@NotNull String packageName) {
+        CommandFramework framework = CommandFramework.getInstance();
+        Plugin plugin = framework.getPlugin();
 
-		if (cmdName.contains(".")) {
-			subCommands.put(command, Utils.mapEntry(method, instance));
-		} else {
-			commands.put(command, Utils.mapEntry(method, instance));
+        boolean issuedWarning = false;
 
-			try {
-				Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-				constructor.setAccessible(true);
+        try {
+            ClassPath cp = ClassPath.from(plugin.getClass().getClassLoader());
+
+            for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive(packageName)) {
+                Class<?> clazz = info.load();
+
+                if (!clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers())) {
+                    try {
+                        Object instance = clazz.getDeclaredConstructor().newInstance();
+
+                        this.registerCommands(instance);
+                    } catch (NoSuchMethodException exception) {
+                        if (framework.options().isEnabled(FrameworkOption.REPORT_SCAN_WARNINGS) && hasCommandAnnotations(clazz)) {
+                            plugin.getLogger().log(Level.WARNING,
+                                "Class ''{0}'' contains command annotations but is missing a public no-args constructor.",
+                                clazz.getSimpleName()
+                            );
+
+                            issuedWarning = true;
+                        }
+                    } catch (Exception exception) {
+                        plugin.getLogger().log(Level.SEVERE,
+                            "An unexpected error occurred while registering class ''{0}'': {1}",
+                            new Object[] { clazz.getSimpleName(), exception.getMessage() }
+                        );
+                    }
+                }
+            }
+
+            if (issuedWarning) {
+                plugin.getLogger().warning("If this behavior is intentional, you can disable these warnings by calling: " +
+                    "CommandFramework#options().disableOption(FrameworkOption.REPORT_SCAN_WARNINGS)");
+            }
+        } catch (IOException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Critical I/O error during package scanning: {0}", exception.getMessage());
+        }
+    }
+
+    /**
+     * Helper method to check if a class contains any methods annotated with {@code @Command} or {@code @Completer}.
+     */
+    private boolean hasCommandAnnotations(Class<?> clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(Command.class) || method.isAnnotationPresent(Completer.class)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * This method registers a command along with its associated method and instance.
+     * When the command is executed, the specified method will be invoked.
+     *
+     * @param command  the {@link Command} object representing the command to be registered.
+     * @param method   the {@link Method} object representing the method to be invoked when the command is executed.
+     * @param instance the instance of the class that contains the command method.
+     */
+    public void registerCommand(Command command, Method method, Object instance) {
+        CommandFramework commandFramework = CommandFramework.getInstance();
+        String cmdName = command.name();
+
+        if (cmdName.contains(".")) {
+            subCommands.put(command, Utils.mapEntry(method, instance));
+        } else {
+            commands.put(command, Utils.mapEntry(method, instance));
+
+            try {
+                Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+                constructor.setAccessible(true);
 
                 Plugin plugin = commandFramework.getPlugin();
-				PluginCommand pluginCommand = constructor.newInstance(cmdName, plugin);
-				pluginCommand.setExecutor(commandFramework);
-				pluginCommand.setUsage(command.usage());
-				pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
-				pluginCommand.setDescription(command.desc());
+                PluginCommand pluginCommand = constructor.newInstance(cmdName, plugin);
+                pluginCommand.setExecutor(commandFramework);
+                pluginCommand.setUsage(command.usage());
+                pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
+                pluginCommand.setDescription(command.desc());
 
-				String fallbackPrefix = command.fallbackPrefix().isEmpty() ? plugin.getName() : command.fallbackPrefix();
+                String fallbackPrefix = command.fallbackPrefix().isEmpty() ? plugin.getName() : command.fallbackPrefix();
 
-				commandMap.register(fallbackPrefix, pluginCommand);
-			} catch (Exception exception) {
-				Utils.handleExceptions(exception);
-			}
-		}
-	}
+                commandMap.register(fallbackPrefix, pluginCommand);
+            } catch (Exception exception) {
+                Utils.handleExceptions(exception);
+            }
+        }
+    }
 
-	/**
-	 * Unregisters a command and its associated tab completer if they are registered with the specified name.
-	 *
-	 * @param commandName the name of the command to be unregistered. Must not be {@code null} or empty.
-	 * @throws IllegalArgumentException if {@code commandName} is {@code null} or an empty string.
-	 */
-	public void unregisterCommand(@NotNull String commandName) {
-		if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
+    /**
+     * Unregisters a command and its associated tab completer if they are registered with the specified name.
+     *
+     * @param commandName the name of the command to be unregistered. Must not be {@code null} or empty.
+     * @throws IllegalArgumentException if {@code commandName} is {@code null} or an empty string.
+     */
+    public void unregisterCommand(@NotNull String commandName) {
+        if (commandName.contains(".")) commandName = commandName.split("\\.")[0];
 
-		Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
-		CommandFramework commandFramework = CommandFramework.getInstance();
+        Map.Entry<Command, Map.Entry<Method, Object>> entry = commandMatcher.getAssociatedCommand(commandName, new String[0]);
+        CommandFramework commandFramework = CommandFramework.getInstance();
 
-		if (entry == null) {
-			commandFramework.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
-			return;
-		}
+        if (entry == null) {
+            commandFramework.getLogger().log(Level.WARNING, "Command removal is failed because there is no command named ''{0}''!", commandName);
+            return;
+        }
 
-		Command command = entry.getKey();
-		String name = command.name();
+        Command command = entry.getKey();
+        String name = command.name();
 
         Plugin plugin = commandFramework.getPlugin();
-		PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
+        PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
 
-		Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
-			// Do not unregister if matched command is not registered from our instance plugin.
-			if (!pluginCommand.getPlugin().equals(plugin))
-				return;
+        Optional.ofNullable(pluginCommand).ifPresent(cmd -> {
+            // Do not unregister if matched command is not registered from our instance plugin.
+            if (!pluginCommand.getPlugin().equals(plugin))
+                return;
 
-			try {
-				cmd.unregister(commandMap);
+            try {
+                cmd.unregister(commandMap);
 
-				Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
-				field.setAccessible(true);
+                Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
+                field.setAccessible(true);
 
-				Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field.get(commandMap);
-				knownCommands.remove(name);
-			} catch (Exception exception) {
-				commandFramework.getLogger().log(Level.WARNING, "Something went wrong while trying to unregister command(name: {0}) from server!", name);
-			}
+                Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field.get(commandMap);
+                knownCommands.remove(name);
+            } catch (Exception exception) {
+                commandFramework.getLogger().log(Level.WARNING, "Something went wrong while trying to unregister command(name: {0}) from server!", name);
+            }
 
-			this.commands.remove(command);
-			this.subCommands.entrySet().removeIf(subEntry -> subEntry.getKey().name().startsWith(name));
-		});
-	}
+            this.commands.remove(command);
+            this.subCommands.entrySet().removeIf(subEntry -> subEntry.getKey().name().startsWith(name));
+        });
+    }
 
-	/**
-	 * Unregisters all commands and tab completers that were registered using the instance of this object.
-	 */
-	public void unregisterCommands() {
-		Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
+    /**
+     * Unregisters all commands and tab completers that were registered using the instance of this object.
+     */
+    public void unregisterCommands() {
+        Iterator<String> names = commands.keySet().stream().map(Command::name).iterator();
 
-		while (names.hasNext()) {
-			this.unregisterCommand(names.next());
-		}
-	}
+        while (names.hasNext()) {
+            this.unregisterCommand(names.next());
+        }
+    }
 
-	@NotNull
-	public Set<Command> getCommands() {
-		return this.commands.keySet();
-	}
+    @NotNull
+    public Set<Command> getCommands() {
+        return this.commands.keySet();
+    }
 
-	@NotNull
-	public Set<Command> getSubCommands() {
-		return this.subCommands.keySet();
-	}
+    @NotNull
+    public Set<Command> getSubCommands() {
+        return this.subCommands.keySet();
+    }
 
-	@NotNull
-	public CommandMatcher getCommandMatcher() {
-		return this.commandMatcher;
-	}
+    @NotNull
+    public CommandMatcher getCommandMatcher() {
+        return this.commandMatcher;
+    }
 
-	/**
-	 * A helper class that contains methods for matching commands and their corresponding tab completers.
-	 */
-	public final class CommandMatcher {
+    /**
+     * A helper class that contains methods for matching commands and their corresponding tab completers.
+     */
+    public final class CommandMatcher {
 
-		@Nullable
-		public Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
-			Command command = null;
+        @Nullable
+        public Map.Entry<Command, Map.Entry<Method, Object>> getAssociatedCommand(@NotNull String commandName, @NotNull String[] possibleArgs) {
+            Command command = null;
 
-			// Search for the sub commands first
-			for (Command cmd : subCommands.keySet()) {
-				final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
-				// Checking aliases...
-				if (name.equals(cmdName)) {
-					command = cmd;
-					break;
-				}
+            // Search for the sub commands first
+            for (Command cmd : subCommands.keySet()) {
+                final String name = cmd.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+                // Checking aliases...
+                if (name.equals(cmdName)) {
+                    command = cmd;
+                    break;
+                }
 
-				if (name.equalsIgnoreCase(cmdName)) {
-					command = cmd;
-					break;
-				}
-			}
+                if (name.equalsIgnoreCase(cmdName)) {
+                    command = cmd;
+                    break;
+                }
+            }
 
-			// If we found the sub command then return it, otherwise search the commands map
-			if (command != null) {
-				return Utils.mapEntry(command, subCommands.get(command));
-			}
+            // If we found the sub command then return it, otherwise search the commands map
+            if (command != null) {
+                return Utils.mapEntry(command, subCommands.get(command));
+            }
 
-			// If our command is not a sub command then search for a main command
-			for (Command cmd : commands.keySet()) {
-				final String name = cmd.name();
+            // If our command is not a sub command then search for a main command
+            for (Command cmd : commands.keySet()) {
+                final String name = cmd.name();
 
-				if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-					return Utils.mapEntry(cmd, commands.get(cmd));
-				}
-			}
+                if (name.equalsIgnoreCase(commandName) || Stream.of(cmd.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                    return Utils.mapEntry(cmd, commands.get(cmd));
+                }
+            }
 
-			// Return null if the given command is not registered by Command Framework
-			return null;
-		}
+            // Return null if the given command is not registered by Command Framework
+            return null;
+        }
 
-		@Nullable
-		public Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
-			for (Completer comp : subCommandCompletions.keySet()) {
-				final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
+        @Nullable
+        public Map.Entry<Completer, Map.Entry<Method, Object>> getAssociatedCompleter(@NotNull String commandName, @NotNull String[] possibleArgs) {
+            for (Completer comp : subCommandCompletions.keySet()) {
+                final String name = comp.name(), cmdName = commandName + (possibleArgs.length == 0 ? "" : "." + String.join(".", Arrays.copyOfRange(possibleArgs, 0, name.split("\\.").length - 1)));
 
-				if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(target -> target.equalsIgnoreCase(cmdName) || target.equalsIgnoreCase(commandName))) {
-					return Utils.mapEntry(comp, subCommandCompletions.get(comp));
-				}
-			}
+                if (name.equalsIgnoreCase(cmdName) || Stream.of(comp.aliases()).anyMatch(target -> target.equalsIgnoreCase(cmdName) || target.equalsIgnoreCase(commandName))) {
+                    return Utils.mapEntry(comp, subCommandCompletions.get(comp));
+                }
+            }
 
-			for (Completer comp : commandCompletions.keySet()) {
-				final String name = comp.name();
+            for (Completer comp : commandCompletions.keySet()) {
+                final String name = comp.name();
 
-				if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
-					return Utils.mapEntry(comp, commandCompletions.get(comp));
-				}
-			}
+                if (name.equalsIgnoreCase(commandName) || Stream.of(comp.aliases()).anyMatch(commandName::equalsIgnoreCase)) {
+                    return Utils.mapEntry(comp, commandCompletions.get(comp));
+                }
+            }
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 }
