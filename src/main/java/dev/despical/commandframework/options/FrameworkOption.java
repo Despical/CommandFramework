@@ -28,6 +28,7 @@ import dev.despical.commandframework.CommandArguments;
  * @see FrameworkOption#CUSTOM_COOLDOWN_CHECKER
  * @see FrameworkOption#CONFIRMATIONS
  * @see FrameworkOption#DEBUG
+ * @see FrameworkOption#REPORT_SCAN_WARNINGS
  */
 public enum FrameworkOption {
 
@@ -44,5 +45,14 @@ public enum FrameworkOption {
 	/**
 	 * This option enables the debug mode for this framework.
 	 */
-	DEBUG
+	DEBUG,
+
+    /**
+     * Specifies whether the framework should log warnings for potential issues found during
+     * automatic package scanning.
+     * <p>
+     * For example, if a class contains command annotations but lacks a public no-args
+     * constructor, it cannot be instantiated and registered.
+     */
+    REPORT_SCAN_WARNINGS,
 }
