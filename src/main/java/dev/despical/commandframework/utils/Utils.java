@@ -150,68 +150,37 @@ public final class Utils {
 		cause.printStackTrace();
 	}
 
-	public static Command createCommand(final Command command, final String commandName) {
-		return new Command() {
+    public static Command createDummy(final Command command, final String commandName) {
+        return new Command() {
+            public String name() { return commandName; }
+            public String fallbackPrefix() { return command.fallbackPrefix(); }
+            public String permission() { return command.permission(); }
+            public String[] aliases() { return new String[0]; }
+            public String desc() { return command.desc(); }
+            public String usage() { return command.usage(); }
+            public int min() { return command.min(); }
+            public int max() { return command.max(); }
+            public boolean onlyOp() { return command.onlyOp(); }
+            public boolean async() { return command.async(); }
+            public SenderType senderType() { return command.senderType(); }
+            public Class<? extends Annotation> annotationType() { return Command.class; }
+        };
+    }
 
-			@Override
-			public String name() {
-				return commandName;
-			}
-
-			@Override
-			public String fallbackPrefix() {
-				return command.fallbackPrefix();
-			}
-
-			@Override
-			public String permission() {
-				return command.permission();
-			}
-
-			@Override
-			public String[] aliases() {
-				return new String[0];
-			}
-
-			@Override
-			public String desc() {
-				return command.desc();
-			}
-
-			@Override
-			public String usage() {
-				return command.usage();
-			}
-
-			@Override
-			public int min() {
-				return command.min();
-			}
-
-			@Override
-			public int max() {
-				return command.max();
-			}
-
-			@Override
-			public boolean onlyOp() {
-				return command.onlyOp();
-			}
-
-			@Override
-			public boolean async() {
-				return command.async();
-			}
-
-			@Override
-			public SenderType senderType() {
-				return command.senderType();
-			}
-
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return command.annotationType();
-			}
-		};
-	}
+    public static Command createDummy(final String commandName) {
+        return new Command() {
+            public String name() { return commandName; }
+            public String fallbackPrefix() { return ""; }
+            public String permission() { return ""; }
+            public String[] aliases() { return new String[0]; }
+            public String desc() { return ""; }
+            public String usage() { return ""; }
+            public int min() { return 0; }
+            public int max() { return -1; }
+            public boolean onlyOp() { return false; }
+            public boolean async() { return false; }
+            public SenderType senderType() { return SenderType.BOTH; }
+            public Class<? extends Annotation> annotationType() { return Command.class; }
+        };
+    }
 }
