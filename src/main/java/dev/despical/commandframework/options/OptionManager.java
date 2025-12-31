@@ -37,9 +37,7 @@ import java.util.Set;
  */
 public final class OptionManager {
 
-    private final Set<FrameworkOption> frameworkOptions = EnumSet.of(
-        FrameworkOption.REPORT_SCAN_WARNINGS
-    );
+    private final Set<FrameworkOption> frameworkOptions = EnumSet.noneOf(FrameworkOption.class);
 
 	public void enableOption(FrameworkOption frameworkOption) {
 		this.frameworkOptions.add(frameworkOption);
