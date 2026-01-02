@@ -122,11 +122,17 @@ public final class CommandRegistry {
                     Object instance = clazz.getDeclaredConstructor().newInstance();
 
                     for (Method method : clazz.getDeclaredMethods()) {
-                        Command cmd = method.getAnnotation(Command.class);
-                        if (cmd != null) registerCommand(cmd, method, instance);
+                        Command command = method.getAnnotation(Command.class);
 
-                        Completer comp = method.getAnnotation(Completer.class);
-                        if (comp != null) registerCompleter(instance, method);
+                        if (command != null) {
+                            registerCommand(command, method, instance);
+                        }
+
+                        Completer completer = method.getAnnotation(Completer.class);
+
+                        if (completer != null) {
+                            registerCompleter(instance, method);
+                        }
                     }
                 } catch (Exception ignored) {}
             }
@@ -189,6 +195,10 @@ public final class CommandRegistry {
     }
 
     private void registerToBukkitSafely(Command command, String label) {
+        if (label.contains(".")) {
+            return;
+        }
+
         try {
             Plugin plugin = CommandFramework.getInstance().getPlugin();
             PluginCommand pc = PLUGIN_COMMAND_CONSTRUCTOR.newInstance(label, plugin);
@@ -200,8 +210,8 @@ public final class CommandRegistry {
 
             String prefix = command.fallbackPrefix().isEmpty() ? plugin.getName() : command.fallbackPrefix();
             commandMap.register(prefix, pc);
-        } catch (Exception e) {
-            CommandFramework.getInstance().getLogger().log(Level.SEVERE, "Command registration failed for: " + label, e);
+        } catch (Exception exception) {
+            CommandFramework.getInstance().getLogger().log(Level.SEVERE, "Command registration failed for: " + label, exception);
         }
     }
 
@@ -209,7 +219,15 @@ public final class CommandRegistry {
         if (!List.class.isAssignableFrom(method.getReturnType())) return;
 
         Completer completer = method.getAnnotation(Completer.class);
-        String[] parts = completer.name().toLowerCase(Locale.ENGLISH).split("\\.");
+        innerRegisterCompleter(completer.name(), completer, method, instance);
+
+        for (String alias : completer.aliases()) {
+            innerRegisterCompleter(alias, completer, method, instance);
+        }
+    }
+
+    private void innerRegisterCompleter(String name, Completer completer, Method method, Object instance) {
+        String[] parts = name.split("\\.");
         CommandNode<Completer> node = completionTree.computeIfAbsent(parts[0], k -> new CommandNode<>());
 
         for (int i = 1; i < parts.length; i++) {
@@ -219,13 +237,13 @@ public final class CommandRegistry {
         try {
             MethodHandle handle = MethodHandles.lookup().unreflect(method);
             node.setMember(new RegisteredMember<>(instance, method, handle, completer));
-        } catch (IllegalAccessException e) {
-            CommandFramework.getInstance().getLogger().log(Level.SEVERE, "Failed to register completer: " + completer.name(), e);
+        } catch (IllegalAccessException exception) {
+            CommandFramework.getInstance().getLogger().log(Level.SEVERE, "Failed to register completer: " + name, exception);
         }
     }
 
     public void unregisterCommand(@NotNull String commandName) {
-        String rootLabel = commandName.split("\\.")[0].toLowerCase(Locale.ENGLISH);
+        String rootLabel = commandName.split("\\.")[0];
 
         if (!commandTree.containsKey(rootLabel)) return;
 
