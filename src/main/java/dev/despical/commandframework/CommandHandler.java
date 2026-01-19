@@ -122,7 +122,8 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        boolean parseOptions = method.isAnnotationPresent(Option.class) || method.isAnnotationPresent(Flag.class);
+        boolean parseOptions = method.getAnnotationsByType(Option.class).length > 0 ||
+            method.getAnnotationsByType(Flag.class).length > 0;
 
         if (parseOptions) {
             OptionParser optionParser = new OptionParser(newArgs, method);
