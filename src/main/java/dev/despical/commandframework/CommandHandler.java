@@ -141,7 +141,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                commandFramework.getLogger().log(Level.SEVERE, "Error executing command: " + command.name(), throwable);
+                logErrorMessage(throwable, cmd.getLabel(), args, sender.getName());
             }
         };
 
@@ -189,9 +189,17 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
             return (List<String>) result;
         } catch (Throwable throwable) {
-            CommandFramework.getInstance().getLogger().log(Level.WARNING, "Error during tab completion", throwable);
+            logErrorMessage(throwable, cmd.getLabel(), args, sender.getName());
         }
 
         return null;
+    }
+
+    private void logErrorMessage(Throwable throwable, String label, String[] args, String senderName) {
+        CommandFramework.getInstance().getLogger().log(
+            Level.SEVERE,
+            throwable,
+            () -> "Error executing command: /%s %s (sender=%s)".formatted(label, String.join(" ", args), senderName)
+        );
     }
 }
