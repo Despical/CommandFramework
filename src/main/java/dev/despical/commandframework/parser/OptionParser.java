@@ -111,13 +111,17 @@ public final class OptionParser {
                 continue;
             }
 
+            if (argument.length() <= prefix.length()) {
+                continue;
+            }
+
             String foundFlag = argument.substring(prefix.length());
 
             for (String flagName : flag.value()) {
                 if (flagName.equals(foundFlag)) {
                     this.parsedFlags.add(flagName);
                     iterator.remove();
-                    return;
+                    break;
                 }
             }
         }
