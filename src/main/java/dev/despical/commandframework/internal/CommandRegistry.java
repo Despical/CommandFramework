@@ -88,16 +88,27 @@ public final class CommandRegistry {
 
     public void registerCommands(@NotNull Object instance) {
         var framework = CommandFramework.getInstance();
-        boolean notDebug = !framework.options().isEnabled(FrameworkOption.DEBUG);
+        boolean debugEnabled = framework.options().isEnabled(FrameworkOption.DEBUG);
 
-        for (Method method : instance.getClass().getMethods()) {
-            if (notDebug && method.isAnnotationPresent(Debug.class)) continue;
+        Class<?> clazz = instance.getClass();
+
+        if (!debugEnabled && clazz.isAnnotationPresent(Debug.class)) {
+            return;
+        }
+
+        for (Method method : clazz.getMethods()) {
+            if (!debugEnabled && method.isAnnotationPresent(Debug.class)) {
+                continue;
+            }
 
             Command command = method.getAnnotation(Command.class);
 
             if (command != null) {
                 this.registerCommand(command, method, instance);
-            } else if (method.isAnnotationPresent(Completer.class)) {
+                continue;
+            }
+
+            if (method.isAnnotationPresent(Completer.class)) {
                 this.registerCompleter(instance, method);
             }
         }
@@ -106,7 +117,9 @@ public final class CommandRegistry {
     }
 
     public void registerAllInPackage(@NotNull String packageName) {
-        Plugin plugin = CommandFramework.getInstance().getPlugin();
+        var framework = CommandFramework.getInstance();
+        boolean debugEnabled = framework.options().isEnabled(FrameworkOption.DEBUG);
+        Plugin plugin = framework.getPlugin();
 
         try {
             ClassPath cp = ClassPath.from(plugin.getClass().getClassLoader());
@@ -118,19 +131,26 @@ public final class CommandRegistry {
                     continue;
                 }
 
+                if (!debugEnabled && clazz.isAnnotationPresent(Debug.class)) {
+                    continue;
+                }
+
                 try {
                     Object instance = clazz.getDeclaredConstructor().newInstance();
 
                     for (Method method : clazz.getDeclaredMethods()) {
+                        if (!debugEnabled && method.isAnnotationPresent(Debug.class)) {
+                            continue;
+                        }
+
                         Command command = method.getAnnotation(Command.class);
 
                         if (command != null) {
                             registerCommand(command, method, instance);
+                            continue;
                         }
 
-                        Completer completer = method.getAnnotation(Completer.class);
-
-                        if (completer != null) {
+                        if (method.isAnnotationPresent(Completer.class)) {
                             registerCompleter(instance, method);
                         }
                     }
@@ -142,6 +162,7 @@ public final class CommandRegistry {
             plugin.getLogger().log(Level.SEVERE, "Package scanning failed", exception);
         }
     }
+
 
     public void registerCommand(Command command, Method method, Object instance) {
         innerRegister(command.name(), command, method, instance);
