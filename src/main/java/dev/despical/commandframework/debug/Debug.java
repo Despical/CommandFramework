@@ -32,7 +32,7 @@ import java.lang.annotation.*;
  * Created at 8.09.2024
  */
 @Documented
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Debug {
 }
