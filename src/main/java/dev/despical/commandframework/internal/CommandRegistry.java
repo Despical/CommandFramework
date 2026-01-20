@@ -163,7 +163,6 @@ public final class CommandRegistry {
         }
     }
 
-
     public void registerCommand(Command command, Method method, Object instance) {
         innerRegister(command.name(), command, method, instance);
 
