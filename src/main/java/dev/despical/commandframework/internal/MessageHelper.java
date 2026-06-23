@@ -20,7 +20,9 @@ package dev.despical.commandframework.internal;
 
 import dev.despical.commandframework.CommandArguments;
 import dev.despical.commandframework.annotations.Command;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,6 +36,9 @@ import java.util.function.Function;
  */
 @ApiStatus.Internal
 public class MessageHelper {
+
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer LEGACY_SECTION_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
         final String usage = command.usage();
@@ -50,7 +55,7 @@ public class MessageHelper {
      * Function to apply messages that will be sent using CommandArguments#sendMessage method.
      */
     @NotNull
-    private static Function<String, String> colorFormatter = (text) -> ChatColor.translateAlternateColorCodes('&', text);
+    private static Function<String, Component> messageFormatter = MINI_MESSAGE::deserialize;
 
     /**
      * For instance, can be used to translate Minecraft color and Hex color codes.
@@ -58,10 +63,18 @@ public class MessageHelper {
      * @param colorFormatter the function that will be applied to the strings to colorize
      */
     public static void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
-        MessageHelper.colorFormatter = colorFormatter;
+        MessageHelper.messageFormatter = text -> LEGACY_SECTION_SERIALIZER.deserialize(colorFormatter.apply(text));
+    }
+
+    public static void setMessageFormatter(@NotNull Function<String, Component> messageFormatter) {
+        MessageHelper.messageFormatter = messageFormatter;
+    }
+
+    public static Component formatMessage(@NotNull String string) {
+        return messageFormatter.apply(string);
     }
 
     public static String applyColorFormatter(@NotNull String string) {
-        return colorFormatter.apply(string);
+        return LEGACY_SECTION_SERIALIZER.serialize(formatMessage(string));
     }
 }

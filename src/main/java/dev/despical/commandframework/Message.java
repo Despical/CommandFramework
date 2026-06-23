@@ -20,6 +20,7 @@ package dev.despical.commandframework;
 
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.internal.MessageHelper;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,13 +34,13 @@ import java.util.function.Function;
  */
 public enum Message {
 
-	SHORT_ARG_SIZE("&cRequired argument length is less than needed!", true),
-	LONG_ARG_SIZE("&cRequired argument length greater than needed!", true),
-	ONLY_BY_PLAYERS("&cThis command is only executable by players!"),
-	ONLY_BY_CONSOLE("&cThis command is only executable by console!"),
-	NO_PERMISSION("&cYou don't have enough permission to execute this command!"),
-	MUST_HAVE_OP("&cYou must have OP to execute this command!"),
-	WAIT_BEFORE_USING_AGAIN("&cYou have to wait before using this command again!");
+	SHORT_ARG_SIZE("<red>Required argument length is less than needed!", true),
+	LONG_ARG_SIZE("<red>Required argument length greater than needed!", true),
+	ONLY_BY_PLAYERS("<red>This command is only executable by players!"),
+	ONLY_BY_CONSOLE("<red>This command is only executable by console!"),
+	NO_PERMISSION("<red>You don't have enough permission to execute this command!"),
+	MUST_HAVE_OP("<red>You must have OP to execute this command!"),
+	WAIT_BEFORE_USING_AGAIN("<red>You have to wait before using this command again!");
 
 	private BiFunction<Command, CommandArguments, Boolean> message;
 
@@ -65,6 +66,15 @@ public enum Message {
 	 */
 	public static void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
 		MessageHelper.setColorFormatter(colorFormatter);
+	}
+
+	/**
+	 * Sets a custom component formatter for framework messages.
+	 *
+	 * @param messageFormatter the function that converts raw strings to components
+	 */
+	public static void setMessageFormatter(@NotNull Function<String, Component> messageFormatter) {
+		MessageHelper.setMessageFormatter(messageFormatter);
 	}
 
 	/**

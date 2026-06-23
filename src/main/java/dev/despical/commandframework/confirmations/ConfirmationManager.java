@@ -77,7 +77,7 @@ public final class ConfirmationManager {
 
 		confirmations.put(sender, command, confirmation.timeUnit().toMillis(confirmation.expireAfter()));
 
-		sender.sendMessage(MessageHelper.applyColorFormatter(confirmation.message()));
+		sender.sendMessage(MessageHelper.formatMessage(confirmation.message()));
 		return true;
 	}
 }

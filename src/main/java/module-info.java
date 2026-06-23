@@ -11,6 +11,8 @@ module dev.despical.commandframework {
     requires java.logging;
     requires com.google.common;
     requires net.kyori.adventure;
+    requires net.kyori.adventure.text.minimessage;
+    requires net.kyori.adventure.text.serializer.legacy;
     requires net.kyori.examination.api;
     requires org.checkerframework.checker.qual;
 
