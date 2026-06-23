@@ -19,10 +19,12 @@
 package dev.despical.commandframework.internal;
 
 import com.google.common.reflect.ClassPath;
+import dev.despical.commandframework.CommandAttributes;
 import dev.despical.commandframework.CommandFramework;
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Completer;
 import dev.despical.commandframework.debug.Debug;
+import dev.despical.commandframework.exceptions.CommandException;
 import dev.despical.commandframework.options.FrameworkOption;
 import dev.despical.commandframework.utils.Utils;
 import org.bukkit.Bukkit;
@@ -44,6 +46,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -308,6 +311,69 @@ public final class CommandRegistry {
         new HashSet<>(commandTree.keySet()).forEach(this::unregisterCommand);
     }
 
+    public boolean updateCommandAttributes(
+        @NotNull String commandName,
+        @NotNull Consumer<CommandAttributes.Builder> updater
+    ) {
+        Objects.requireNonNull(updater, "updater");
+
+        CommandNode<Command> node = findCommandNode(normalizeCommandPath(commandName));
+
+        if (node == null || node.getMember() == null) {
+            return false;
+        }
+
+        CommandAttributes.Builder builder = CommandAttributes.builder(node.getMember().annotation());
+        updater.accept(builder);
+
+        return setCommandAttributes(commandName, builder.build());
+    }
+
+    public boolean setCommandAttributes(@NotNull String commandName, @NotNull CommandAttributes attributes) {
+        String currentName = normalizeCommandPath(commandName);
+        Objects.requireNonNull(attributes, "attributes");
+
+        CommandNode<Command> node = findCommandNode(currentName);
+
+        if (node == null || node.getMember() == null) {
+            return false;
+        }
+
+        RegisteredMember<Command> originalMember = node.getMember();
+        Command originalCommand = originalMember.annotation();
+        Command newCommand = attributes.toCommand();
+        String newName = newCommand.name();
+
+        ensureCommandPathAvailable(newName, currentName, originalMember);
+        ensureAliasesAvailable(newCommand, currentName, originalMember);
+        ensureBukkitRootAvailable(newName, currentName, originalMember);
+        ensureAliasBukkitRootsAvailable(newCommand, currentName, originalMember);
+
+        if (!currentName.equals(newName)) {
+            ensureCommandCanMove(currentName, newName, node);
+            ensureCompletionPathAvailable(currentName, newName);
+        }
+
+        removeAliases(originalCommand, originalMember);
+
+        if (!currentName.equals(newName)) {
+            detachCommandNode(currentName);
+            insertCommandNode(newName, node);
+            replaceCommandPrefix(node, currentName, newName);
+            moveCompletionNode(currentName, newName);
+        }
+
+        CommandNode<Command> updatedNode = findCommandNode(newName);
+        replaceCommand(updatedNode, newCommand);
+        ensureParentCommands(newName);
+        syncRootCommand(newName);
+
+        RegisteredMember<Command> updatedMember = updatedNode.getMember();
+        registerAliases(newCommand, updatedMember);
+
+        return true;
+    }
+
     @NotNull
     public Set<Command> getCommands() {
         return Set.copyOf(commandCache);
@@ -325,6 +391,370 @@ public final class CommandRegistry {
 
     public void setCommandMap(CommandMap commandMap) {
         this.commandMap = commandMap;
+    }
+
+    private void replaceCommandPrefix(CommandNode<Command> node, String oldPrefix, String newPrefix) {
+        RegisteredMember<Command> member = node.getMember();
+
+        if (member != null) {
+            Command command = member.annotation();
+            String commandName = command.name();
+
+            if (commandName.equals(oldPrefix) || commandName.startsWith(oldPrefix + ".")) {
+                Command renamedCommand = CommandAttributes.builder(command)
+                    .name(newPrefix + commandName.substring(oldPrefix.length()))
+                    .build()
+                    .toCommand();
+
+                replaceCommand(node, renamedCommand);
+            }
+        }
+
+        for (CommandNode<Command> child : node.getChildren().values()) {
+            replaceCommandPrefix(child, oldPrefix, newPrefix);
+        }
+    }
+
+    private void replaceCommand(CommandNode<Command> node, Command command) {
+        RegisteredMember<Command> member = node.getMember();
+
+        if (member != null) {
+            removeFromCaches(member.annotation());
+            node.setMember(member.withAnnotation(command));
+        } else {
+            node.setMember(RegisteredMember.dummyCommand(command));
+        }
+
+        addToCache(command);
+    }
+
+    private void registerAliases(Command command, RegisteredMember<Command> sourceMember) {
+        for (String alias : command.aliases()) {
+            Command aliasCommand = Utils.createDummy(command, alias);
+            CommandNode<Command> aliasNode = new CommandNode<>();
+            aliasNode.setMember(sourceMember.withAnnotation(aliasCommand));
+
+            insertCommandNode(alias, aliasNode);
+            addToCache(aliasCommand);
+            ensureParentCommands(alias);
+            syncRootCommand(alias);
+        }
+    }
+
+    private void removeAliases(Command command, RegisteredMember<Command> ownerMember) {
+        for (String alias : command.aliases()) {
+            CommandNode<Command> aliasNode = findCommandNode(alias);
+
+            if (aliasNode == null || !isSameRegisteredCommand(aliasNode.getMember(), ownerMember)) {
+                continue;
+            }
+
+            CommandNode<Command> removed = detachCommandNode(alias);
+
+            if (removed != null) {
+                removeNodeFromCaches(removed);
+            }
+        }
+    }
+
+    private void ensureAliasesAvailable(Command command, String currentName, RegisteredMember<Command> ownerMember) {
+        for (String alias : command.aliases()) {
+            ensureCommandPathAvailable(alias, currentName, ownerMember);
+        }
+    }
+
+    private void ensureAliasBukkitRootsAvailable(Command command, String currentName, RegisteredMember<Command> ownerMember) {
+        for (String alias : command.aliases()) {
+            ensureBukkitRootAvailable(alias, currentName, ownerMember);
+        }
+    }
+
+    private void ensureCommandPathAvailable(
+        String commandName,
+        String currentName,
+        RegisteredMember<Command> ownerMember
+    ) {
+        CommandNode<Command> existing = findCommandNode(commandName);
+
+        if (existing == null || commandName.equals(currentName) || isSameRegisteredCommand(existing.getMember(), ownerMember)) {
+            return;
+        }
+
+        throw new CommandException("Cannot update command ''{0}'' because the target name ''{1}'' is already registered!",
+            currentName, commandName);
+    }
+
+    private void ensureCommandCanMove(String currentName, String newName, CommandNode<Command> node) {
+        if (newName.startsWith(currentName + ".") && !node.getChildren().isEmpty()) {
+            throw new CommandException("Cannot move command ''{0}'' inside its own sub-command tree!", currentName);
+        }
+    }
+
+    private void ensureCompletionPathAvailable(String currentName, String newName) {
+        if (findNode(completionTree, currentName) == null || findNode(completionTree, newName) == null) {
+            return;
+        }
+
+        throw new CommandException("Cannot move completer from ''{0}'' to ''{1}'' because the target already exists!",
+            currentName, newName);
+    }
+
+    private void ensureBukkitRootAvailable(
+        String commandName,
+        String currentName,
+        RegisteredMember<Command> ownerMember
+    ) {
+        if (commandName.contains(".")) {
+            return;
+        }
+
+        PluginCommand pluginCommand = Bukkit.getPluginCommand(commandName);
+
+        if (pluginCommand == null) {
+            return;
+        }
+
+        CommandNode<Command> existing = findCommandNode(commandName);
+        boolean ownedByThisUpdate = commandName.equals(currentName) ||
+            (existing != null && isSameRegisteredCommand(existing.getMember(), ownerMember));
+
+        if (pluginCommand.getPlugin().equals(CommandFramework.getInstance().getPlugin()) && ownedByThisUpdate) {
+            return;
+        }
+
+        throw new CommandException("Cannot update command ''{0}'' because Bukkit command ''{1}'' is already registered!",
+            currentName, commandName);
+    }
+
+    private boolean isSameRegisteredCommand(RegisteredMember<Command> first, RegisteredMember<Command> second) {
+        return first != null && second != null &&
+            Objects.equals(first.instance(), second.instance()) &&
+            Objects.equals(first.method(), second.method());
+    }
+
+    private CommandNode<Command> findCommandNode(String commandName) {
+        return findNode(commandTree, commandName);
+    }
+
+    private <T extends Annotation> CommandNode<T> findNode(Map<String, CommandNode<T>> tree, String commandName) {
+        String[] parts = commandName.split("\\.");
+        CommandNode<T> node = tree.get(parts[0]);
+
+        for (int i = 1; node != null && i < parts.length; i++) {
+            node = node.getChildren().get(parts[i]);
+        }
+
+        return node;
+    }
+
+    private CommandNode<Command> detachCommandNode(String commandName) {
+        String[] parts = commandName.split("\\.");
+        CommandNode<Command> removed;
+
+        if (parts.length == 1) {
+            removed = commandTree.remove(parts[0]);
+            unregisterBukkitCommand(parts[0]);
+        } else {
+            CommandNode<Command> parent = findCommandNode(String.join(".", Arrays.copyOf(parts, parts.length - 1)));
+            removed = parent == null ? null : parent.getChildren().remove(parts[parts.length - 1]);
+        }
+
+        removeEmptyDummyParents(parts);
+        return removed;
+    }
+
+    private void insertCommandNode(String commandName, CommandNode<Command> node) {
+        String[] parts = commandName.split("\\.");
+
+        if (parts.length == 1) {
+            commandTree.put(parts[0], node);
+            return;
+        }
+
+        CommandNode<Command> parent = commandTree.computeIfAbsent(parts[0], key -> new CommandNode<>());
+
+        for (int i = 1; i < parts.length - 1; i++) {
+            parent = parent.getChildren().computeIfAbsent(parts[i], key -> new CommandNode<>());
+        }
+
+        parent.getChildren().put(parts[parts.length - 1], node);
+    }
+
+    private void ensureParentCommands(String commandName) {
+        String[] parts = commandName.split("\\.");
+
+        if (parts.length == 1) {
+            return;
+        }
+
+        StringBuilder path = new StringBuilder(parts[0]);
+        CommandNode<Command> node = commandTree.get(parts[0]);
+
+        for (int i = 0; i < parts.length - 1; i++) {
+            if (node.getMember() == null) {
+                Command dummy = Utils.createDummy(path.toString());
+                node.setMember(RegisteredMember.dummyCommand(dummy));
+                addToCache(dummy);
+
+                if (i == 0) {
+                    registerToBukkitSafely(dummy, path.toString());
+                }
+            }
+
+            if (i + 1 < parts.length - 1) {
+                path.append('.').append(parts[i + 1]);
+                node = node.getChildren().get(parts[i + 1]);
+            }
+        }
+    }
+
+    private void removeEmptyDummyParents(String[] removedParts) {
+        for (int i = removedParts.length - 1; i >= 1; i--) {
+            String parentName = String.join(".", Arrays.copyOf(removedParts, i));
+            CommandNode<Command> parent = findCommandNode(parentName);
+
+            if (parent == null || !parent.getChildren().isEmpty()) {
+                break;
+            }
+
+            RegisteredMember<Command> member = parent.getMember();
+
+            if (member != null && member.method() != null) {
+                break;
+            }
+
+            if (member != null) {
+                removeFromCaches(member.annotation());
+            }
+
+            detachCommandNode(parentName);
+        }
+    }
+
+    private void removeNodeFromCaches(CommandNode<Command> node) {
+        RegisteredMember<Command> member = node.getMember();
+
+        if (member != null) {
+            removeFromCaches(member.annotation());
+        }
+
+        for (CommandNode<Command> child : node.getChildren().values()) {
+            removeNodeFromCaches(child);
+        }
+    }
+
+    private void addToCache(Command command) {
+        if (command.name().contains(".")) {
+            subCommandCache.add(command);
+            return;
+        }
+
+        commandCache.add(command);
+    }
+
+    private void removeFromCaches(Command command) {
+        commandCache.remove(command);
+        subCommandCache.remove(command);
+    }
+
+    private void syncRootCommand(String commandName) {
+        if (commandName.contains(".")) {
+            return;
+        }
+
+        CommandNode<Command> node = findCommandNode(commandName);
+
+        if (node == null || node.getMember() == null) {
+            return;
+        }
+
+        PluginCommand pluginCommand = Bukkit.getPluginCommand(commandName);
+
+        if (pluginCommand == null) {
+            registerToBukkitSafely(node.getMember().annotation(), commandName);
+            return;
+        }
+
+        if (!pluginCommand.getPlugin().equals(CommandFramework.getInstance().getPlugin())) {
+            throw new CommandException("Cannot update Bukkit command ''{0}'' because it belongs to another plugin!",
+                commandName);
+        }
+
+        Command command = node.getMember().annotation();
+        pluginCommand.setUsage(command.usage());
+        pluginCommand.setPermission(command.permission().isEmpty() ? null : command.permission());
+        pluginCommand.setDescription(command.desc());
+    }
+
+    private void unregisterBukkitCommand(String label) {
+        try {
+            PluginCommand command = Bukkit.getPluginCommand(label);
+
+            if (command == null || !command.getPlugin().equals(CommandFramework.getInstance().getPlugin())) {
+                return;
+            }
+
+            command.unregister(commandMap);
+
+            var knownCommands = (Map<String, org.bukkit.command.Command>) KNOWN_COMMANDS_FIELD.get(commandMap);
+            knownCommands.remove(label);
+        } catch (Exception exception) {
+            CommandFramework.getInstance().getLogger().log(Level.SEVERE, "Error unregistering: " + label, exception);
+        }
+    }
+
+    private void moveCompletionNode(String currentName, String newName) {
+        CommandNode<Completer> completionNode = findNode(completionTree, currentName);
+
+        if (completionNode == null) {
+            return;
+        }
+
+        detachNode(completionTree, currentName);
+        insertNode(completionTree, newName, completionNode);
+    }
+
+    private <T extends Annotation> CommandNode<T> detachNode(Map<String, CommandNode<T>> tree, String commandName) {
+        String[] parts = commandName.split("\\.");
+
+        if (parts.length == 1) {
+            return tree.remove(parts[0]);
+        }
+
+        CommandNode<T> parent = findNode(tree, String.join(".", Arrays.copyOf(parts, parts.length - 1)));
+        return parent == null ? null : parent.getChildren().remove(parts[parts.length - 1]);
+    }
+
+    private <T extends Annotation> void insertNode(Map<String, CommandNode<T>> tree, String commandName, CommandNode<T> node) {
+        String[] parts = commandName.split("\\.");
+
+        if (parts.length == 1) {
+            tree.put(parts[0], node);
+            return;
+        }
+
+        CommandNode<T> parent = tree.computeIfAbsent(parts[0], key -> new CommandNode<>());
+
+        for (int i = 1; i < parts.length - 1; i++) {
+            parent = parent.getChildren().computeIfAbsent(parts[i], key -> new CommandNode<>());
+        }
+
+        parent.getChildren().put(parts[parts.length - 1], node);
+    }
+
+    private String normalizeCommandPath(String commandName) {
+        Objects.requireNonNull(commandName, "commandName");
+        String normalized = commandName.trim();
+
+        if (normalized.isEmpty()) {
+            throw new IllegalArgumentException("Command name cannot be empty.");
+        }
+
+        if (normalized.startsWith(".") || normalized.endsWith(".") || normalized.contains("..")) {
+            throw new IllegalArgumentException("Command name contains an empty path segment.");
+        }
+
+        return normalized;
     }
 
     public final class CommandMatcher {

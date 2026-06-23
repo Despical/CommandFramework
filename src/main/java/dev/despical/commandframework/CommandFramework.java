@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -135,6 +136,36 @@ public class CommandFramework extends CommandHandler {
 	public final void unregisterCommands() {
         this.registry.unregisterCommands();
 	}
+
+    /**
+     * Replaces the attributes of a command that was registered by this framework.
+     * <p>
+     * This method only looks inside Command Framework's own registry and does not
+     * mutate commands registered directly through Bukkit or another command system.
+     * </p>
+     *
+     * @param commandName the current registered command name, including sub-command path if needed
+     * @param attributes the new command attributes
+     * @return {@code true} if a framework command was found and updated, otherwise {@code false}
+     */
+    public final boolean setCommandAttributes(@NotNull String commandName, @NotNull CommandAttributes attributes) {
+        return this.registry.setCommandAttributes(commandName, attributes);
+    }
+
+    /**
+     * Updates the attributes of a command that was registered by this framework.
+     *
+     * @param commandName the current registered command name, including sub-command path if needed
+     * @param updater a consumer that mutates the attribute builder
+     * @return {@code true} if a framework command was found and updated, otherwise {@code false}
+     * @see #setCommandAttributes(String, CommandAttributes)
+     */
+    public final boolean updateCommandAttributes(
+        @NotNull String commandName,
+        @NotNull Consumer<CommandAttributes.Builder> updater
+    ) {
+        return this.registry.updateCommandAttributes(commandName, updater);
+    }
 
 	/**
 	 * Adds a custom parameter to the parameter handler.

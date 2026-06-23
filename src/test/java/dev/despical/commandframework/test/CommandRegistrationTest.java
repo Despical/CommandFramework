@@ -25,7 +25,10 @@ import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import dev.despical.commandframework.CommandArguments;
 import dev.despical.commandframework.CommandFramework;
 import dev.despical.commandframework.annotations.*;
+import dev.despical.commandframework.exceptions.CommandException;
 import dev.despical.commandframework.options.FrameworkOption;
+import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +39,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Command registration and usage test class.
@@ -67,7 +73,7 @@ class CommandRegistrationTest {
 	@BeforeEach
 	void setUp() {
 		server = MockBukkit.mock();
-		plugin = MockBukkit.createMockPlugin();
+		plugin = MockBukkit.createMockPlugin("CommandFramework");
 	}
 
 	/**
@@ -133,6 +139,68 @@ class CommandRegistrationTest {
 
 		player.performCommand("option --players=mrdespi,Despical");
 		player.assertSaid("Parsed Options: mrdespi, Despical");
+	}
+
+	@Test
+	void testRegisteredCommandAttributesCanBeUpdated() {
+		CommandFramework commandFramework = createCommandFramework();
+		PlayerMock player = server.addPlayer();
+		player.setOp(true);
+
+		assertTrue(commandFramework.updateCommandAttributes("example", attributes -> attributes
+			.desc("Updated description")
+			.usage("/updated-example")
+			.min(0)
+			.max(1)
+		));
+
+		PluginCommand bukkitCommand = Bukkit.getPluginCommand("example");
+		assertEquals("Updated description", bukkitCommand.getDescription());
+		assertEquals("/updated-example", bukkitCommand.getUsage());
+
+		player.performCommand("example");
+		player.assertSaid("This is how you can create a example command using framework.");
+
+		player.performCommand("example firstParam secondParam");
+		player.assertSaid("/updated-example");
+	}
+
+	@Test
+	void testRegisteredCommandCanBeRenamedWithoutTouchingOtherCommands() {
+		CommandFramework commandFramework = createCommandFramework();
+		PlayerMock player = server.addPlayer();
+		player.setOp(true);
+
+		assertTrue(commandFramework.updateCommandAttributes("example", attributes -> attributes
+			.name("renamed")
+			.usage("/renamed")
+			.min(0)
+		));
+
+		assertEquals("renamed", commandFramework.getCommands().stream()
+			.filter(command -> command.desc().equals("Sends an example message to sender"))
+			.filter(command -> command.aliases().length == 2)
+			.findFirst()
+			.orElseThrow()
+			.name());
+
+		assertFalse(commandFramework.updateCommandAttributes("minecraft:help", attributes -> attributes.usage("/nope")));
+
+		player.performCommand("renamed");
+		player.assertSaid("This is how you can create a example command using framework.");
+	}
+
+	@Test
+	void testCommandAttributeUpdateRejectsInvalidArgumentBounds() {
+		CommandFramework commandFramework = createCommandFramework();
+
+		assertThrows(IllegalArgumentException.class, () ->
+			commandFramework.updateCommandAttributes("example", attributes -> attributes.min(4).max(2))
+		);
+
+		assertThrows(CommandException.class, () ->
+			commandFramework.updateCommandAttributes("example", attributes -> attributes.name("cooldown"))
+		);
 	}
 
 	@AfterEach

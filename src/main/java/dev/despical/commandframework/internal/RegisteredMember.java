@@ -46,6 +46,10 @@ public record RegisteredMember<T extends Annotation>(
     @NotNull T annotation
 ) {
 
+    public RegisteredMember<T> withAnnotation(@NotNull T annotation) {
+        return new RegisteredMember<>(instance, method, handle, annotation);
+    }
+
     public static RegisteredMember<Command> dummyCommand(Command command) {
         return new RegisteredMember<>(null , null, null, command);
     }
