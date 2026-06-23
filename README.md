@@ -203,6 +203,3 @@ To build this project from source code, run the following from Git Bash:
 git clone https://www.github.com/Despical/CommandFramework && cd CommandFramework
 mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 ```
-
-> [!IMPORTANT]  
-> **[Maven](https://maven.apache.org/)** must be installed to build this project.
