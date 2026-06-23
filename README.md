@@ -4,7 +4,7 @@
 
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
 [![](https://img.shields.io/maven-central/v/dev.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/dev/despical/command-framework)
-[![](https://img.shields.io/badge/License-GPLv3-blue.svg)](../LICENSE)
+[![](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![](https://img.shields.io/badge/Javadoc-latest-blue.svg)](https://despical.github.io/CommandFramework)
 
 A lightweight, annotation-based command framework inspired by Bukkit’s event system. It eliminates the need to register commands in plugin.yml
@@ -178,12 +178,12 @@ I accept Pull Requests via GitHub. There are some guidelines which will make app
 + Do not increase the version numbers in any examples files and the README.md to the new version that this Pull Request would represent.
 + Create minimal diffs - disable on save actions like reformat source code or organize imports. If you feel the source code should be reformatted create a separate PR for this change.
 
-You can learn more about contributing via GitHub in [contribution guidelines](../CONTRIBUTING.md).
+You can learn more about contributing via GitHub in [contribution guidelines](CONTRIBUTING.md).
 
 ## License
 This code is under the [GPL-3.0 License](http://www.gnu.org/licenses/gpl-3.0.html).
 
-See the [LICENSE](../LICENSE) file for required notices and attributions.
+See the [LICENSE](LICENSE) file for required notices and attributions.
 
 ## Known issues
 * ~~Cooldowns are not working command based.~~
