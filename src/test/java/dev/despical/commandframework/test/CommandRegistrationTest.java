@@ -203,6 +203,17 @@ class CommandRegistrationTest {
 		);
 	}
 
+	@Test
+	void testDefaultCommandArgumentsCanBeOverridden() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+		commandFramework.setDefaultArguments(ExampleArguments.class);
+		commandFramework.registerCommands(new ArgumentsCommand());
+
+		PlayerMock player = server.addPlayer();
+		player.performCommand("arguments");
+		player.assertSaid("Custom arguments label: arguments");
+	}
+
 	@AfterEach
 	public void tearDown() {
 		MockBukkit.unmock();
@@ -295,6 +306,27 @@ class CommandRegistrationTest {
 		)
 		public List<String> exampleCommandCompletion() {
 			return List.of("first", "second", "third");
+		}
+	}
+
+	public static class ExampleArguments extends CommandArguments {
+
+		public ExampleArguments(CommandArguments arguments) {
+			super(arguments);
+		}
+
+		public String customLabel() {
+			return getLabel();
+		}
+	}
+
+	public static class ArgumentsCommand {
+
+		@Command(
+			name = "arguments"
+		)
+		public void argumentsCommand(ExampleArguments arguments) {
+			arguments.sendMessage("Custom arguments label: " + arguments.customLabel());
 		}
 	}
 }

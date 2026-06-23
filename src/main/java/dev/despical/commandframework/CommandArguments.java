@@ -72,6 +72,28 @@ public class CommandArguments {
     }
 
     /**
+     * Creates a copy of the provided command arguments.
+     * <p>
+     * Subclasses can expose this constructor to be used with
+     * {@link CommandFramework#setDefaultArguments(java.util.function.Function)}.
+     * </p>
+     *
+     * @param arguments the command arguments to copy
+     */
+    public CommandArguments(@NotNull CommandArguments arguments) {
+        this(
+            arguments.commandSender,
+            arguments.bukkitCommand,
+            arguments.command,
+            arguments.label,
+            arguments.arguments
+        );
+
+        this.parsedFlags = arguments.parsedFlags;
+        this.parsedOptions = arguments.parsedOptions;
+    }
+
+    /**
      * Do not try to cast objects except subclasses of {@link CommandSender}
      * otherwise {@link ClassCastException} will occur. Also casting for {@link Player}
      * or {@link ConsoleCommandSender} isn't needed.

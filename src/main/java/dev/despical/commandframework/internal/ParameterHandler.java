@@ -71,6 +71,13 @@ public final class ParameterHandler {
             Class<?> paramType = param.getType();
 
             if (CommandArguments.class.isAssignableFrom(paramType)) {
+                if (!paramType.isInstance(commandArguments)) {
+                    throw new CommandException(
+                        "Command argument parameter type ''{0}'' in method ''{1}'' cannot be provided by default arguments type ''{2}''. Use CommandFramework#setDefaultArguments to configure it.",
+                        paramType.getSimpleName(), method.getName(), commandArguments.getClass().getSimpleName()
+                    );
+                }
+
                 methodParameters[i] = commandArguments;
                 continue;
             }

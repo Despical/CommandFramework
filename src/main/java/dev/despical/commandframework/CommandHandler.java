@@ -36,9 +36,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -58,6 +61,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
     protected final CommandRegistry registry;
     protected final ParameterHandler parameterHandler;
+    private Function<CommandArguments, ? extends CommandArguments> argumentsFactory = Function.identity();
 
     public CommandHandler() {
         this.registry = FrameworkContext.getInstance().getRegistry();
@@ -77,7 +81,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
 
         String[] nameParts = command.name().split("\\.");
         String[] newArgs = Arrays.copyOfRange(args, nameParts.length - 1, args.length);
-        CommandArguments arguments = new CommandArguments(sender, cmd, command, label, newArgs);
+        CommandArguments arguments = createArguments(sender, cmd, command, label, newArgs);
 
         if (command.onlyOp() && !sender.isOp()) {
             arguments.sendMessage(Message.MUST_HAVE_OP);
@@ -182,7 +186,7 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
             String[] nameParts = completer.name().split("\\.");
             String[] newArgs = Arrays.copyOfRange(args, nameParts.length - 1, args.length);
 
-            CommandArguments arguments = new CommandArguments(sender, cmd, null, label, newArgs);
+            CommandArguments arguments = createArguments(sender, cmd, null, label, newArgs);
             Object[] params = parameterHandler.getParameterArray(member.method(), arguments);
             params = combine(member.instance(), params);
 
@@ -194,6 +198,82 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
         }
 
         return null;
+    }
+
+    protected final void configureDefaultArguments(@NotNull Function<CommandArguments, ? extends CommandArguments> argumentsFactory) {
+        this.argumentsFactory = Objects.requireNonNull(argumentsFactory, "argumentsFactory");
+    }
+
+    protected final <T extends CommandArguments> void configureDefaultArguments(@NotNull Class<T> argumentsClass) {
+        Objects.requireNonNull(argumentsClass, "argumentsClass");
+
+        this.argumentsFactory = createReflectiveArgumentsFactory(argumentsClass);
+    }
+
+    private CommandArguments createArguments(
+        CommandSender sender,
+        org.bukkit.command.Command command,
+        Command commandAnnotation,
+        String label,
+        String[] arguments
+    ) {
+        CommandArguments commandArguments = new CommandArguments(sender, command, commandAnnotation, label, arguments);
+        CommandArguments result = argumentsFactory.apply(commandArguments);
+
+        if (result == null) {
+            throw new IllegalStateException("Default command arguments factory returned null.");
+        }
+
+        return result;
+    }
+
+    private <T extends CommandArguments> Function<CommandArguments, T> createReflectiveArgumentsFactory(Class<T> argumentsClass) {
+        try {
+            Constructor<T> constructor = argumentsClass.getDeclaredConstructor(CommandArguments.class);
+            constructor.setAccessible(true);
+
+            return arguments -> {
+                try {
+                    return constructor.newInstance(arguments);
+                } catch (Exception exception) {
+                    throw new IllegalStateException("Could not create command arguments instance: " + argumentsClass.getName(), exception);
+                }
+            };
+        } catch (NoSuchMethodException ignored) {
+            return createFullConstructorArgumentsFactory(argumentsClass);
+        }
+    }
+
+    private <T extends CommandArguments> Function<CommandArguments, T> createFullConstructorArgumentsFactory(Class<T> argumentsClass) {
+        try {
+            Constructor<T> constructor = argumentsClass.getDeclaredConstructor(
+                CommandSender.class,
+                org.bukkit.command.Command.class,
+                Command.class,
+                String.class,
+                String[].class
+            );
+            constructor.setAccessible(true);
+
+            return arguments -> {
+                try {
+                    return constructor.newInstance(
+                        arguments.getSender(),
+                        arguments.getBukkitCommand(),
+                        arguments.getCommand(),
+                        arguments.getLabel(),
+                        arguments.getArguments()
+                    );
+                } catch (Exception exception) {
+                    throw new IllegalStateException("Could not create command arguments instance: " + argumentsClass.getName(), exception);
+                }
+            };
+        } catch (NoSuchMethodException exception) {
+            throw new IllegalArgumentException(
+                "Default command arguments class must declare either a CommandArguments copy constructor or the full CommandArguments constructor.",
+                exception
+            );
+        }
     }
 
     private void logErrorMessage(Throwable throwable, String label, String[] args, String senderName) {

@@ -207,6 +207,32 @@ public class CommandFramework extends CommandHandler {
         this.parameterHandler.addCustomParameter(clazz, function);
     }
 
+    /**
+     * Sets the default command arguments class that will be created for each command execution and completion.
+     * <p>
+     * The class must declare either a {@link CommandArguments#CommandArguments(CommandArguments)} copy constructor
+     * or the full {@link CommandArguments} constructor signature.
+     * </p>
+     *
+     * @param argumentsClass the command arguments subclass to instantiate
+     * @param <T> the command arguments type
+     */
+    public final <T extends CommandArguments> void setDefaultArguments(@NotNull Class<T> argumentsClass) {
+        super.configureDefaultArguments(argumentsClass);
+    }
+
+    /**
+     * Sets the default command arguments factory that will be used for each command execution and completion.
+     *
+     * @param argumentsFactory the function that converts base command arguments to the desired arguments type
+     * @param <T> the command arguments type
+     */
+    public final <T extends CommandArguments> void setDefaultArguments(
+        @NotNull Function<CommandArguments, T> argumentsFactory
+    ) {
+        super.configureDefaultArguments(argumentsFactory);
+    }
+
 	/**
 	 * Returns the logger instance of Command Framework. By default, logger is {@link #plugin}'s logger.
 	 *
