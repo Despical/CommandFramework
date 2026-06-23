@@ -49,10 +49,10 @@ public final class CommandAttributes {
     private final Command.SenderType senderType;
 
     private CommandAttributes(Builder builder) {
-        this.name = normalizeCommandName(builder.name, "name");
+        this.name = CommandNameValidator.normalizeName(builder.name, "name");
         this.fallbackPrefix = Objects.requireNonNull(builder.fallbackPrefix, "fallbackPrefix");
         this.permission = Objects.requireNonNull(builder.permission, "permission");
-        this.aliases = normalizeAliases(builder.aliases, this.name);
+        this.aliases = CommandNameValidator.normalizeAliases(builder.aliases, this.name);
         this.desc = Objects.requireNonNull(builder.desc, "desc");
         this.usage = Objects.requireNonNull(builder.usage, "usage");
         this.min = builder.min;
@@ -159,14 +159,6 @@ public final class CommandAttributes {
             public SenderType senderType() { return senderType; }
             public Class<? extends Annotation> annotationType() { return Command.class; }
         };
-    }
-
-    private static String normalizeCommandName(String value, String fieldName) {
-        return CommandNameValidator.normalizeName(value, fieldName);
-    }
-
-    private static String[] normalizeAliases(String[] aliases, String commandName) {
-        return CommandNameValidator.normalizeAliases(aliases, commandName);
     }
 
     /**
