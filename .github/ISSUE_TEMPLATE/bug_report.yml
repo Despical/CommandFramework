@@ -1,0 +1,67 @@
+name: Bug Report
+description: "Found a glitch or unexpected behavior? Help us squash it by providing a detailed report."
+title: "[BUG] "
+labels: ["bug"]
+assignees:
+  - Despical
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report. Please provide as much detail as possible.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Run command /...
+        2. Click on ...
+        3. See error ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of the plugin are you running?
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Server Software
+      description: Where did this occur? (Select multiple if applicable)
+      multiple: true
+      options:
+        - Spigot
+        - Paper
+        - Purpur
+        - Velocity
+        - Folia
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output.
+      render: log
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation
+      description: Check these before submitting.
+      options:
+        - label: I have checked for existing issues regarding this bug.
+          required: true

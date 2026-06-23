@@ -21,10 +21,10 @@ jobs:
           cache: maven
 
       - name: Build
-        run: mvn -B compile --file pom.xml
+        run: ./mvnw -B compile --file pom.xml
 
       - name: Run Tests
-        run: mvn -B test --file pom.xml
+        run: ./mvnw -B test --file pom.xml
 
       - name: Deploy Javadoc to GitHub Pages
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
