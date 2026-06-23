@@ -1,5 +1,5 @@
 name: Feature Request
-description: "Got an idea to make this plugin better? Share your feature requests and help us shape its future!"
+description: "Suggest a new API, behavior, or improvement for Command Framework."
 title: "[FEATURE] "
 labels: ["enhancement"]
 assignees:
@@ -8,28 +8,51 @@ body:
   - type: markdown
     attributes:
       value: |
-        Got a great idea? We'd love to hear it!
+        Feature requests are easiest to evaluate when they include a real Command Framework use case.
   - type: textarea
     id: problem
     attributes:
-      label: Is your feature request related to a problem?
-      description: A clear and concise description of what the problem is.
-      placeholder: I'm always frustrated when [...]
+      label: Problem or limitation
+      description: What is currently difficult, missing, or awkward in Command Framework?
+      placeholder: I cannot easily customize..., register..., parse..., or inject...
     validations:
-      required: false
+      required: true
   - type: textarea
     id: solution
     attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you want to happen.
+      label: Proposed solution
+      description: Describe the API, behavior, or workflow you would like to see.
+      placeholder: Add a new API such as `framework.someMethod(...)` or change how an existing feature behaves.
     validations:
       required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage
+      description: Show how the feature would look in a command class or registration flow.
+      render: java
+      placeholder: |
+        framework.someMethod(...);
+        
+        @Command(name = "example")
+        public void example(CommandArguments arguments) {
+        }
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds
+      description: Describe any current workaround or why existing APIs are not enough.
+      placeholder: I currently work around this by...
+    validations:
+      required: false
   - type: textarea
     id: context
     attributes:
       label: Additional context
-      description: Add any other context or screenshots about the feature request here.
-      render: shell
+      description: Add any extra details, compatibility notes, or references here.
+      render: text
   - type: checkboxes
     id: terms
     attributes:
