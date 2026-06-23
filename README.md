@@ -116,10 +116,12 @@ public class ExampleClass extends JavaPlugin {
     // Otherwise, the given argument will be converted to specified type, in this case an int.
     // If parameter is not annotated by @Default then command will throw an exception on execution.
     // See the wiki page for creating custom parameters using @Param and @Default annotations.
-    public void customParamsCommand(CommandArguments arguments,
-                                    @Param("secondAsInt")
-                                    @Default("50")
-                                    int secondArg) {
+    public void customParamsCommand(
+        CommandArguments arguments,
+        @Param("secondAsInt")
+        @Default("50")
+        int secondArg
+    ) {
         arguments.sendMessage("Second argument as integer is " + secondArg);
     }
 
