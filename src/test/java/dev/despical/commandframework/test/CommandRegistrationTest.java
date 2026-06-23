@@ -214,6 +214,14 @@ class CommandRegistrationTest {
 		player.assertSaid("Custom arguments label: arguments");
 	}
 
+	@Test
+	void testInvalidCommandMetadataIsRejectedDuringRegistration() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+
+		assertThrows(CommandException.class, () -> commandFramework.registerCommands(new InvalidCommandMetadata()));
+		assertThrows(CommandException.class, () -> commandFramework.registerCommands(new InvalidCompleterMetadata()));
+	}
+
 	@AfterEach
 	public void tearDown() {
 		MockBukkit.unmock();
@@ -327,6 +335,26 @@ class CommandRegistrationTest {
 		)
 		public void argumentsCommand(ExampleArguments arguments) {
 			arguments.sendMessage("Custom arguments label: " + arguments.customLabel());
+		}
+	}
+
+	public static class InvalidCommandMetadata {
+
+		@Command(
+			name = "arena..create"
+		)
+		public void invalidCommand(CommandArguments arguments) {
+			arguments.sendMessage("invalid");
+		}
+	}
+
+	public static class InvalidCompleterMetadata {
+
+		@Completer(
+			name = ".arena"
+		)
+		public List<String> invalidCompleter() {
+			return List.of("invalid");
 		}
 	}
 }

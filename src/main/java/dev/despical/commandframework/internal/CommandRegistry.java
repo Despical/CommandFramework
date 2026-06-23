@@ -26,6 +26,7 @@ import dev.despical.commandframework.annotations.Completer;
 import dev.despical.commandframework.debug.Debug;
 import dev.despical.commandframework.exceptions.CommandException;
 import dev.despical.commandframework.options.FrameworkOption;
+import dev.despical.commandframework.utils.CommandNameValidator;
 import dev.despical.commandframework.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -167,6 +168,8 @@ public final class CommandRegistry {
     }
 
     public void registerCommand(Command command, Method method, Object instance) {
+        validateCommandMetadata(command, method);
+
         innerRegister(command.name(), command, method, instance);
 
         for (String alias : command.aliases()) {
@@ -242,6 +245,7 @@ public final class CommandRegistry {
         if (!List.class.isAssignableFrom(method.getReturnType())) return;
 
         Completer completer = method.getAnnotation(Completer.class);
+        validateCompleterMetadata(completer, method);
         innerRegisterCompleter(completer.name(), completer, method, instance);
 
         for (String alias : completer.aliases()) {
@@ -412,6 +416,30 @@ public final class CommandRegistry {
 
         for (CommandNode<Command> child : node.getChildren().values()) {
             replaceCommandPrefix(child, oldPrefix, newPrefix);
+        }
+    }
+
+    private void validateCommandMetadata(Command command, Method method) {
+        try {
+            String normalizedName = CommandNameValidator.normalizeName(command.name(), "name");
+            CommandNameValidator.normalizeAliases(command.aliases(), normalizedName);
+        } catch (IllegalArgumentException exception) {
+            throw new CommandException(
+                "Invalid @Command metadata in method ''{0}#{1}'': {2}",
+                method.getDeclaringClass().getSimpleName(), method.getName(), exception.getMessage()
+            );
+        }
+    }
+
+    private void validateCompleterMetadata(Completer completer, Method method) {
+        try {
+            String normalizedName = CommandNameValidator.normalizeName(completer.name(), "name");
+            CommandNameValidator.normalizeAliases(completer.aliases(), normalizedName);
+        } catch (IllegalArgumentException exception) {
+            throw new CommandException(
+                "Invalid @Completer metadata in method ''{0}#{1}'': {2}",
+                method.getDeclaringClass().getSimpleName(), method.getName(), exception.getMessage()
+            );
         }
     }
 

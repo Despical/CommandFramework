@@ -18,6 +18,9 @@
 
 package dev.despical.commandframework.annotations;
 
+import dev.despical.commandframework.utils.CommandNameValidator;
+import org.intellij.lang.annotations.Pattern;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -42,6 +45,7 @@ public @interface Command {
 	 *
 	 * @return name of the command or subcommand
 	 */
+    @Pattern(CommandNameValidator.NAME_REGEX)
 	String name();
 
 	/**

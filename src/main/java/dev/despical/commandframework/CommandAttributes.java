@@ -19,12 +19,12 @@
 package dev.despical.commandframework;
 
 import dev.despical.commandframework.annotations.Command;
+import dev.despical.commandframework.utils.CommandNameValidator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 
 /**
@@ -162,35 +162,11 @@ public final class CommandAttributes {
     }
 
     private static String normalizeCommandName(String value, String fieldName) {
-        String commandName = Objects.requireNonNull(value, fieldName).trim();
-
-        if (commandName.isEmpty()) {
-            throw new IllegalArgumentException("Command " + fieldName + " cannot be empty.");
-        }
-
-        if (commandName.startsWith(".") || commandName.endsWith(".") || commandName.contains("..")) {
-            throw new IllegalArgumentException("Command " + fieldName + " contains an empty path segment.");
-        }
-
-        return commandName;
+        return CommandNameValidator.normalizeName(value, fieldName);
     }
 
     private static String[] normalizeAliases(String[] aliases, String commandName) {
-        Objects.requireNonNull(aliases, "aliases");
-
-        LinkedHashSet<String> normalized = new LinkedHashSet<>();
-
-        for (String alias : aliases) {
-            String normalizedAlias = normalizeCommandName(alias, "alias");
-
-            if (normalizedAlias.equalsIgnoreCase(commandName)) {
-                throw new IllegalArgumentException("Command alias cannot be equal to the command name.");
-            }
-
-            normalized.add(normalizedAlias);
-        }
-
-        return normalized.toArray(String[]::new);
+        return CommandNameValidator.normalizeAliases(aliases, commandName);
     }
 
     /**
