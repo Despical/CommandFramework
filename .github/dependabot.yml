@@ -10,6 +10,10 @@ updates:
         patterns:
           - "*"
     ignore:
+      - dependency-name: "io.papermc.paper:paper-api"
+      - dependency-name: "org.junit.jupiter:junit-jupiter-api"
+      - dependency-name: "com.github.seeseemelk:MockBukkit-v1.20"
+      - dependency-name: "commons-codec:commons-codec"
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
