@@ -22,10 +22,11 @@ import dev.despical.commandframework.CommandArguments;
 import dev.despical.commandframework.annotations.Command;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -38,7 +39,6 @@ import java.util.function.Function;
 public class MessageHelper {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-    private static final LegacyComponentSerializer LEGACY_SECTION_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public static final BiFunction<Command, CommandArguments, Boolean> SEND_USAGE = (command, arguments) -> {
         final String usage = command.usage();
@@ -57,24 +57,33 @@ public class MessageHelper {
     @NotNull
     private static Function<String, Component> messageFormatter = MINI_MESSAGE::deserialize;
 
-    /**
-     * For instance, can be used to translate Minecraft color and Hex color codes.
-     *
-     * @param colorFormatter the function that will be applied to the strings to colorize
-     */
-    public static void setColorFormatter(@NotNull Function<String, String> colorFormatter) {
-        MessageHelper.messageFormatter = text -> LEGACY_SECTION_SERIALIZER.deserialize(colorFormatter.apply(text));
-    }
-
     public static void setMessageFormatter(@NotNull Function<String, Component> messageFormatter) {
         MessageHelper.messageFormatter = messageFormatter;
     }
 
-    public static Component formatMessage(@NotNull String string) {
-        return messageFormatter.apply(string);
+    @NotNull
+    public static String getCommandPath(@NotNull Command command, @NotNull CommandArguments arguments) {
+        String[] parts = command.name().split("\\.");
+
+        if (parts.length == 1) {
+            return arguments.getLabel();
+        }
+
+        return arguments.getLabel() + " " + String.join(" ", Arrays.copyOfRange(parts, 1, parts.length));
     }
 
-    public static String applyColorFormatter(@NotNull String string) {
-        return LEGACY_SECTION_SERIALIZER.serialize(formatMessage(string));
+    @NotNull
+    public static List<Command> getDirectSubcommands(@NotNull Command command) {
+        return FrameworkContext.getInstance().getRegistry().getDirectChildCommands(command.name());
+    }
+
+    @NotNull
+    public static String getSubcommandName(@NotNull Command command) {
+        String[] parts = command.name().split("\\.");
+        return parts[parts.length - 1];
+    }
+
+    public static Component formatMessage(@NotNull String string) {
+        return messageFormatter.apply(string);
     }
 }

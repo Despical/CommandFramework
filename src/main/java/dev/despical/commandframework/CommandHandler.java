@@ -72,43 +72,47 @@ abstract class CommandHandler implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command cmd, @NotNull String label, String[] args) {
         var member = registry.getCommandMatcher().getMatch(cmd.getName(), args);
 
-        if (member == null || member.method() == null) {
+        if (member == null) {
             return false;
         }
 
         Command command = member.annotation();
-        String permission = command.permission();
-
         String[] nameParts = command.name().split("\\.");
         String[] newArgs = Arrays.copyOfRange(args, nameParts.length - 1, args.length);
         CommandArguments arguments = createArguments(sender, cmd, command, label, newArgs);
 
+        if (member.method() == null) {
+            return arguments.sendMessage(CommandErrorMessage.UNKNOWN_SUBCOMMAND);
+        }
+
+        String permission = command.permission();
+
         if (command.onlyOp() && !sender.isOp()) {
-            arguments.sendMessage(Message.MUST_HAVE_OP);
+            arguments.sendMessage(CommandErrorMessage.MUST_HAVE_OP);
             return true;
         }
 
         if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            arguments.sendMessage(Message.NO_PERMISSION);
+            arguments.sendMessage(CommandErrorMessage.NO_PERMISSION);
             return true;
         }
 
         if (command.senderType() == Command.SenderType.PLAYER && !(sender instanceof Player)) {
-            arguments.sendMessage(Message.ONLY_BY_PLAYERS);
+            arguments.sendMessage(CommandErrorMessage.ONLY_BY_PLAYERS);
             return true;
         }
 
         if (command.senderType() == Command.SenderType.CONSOLE && sender instanceof Player) {
-            arguments.sendMessage(Message.ONLY_BY_CONSOLE);
+            arguments.sendMessage(CommandErrorMessage.ONLY_BY_CONSOLE);
             return true;
         }
 
         if (newArgs.length < command.min()) {
-            return arguments.sendMessage(Message.SHORT_ARG_SIZE);
+            return arguments.sendMessage(CommandErrorMessage.SHORT_ARG_SIZE);
         }
 
         if (command.max() != -1 && newArgs.length > command.max()) {
-            return arguments.sendMessage(Message.LONG_ARG_SIZE);
+            return arguments.sendMessage(CommandErrorMessage.LONG_ARG_SIZE);
         }
 
         CommandFramework commandFramework = CommandFramework.getInstance();

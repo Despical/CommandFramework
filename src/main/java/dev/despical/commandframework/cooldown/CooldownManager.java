@@ -20,7 +20,7 @@ package dev.despical.commandframework.cooldown;
 
 import dev.despical.commandframework.CommandArguments;
 import dev.despical.commandframework.CommandFramework;
-import dev.despical.commandframework.Message;
+import dev.despical.commandframework.CommandErrorMessage;
 import dev.despical.commandframework.annotations.Command;
 import dev.despical.commandframework.annotations.Completer;
 import dev.despical.commandframework.annotations.Cooldown;
@@ -110,7 +110,7 @@ public final class CooldownManager {
 		final int timeBetween = (int) (cooldownInSeconds - remainingSeconds);
 
 		if (timeBetween > 0) {
-			arguments.sendMessage(Message.WAIT_BEFORE_USING_AGAIN);
+			arguments.sendMessage(CommandErrorMessage.WAIT_BEFORE_USING_AGAIN);
 			return this.handleCooldowns();
 		} else {
 			cooldownMap.put(command, System.currentTimeMillis());

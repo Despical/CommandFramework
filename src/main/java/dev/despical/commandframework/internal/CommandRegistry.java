@@ -315,6 +315,23 @@ public final class CommandRegistry {
         new HashSet<>(commandTree.keySet()).forEach(this::unregisterCommand);
     }
 
+    @NotNull
+    public List<Command> getDirectChildCommands(@NotNull String commandName) {
+        CommandNode<Command> node = findCommandNode(normalizeCommandPath(commandName));
+
+        if (node == null || node.getChildren().isEmpty()) {
+            return List.of();
+        }
+
+        return node.getChildren().entrySet().stream()
+            .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
+            .map(Map.Entry::getValue)
+            .map(CommandNode::getMember)
+            .filter(Objects::nonNull)
+            .map(RegisteredMember::annotation)
+            .toList();
+    }
+
     public boolean updateCommandAttributes(
         @NotNull String commandName,
         @NotNull Consumer<CommandAttributes.Builder> updater

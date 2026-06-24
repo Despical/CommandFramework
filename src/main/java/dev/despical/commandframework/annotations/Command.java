@@ -72,7 +72,7 @@ public @interface Command {
 	String[] aliases() default {};
 
 	/**
-	 * The description of the command that will be showed when sender executes
+	 * The description of the command that will be shown when sender executes
 	 * Bukkit's help command.
 	 *
 	 * @return description of the command
@@ -80,7 +80,7 @@ public @interface Command {
 	String desc() default "";
 
 	/**
-	 * The usage of the command that will be showed when sender executes
+	 * The usage of the command that will be shown when sender executes
 	 * command without required or missing arguments.
 	 *
 	 * @return usage of the command.

@@ -22,10 +22,12 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.MockPlugin;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import dev.despical.commandframework.CommandErrorMessage;
 import dev.despical.commandframework.CommandArguments;
 import dev.despical.commandframework.CommandFramework;
 import dev.despical.commandframework.annotations.*;
 import dev.despical.commandframework.exceptions.CommandException;
+import dev.despical.commandframework.internal.MessageHelper;
 import dev.despical.commandframework.options.FrameworkOption;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -222,6 +224,87 @@ class CommandRegistrationTest {
 		assertThrows(CommandException.class, () -> commandFramework.registerCommands(new InvalidCompleterMetadata()));
 	}
 
+	@Test
+	void testMissingSubcommandShowsHelpfulMessageByDefault() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+		commandFramework.registerCommands(new NestedCommand());
+
+		PlayerMock player = server.addPlayer();
+		assertTrue(player.performCommand("ap debug"));
+		assertEquals("§cThis command cannot be used directly.", player.nextMessage());
+		player.assertNoMoreSaid();
+	}
+
+	@Test
+	void testMissingSubcommandAvailableCommandsIgnoreEmptyUsage() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+		commandFramework.registerCommands(new NestedCommandWithUsage());
+
+		PlayerMock player = server.addPlayer();
+		assertTrue(player.performCommand("ss debug"));
+		assertEquals("§cThis command cannot be used directly. Try /ss debug <component | test>", player.nextMessage());
+		player.assertNoMoreSaid();
+	}
+
+	@Test
+	void testCustomUnknownSubcommandHandlerStillSeesAllChildren() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+		commandFramework.registerCommands(new NestedCommandWithUsage());
+
+		CommandErrorMessage.UNKNOWN_SUBCOMMAND.setHandler((command, arguments) -> {
+			arguments.sendMessage(
+				String.join(
+					" | ",
+					MessageHelper.getDirectSubcommands(command).stream()
+						.map(MessageHelper::getSubcommandName)
+						.toList()
+				)
+			);
+			return true;
+		});
+
+		try {
+			PlayerMock player = server.addPlayer();
+			assertTrue(player.performCommand("ss debug"));
+			assertEquals("component | hidden | test", player.nextMessage());
+			player.assertNoMoreSaid();
+		} finally {
+			CommandErrorMessage.UNKNOWN_SUBCOMMAND.resetHandler();
+		}
+	}
+
+	@Test
+	void testMissingSubcommandMessageCanBeCustomized() {
+		CommandFramework commandFramework = new CommandFrameworkMock(plugin);
+		commandFramework.registerCommands(new NestedCommand());
+
+		CommandErrorMessage.UNKNOWN_SUBCOMMAND.setHandler((command, arguments) -> {
+			String path = MessageHelper.getCommandPath(command, arguments);
+			String subcommands = String.join(
+				" / ",
+				MessageHelper.getDirectSubcommands(command).stream()
+					.map(MessageHelper::getSubcommandName)
+					.toList()
+			);
+
+			arguments.sendMessage(
+				"Use /{0} <{1}>",
+				path,
+				subcommands
+			);
+			return true;
+		});
+
+		try {
+			PlayerMock player = server.addPlayer();
+			assertTrue(player.performCommand("ap debug"));
+			assertEquals("Use /ap debug <component / test>", player.nextMessage());
+			player.assertNoMoreSaid();
+		} finally {
+			CommandErrorMessage.UNKNOWN_SUBCOMMAND.resetHandler();
+		}
+	}
+
 	@AfterEach
 	public void tearDown() {
 		MockBukkit.unmock();
@@ -355,6 +438,49 @@ class CommandRegistrationTest {
 		)
 		public List<String> invalidCompleter() {
 			return List.of("invalid");
+		}
+	}
+
+	public static class NestedCommand {
+
+		@Command(
+			name = "ap.debug.test"
+		)
+		public void nestedCommand(CommandArguments arguments) {
+			arguments.sendMessage("nested");
+		}
+
+		@Command(
+			name = "ap.debug.component"
+		)
+		public void nestedComponentCommand(CommandArguments arguments) {
+			arguments.sendMessage("component");
+		}
+	}
+
+	public static class NestedCommandWithUsage {
+
+		@Command(
+			name = "ss.debug.test",
+			usage = "/ss debug test"
+		)
+		public void nestedCommand(CommandArguments arguments) {
+			arguments.sendMessage("nested");
+		}
+
+		@Command(
+			name = "ss.debug.component",
+			usage = "/ss debug component <name>"
+		)
+		public void nestedComponentCommand(CommandArguments arguments) {
+			arguments.sendMessage("component");
+		}
+
+		@Command(
+			name = "ss.debug.hidden"
+		)
+		public void hiddenCommand(CommandArguments arguments) {
+			arguments.sendMessage("hidden");
 		}
 	}
 }

@@ -300,12 +300,12 @@ public class CommandArguments {
     }
 
     /**
-     * Sends the specified {@link Message} to command sender associated with this object.
+     * Sends the specified {@link CommandErrorMessage} to the command sender associated with this object.
      *
-     * @param message the {@link Message} object to be sent.
+     * @param message the framework error message to be sent
      * @see #getSender()
      */
-    public boolean sendMessage(Message message) {
+    public boolean sendMessage(CommandErrorMessage message) {
         return message.sendMessage(command, this);
     }
 
