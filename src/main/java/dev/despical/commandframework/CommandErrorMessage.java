@@ -44,7 +44,6 @@ public enum CommandErrorMessage {
     MUST_HAVE_OP("<red>You must have OP to execute this command!"),
     WAIT_BEFORE_USING_AGAIN("<red>You have to wait before using this command again!"),
     UNKNOWN_SUBCOMMAND((command, arguments) -> {
-        String commandPath = MessageHelper.getCommandPath(command, arguments);
         List<String> visibleSubcommands = MessageHelper.getDirectSubcommands(command).stream()
             .filter(subcommand -> !subcommand.usage().isEmpty())
             .map(MessageHelper::getSubcommandName)
@@ -56,6 +55,7 @@ public enum CommandErrorMessage {
             return true;
         }
 
+        String commandPath = MessageHelper.getCommandPath(command, arguments);
         arguments.sendMessage("<red>This command cannot be used directly. Try /{0} <{1}>", commandPath, subcommands);
         return true;
     });
