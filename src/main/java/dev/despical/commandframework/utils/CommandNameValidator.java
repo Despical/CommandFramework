@@ -36,7 +36,7 @@ import java.util.Set;
 public final class CommandNameValidator {
 
     @Language("RegExp")
-    public static final String NAME_REGEX = "^[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)*$";
+    public static final String NAME_REGEX = "^[\\p{L}0-9_]+(?:\\.[\\p{L}0-9_]+)*$";
 
     private CommandNameValidator() {
     }
