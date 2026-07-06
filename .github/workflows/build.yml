@@ -27,6 +27,7 @@ jobs:
         run: ./mvnw -B test --file pom.xml
 
       - name: Deploy Javadoc to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
