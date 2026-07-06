@@ -4,8 +4,11 @@
 
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
 [![](https://img.shields.io/maven-central/v/dev.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/dev/despical/command-framework)
+![Java 25](https://img.shields.io/badge/Java-25-007396.svg)
 [![](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![](https://img.shields.io/badge/Javadoc-latest-blue.svg)](https://javadoc.despical.dev/command-framework)
+[![Docs](https://img.shields.io/badge/Docs-despical.dev-2ea44f.svg)](https://docs.despical.dev/tnt-run/)
+
 
 A lightweight, annotation-based command framework inspired by Bukkit’s event system. It eliminates the need to register commands in plugin.yml
 while still allowing you to define usage, description, permissions, aliases, sender types, cooldowns, and argument limits directly in code.
