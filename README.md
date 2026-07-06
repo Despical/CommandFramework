@@ -5,7 +5,7 @@
 [![](https://github.com/Despical/CommandFramework/actions/workflows/build.yml/badge.svg)](https://github.com/Despical/CommandFramework/actions/workflows/build.yml)
 [![](https://img.shields.io/maven-central/v/dev.despical/command-framework.svg?label=Maven%20Central)](https://repo1.maven.org/maven2/dev/despical/command-framework)
 [![](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![](https://img.shields.io/badge/Javadoc-latest-blue.svg)](https://despical.github.io/CommandFramework)
+[![](https://img.shields.io/badge/Javadoc-latest-blue.svg)](https://javadoc.despical.dev/command-framework)
 
 A lightweight, annotation-based command framework inspired by Bukkit’s event system. It eliminates the need to register commands in plugin.yml
 while still allowing you to define usage, description, permissions, aliases, sender types, cooldowns, and argument limits directly in code.
@@ -14,9 +14,8 @@ Includes extra helper methods to streamline command handling and improve code re
 </div>
 
 ## Documentation
-- [Wiki](https://github.com/Despical/CommandFramework/wiki)
 - [Documentation](https://docs.despical.dev/command-framework/)
-- [Javadocs](https://despical.github.io/CommandFramework)
+- [Javadocs](https://javadoc.despical.dev/command-framework)
 - [Maven Central](https://repo1.maven.org/maven2/dev/despical/command-framework)
 - [Sonatype Central](https://central.sonatype.com/artifact/dev.despical/command-framework)
 
