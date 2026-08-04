@@ -9,7 +9,7 @@
     <name>Command Framework</name>
     <inceptionYear>2020</inceptionYear>
     <description>Annotation based Command framework.</description>
-    <url>https://www.spigotmc.org/resources/89933/</url>
+    <url>https://github.com/Despical/CommandFramework</url>
     <packaging>jar</packaging>
 
     <properties>
